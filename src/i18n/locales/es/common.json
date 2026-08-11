@@ -1,0 +1,110 @@
+{
+  "app": { "name": "Yorde What Store" },
+  "nav": {
+    "dashboard": "Panel",
+    "products": "Productos",
+    "orders": "Órdenes",
+    "staff": "Personal",
+    "settings": "Configuración de tienda",
+    "plans": "Planes",
+    "logout": "Cerrar sesión",
+    "login": "Iniciar sesión",
+    "register": "Crear tienda",
+    "cart": "Carrito"
+  },
+  "footer": {
+    "rights": "Todos los derechos reservados.",
+    "poweredBy": "Impulsado por Yorde What Store"
+  },
+  "auth": {
+    "loginTitle": "Iniciar sesión en tu tienda",
+    "registerTitle": "Crea tu tienda",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "name": "Tu nombre",
+    "storeName": "Nombre de la tienda",
+    "storeSlug": "URL de la tienda",
+    "submitLogin": "Iniciar sesión",
+    "submitRegister": "Crear tienda",
+    "noAccount": "¿Todavía no tenés una tienda?",
+    "hasAccount": "¿Ya tenés una cuenta?",
+    "twoFactorTitle": "Verificación en dos pasos",
+    "twoFactorCode": "Código de 6 dígitos",
+    "twoFactorSubmit": "Verificar",
+    "invalidCredentials": "Email o contraseña inválidos"
+  },
+  "errors": {
+    "generic": "Algo salió mal. Intentá de nuevo.",
+    "required": "Este campo es obligatorio"
+  },
+  "dashboard": {
+    "title": "Panel",
+    "totalProducts": "Productos",
+    "totalOrders": "Órdenes",
+    "pendingOrders": "Órdenes pendientes",
+    "revenue": "Ingresos (órdenes pagadas)"
+  },
+  "products": {
+    "title": "Productos",
+    "new": "Nuevo producto",
+    "name": "Nombre",
+    "price": "Precio",
+    "stock": "Stock",
+    "status": "Estado",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "save": "Guardar producto",
+    "deleteConfirm": "¿Eliminar este producto?",
+    "variants": "Variantes",
+    "addVariant": "Agregar variante"
+  },
+  "orders": {
+    "title": "Órdenes",
+    "orderNumber": "Orden",
+    "customer": "Cliente",
+    "total": "Total",
+    "status": "Estado",
+    "fulfillment": "Entrega",
+    "date": "Fecha",
+    "viewDetail": "Ver detalle"
+  },
+  "settings": {
+    "title": "Configuración de tienda",
+    "general": "General",
+    "whatsapp": "Checkout por WhatsApp",
+    "telegram": "Checkout por Telegram",
+    "payments": "Métodos de pago",
+    "save": "Guardar cambios",
+    "saved": "Configuración guardada"
+  },
+  "storefront": {
+    "addToCart": "Agregar al carrito",
+    "cartEmpty": "Tu carrito está vacío",
+    "checkout": "Finalizar compra",
+    "checkoutWhatsapp": "Pedir por WhatsApp",
+    "checkoutTelegram": "Pedir por Telegram",
+    "checkoutCard": "Pagar con tarjeta",
+    "subtotal": "Subtotal",
+    "tax": "Impuestos",
+    "shipping": "Envío",
+    "discount": "Descuento",
+    "total": "Total",
+    "coupon": "Código de cupón",
+    "applyCoupon": "Aplicar",
+    "customerName": "Nombre completo",
+    "customerPhone": "Teléfono",
+    "customerEmail": "Email (opcional)",
+    "placeOrder": "Confirmar pedido",
+    "orderConfirmed": "Pedido confirmado",
+    "continueShopping": "Seguir comprando"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "search": "Buscar",
+    "back": "Volver"
+  }
+}

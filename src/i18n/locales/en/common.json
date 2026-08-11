@@ -1,0 +1,110 @@
+{
+  "app": { "name": "Yorde What Store" },
+  "nav": {
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "orders": "Orders",
+    "staff": "Staff",
+    "settings": "Store settings",
+    "plans": "Plans",
+    "logout": "Log out",
+    "login": "Log in",
+    "register": "Create store",
+    "cart": "Cart"
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "poweredBy": "Powered by Yorde What Store"
+  },
+  "auth": {
+    "loginTitle": "Log in to your store",
+    "registerTitle": "Create your store",
+    "email": "Email",
+    "password": "Password",
+    "name": "Your name",
+    "storeName": "Store name",
+    "storeSlug": "Store URL",
+    "submitLogin": "Log in",
+    "submitRegister": "Create store",
+    "noAccount": "Don't have a store yet?",
+    "hasAccount": "Already have a store?",
+    "twoFactorTitle": "Two-factor verification",
+    "twoFactorCode": "6-digit code",
+    "twoFactorSubmit": "Verify",
+    "invalidCredentials": "Invalid email or password"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "required": "This field is required"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "totalProducts": "Products",
+    "totalOrders": "Orders",
+    "pendingOrders": "Pending orders",
+    "revenue": "Revenue (paid orders)"
+  },
+  "products": {
+    "title": "Products",
+    "new": "New product",
+    "name": "Name",
+    "price": "Price",
+    "stock": "Stock",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "save": "Save product",
+    "deleteConfirm": "Delete this product?",
+    "variants": "Variants",
+    "addVariant": "Add variant"
+  },
+  "orders": {
+    "title": "Orders",
+    "orderNumber": "Order",
+    "customer": "Customer",
+    "total": "Total",
+    "status": "Status",
+    "fulfillment": "Fulfillment",
+    "date": "Date",
+    "viewDetail": "View detail"
+  },
+  "settings": {
+    "title": "Store settings",
+    "general": "General",
+    "whatsapp": "WhatsApp checkout",
+    "telegram": "Telegram checkout",
+    "payments": "Payment methods",
+    "save": "Save changes",
+    "saved": "Settings saved"
+  },
+  "storefront": {
+    "addToCart": "Add to cart",
+    "cartEmpty": "Your cart is empty",
+    "checkout": "Checkout",
+    "checkoutWhatsapp": "Order via WhatsApp",
+    "checkoutTelegram": "Order via Telegram",
+    "checkoutCard": "Pay with card",
+    "subtotal": "Subtotal",
+    "tax": "Tax",
+    "shipping": "Shipping",
+    "discount": "Discount",
+    "total": "Total",
+    "coupon": "Coupon code",
+    "applyCoupon": "Apply",
+    "customerName": "Full name",
+    "customerPhone": "Phone",
+    "customerEmail": "Email (optional)",
+    "placeOrder": "Place order",
+    "orderConfirmed": "Order confirmed",
+    "continueShopping": "Continue shopping"
+  },
+  "common": {
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "back": "Back"
+  }
+}
