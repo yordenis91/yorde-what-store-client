@@ -24,7 +24,16 @@ export async function createOrder(slug: string, payload: CreateOrderPayload) {
   return data.data
 }
 
-export async function listOrders(params: { page?: number; limit?: number; search?: string }) {
+export interface OrderListParams {
+  page?: number
+  limit?: number
+  search?: string
+  status?: Order['status']
+  dateFrom?: string
+  dateTo?: string
+}
+
+export async function listOrders(params: OrderListParams) {
   const { data } = await apiClient.get<ApiEnvelope<PaginatedResult<Order>>>('/orders', { params })
   return data.data
 }

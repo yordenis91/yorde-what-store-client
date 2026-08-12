@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card } from '@/components/ui/Card'
-import { deleteProduct, listProducts } from '@/services/products.service'
+import { deleteProduct, listCategories, listProducts } from '@/services/products.service'
 import { useAuthStore } from '@/store/auth.store'
 import { formatMoney } from '@/utils/format'
 import { extractErrorMessage } from '@/services/api-client'
@@ -14,13 +14,24 @@ import { extractErrorMessage } from '@/services/api-client'
 export function ProductsListPage() {
   const { t } = useTranslation()
   const [search, setSearch] = useState('')
+  const [categoryId, setCategoryId] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
   const [page, setPage] = useState(1)
   const activeTenant = useAuthStore((s) => s.activeTenant)
   const queryClient = useQueryClient()
 
+  const { data: categories } = useQuery({ queryKey: ['categories'], queryFn: listCategories })
+
   const { data, isLoading } = useQuery({
-    queryKey: ['products', page, search],
-    queryFn: () => listProducts({ page, limit: 12, search: search || undefined }),
+    queryKey: ['products', page, search, categoryId, statusFilter],
+    queryFn: () =>
+      listProducts({
+        page,
+        limit: 12,
+        search: search || undefined,
+        categoryId: categoryId || undefined,
+        isActive: statusFilter === 'all' ? undefined : statusFilter === 'active',
+      }),
   })
 
   const removeMutation = useMutation({
@@ -44,15 +55,44 @@ export function ProductsListPage() {
         </Link>
       </div>
 
-      <Input
-        placeholder={t('common.search')}
-        value={search}
-        onChange={(e) => {
-          setSearch(e.target.value)
-          setPage(1)
-        }}
-        className="mb-4 max-w-xs"
-      />
+      <div className="mb-4 flex flex-wrap gap-3">
+        <Input
+          placeholder={t('common.search')}
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value)
+            setPage(1)
+          }}
+          className="max-w-xs"
+        />
+        <select
+          className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+          value={categoryId}
+          onChange={(e) => {
+            setCategoryId(e.target.value)
+            setPage(1)
+          }}
+        >
+          <option value="">All categories</option>
+          {categories?.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+        <select
+          className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+          value={statusFilter}
+          onChange={(e) => {
+            setStatusFilter(e.target.value as typeof statusFilter)
+            setPage(1)
+          }}
+        >
+          <option value="all">All status</option>
+          <option value="active">{t('products.active')}</option>
+          <option value="inactive">{t('products.inactive')}</option>
+        </select>
+      </div>
 
       {isLoading ? (
         <p className="text-sm text-gray-500">{t('common.loading')}</p>

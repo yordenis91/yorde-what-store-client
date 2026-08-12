@@ -5,6 +5,9 @@ export interface ProductListParams {
   page?: number
   limit?: number
   search?: string
+  categoryId?: string
+  isActive?: boolean
+  sort?: 'price_asc' | 'price_desc' | 'newest'
 }
 
 export interface ProductVariantInput {
@@ -76,8 +79,24 @@ export async function addProductImage(id: string, url: string, isCover?: boolean
   return data.data
 }
 
+export async function removeProductImage(id: string, imageId: string) {
+  await apiClient.delete(`${adminBase}/${id}/images/${imageId}`)
+}
+
+export async function setCoverImage(id: string, imageId: string) {
+  const { data } = await apiClient.patch<ApiEnvelope<unknown>>(`${adminBase}/${id}/images/${imageId}/cover`)
+  return data.data
+}
+
 export async function listCategories() {
   const { data } = await apiClient.get<ApiEnvelope<ProductCategory[]>>(`${adminBase}/categories`)
+  return data.data
+}
+
+export async function listPublicCategories(slug: string) {
+  const { data } = await apiClient.get<ApiEnvelope<ProductCategory[]>>('/storefront/categories', {
+    headers: { 'X-Tenant-ID': slug },
+  })
   return data.data
 }
 

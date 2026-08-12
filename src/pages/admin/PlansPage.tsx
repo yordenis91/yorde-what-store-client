@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { getCurrentSubscription, listActivePlans, subscribeToPlan } from '@/services/plans.service'
+import { getCurrentSubscription, listActivePlans, requestPlanUpgrade, subscribeToPlan } from '@/services/plans.service'
 import { extractErrorMessage } from '@/services/api-client'
 
 export function PlansPage() {
@@ -12,11 +12,20 @@ export function PlansPage() {
   const { data: plans, isLoading } = useQuery({ queryKey: ['plans'], queryFn: listActivePlans })
   const { data: subscription } = useQuery({ queryKey: ['subscription'], queryFn: getCurrentSubscription })
 
-  const mutation = useMutation({
+  const subscribeMutation = useMutation({
     mutationFn: subscribeToPlan,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['subscription'] })
       toast.success(t('common.save'))
+    },
+    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
+  })
+
+  const requestUpgradeMutation = useMutation({
+    mutationFn: requestPlanUpgrade,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['subscription'] })
+      toast.success('Upgrade requested — pending approval')
     },
     onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
   })
@@ -29,6 +38,10 @@ export function PlansPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {plans?.map((plan) => {
           const isCurrent = subscription?.planId === plan.id
+          const isPending = subscription?.status === 'PENDING_UPGRADE' && subscription.requestedPlanId === plan.id
+          const isFree = Number(plan.price) === 0
+          const pending = requestUpgradeMutation.isPending || subscribeMutation.isPending
+
           return (
             <Card key={plan.id} className={isCurrent ? 'ring-2 ring-brand-600' : ''}>
               <h2 className="text-lg font-semibold text-gray-900">{plan.name}</h2>
@@ -42,11 +55,13 @@ export function PlansPage() {
               </ul>
               <Button
                 className="mt-4 w-full"
-                variant={isCurrent ? 'secondary' : 'primary'}
-                disabled={isCurrent || mutation.isPending}
-                onClick={() => mutation.mutate(plan.id)}
+                variant={isCurrent || isPending ? 'secondary' : 'primary'}
+                disabled={isCurrent || isPending || pending}
+                onClick={() =>
+                  isFree ? subscribeMutation.mutate(plan.id) : requestUpgradeMutation.mutate(plan.id)
+                }
               >
-                {isCurrent ? 'Current plan' : 'Subscribe'}
+                {isCurrent ? 'Current plan' : isPending ? 'Pending approval' : isFree ? 'Subscribe' : 'Request upgrade'}
               </Button>
             </Card>
           )

@@ -3,8 +3,10 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { FullPageSpinner } from '@/components/ui/Spinner'
 import { AuthLayout } from '@/components/layout/AuthLayout'
 import { AdminLayout } from '@/components/layout/AdminLayout'
+import { SuperAdminLayout } from '@/components/layout/SuperAdminLayout'
 import { PublicLayout } from '@/components/layout/PublicLayout'
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute'
+import { PlatformRoute } from '@/components/layout/PlatformRoute'
 import { LandingPage } from '@/pages/LandingPage'
 import { useBootstrapAuth } from '@/hooks/useBootstrapAuth'
 
@@ -20,6 +22,21 @@ const OrderDetailPage = lazy(() => import('@/pages/admin/OrderDetailPage').then(
 const StoreSettingsPage = lazy(() => import('@/pages/admin/StoreSettingsPage').then((m) => ({ default: m.StoreSettingsPage })))
 const StaffPage = lazy(() => import('@/pages/admin/StaffPage').then((m) => ({ default: m.StaffPage })))
 const PlansPage = lazy(() => import('@/pages/admin/PlansPage').then((m) => ({ default: m.PlansPage })))
+const CouponsPage = lazy(() => import('@/pages/admin/CouponsPage').then((m) => ({ default: m.CouponsPage })))
+const ShippingPage = lazy(() => import('@/pages/admin/ShippingPage').then((m) => ({ default: m.ShippingPage })))
+
+const PlatformDashboardPage = lazy(() =>
+  import('@/pages/platform/PlatformDashboardPage').then((m) => ({ default: m.PlatformDashboardPage })),
+)
+const PlatformTenantsPage = lazy(() =>
+  import('@/pages/platform/PlatformTenantsPage').then((m) => ({ default: m.PlatformTenantsPage })),
+)
+const PlatformPlansPage = lazy(() =>
+  import('@/pages/platform/PlatformPlansPage').then((m) => ({ default: m.PlatformPlansPage })),
+)
+const PlatformUpgradeRequestsPage = lazy(() =>
+  import('@/pages/platform/PlatformUpgradeRequestsPage').then((m) => ({ default: m.PlatformUpgradeRequestsPage })),
+)
 
 const StorefrontHomePage = lazy(() =>
   import('@/pages/storefront/StorefrontHomePage').then((m) => ({ default: m.StorefrontHomePage })),
@@ -61,9 +78,20 @@ export default function App() {
             <Route path="products/:id" element={<ProductFormPage />} />
             <Route path="orders" element={<OrdersListPage />} />
             <Route path="orders/:id" element={<OrderDetailPage />} />
+            <Route path="coupons" element={<CouponsPage />} />
+            <Route path="shipping" element={<ShippingPage />} />
             <Route path="staff" element={<StaffPage />} />
             <Route path="plans" element={<PlansPage />} />
             <Route path="settings" element={<StoreSettingsPage />} />
+          </Route>
+        </Route>
+
+        <Route element={<PlatformRoute />}>
+          <Route path="/platform" element={<SuperAdminLayout />}>
+            <Route index element={<PlatformDashboardPage />} />
+            <Route path="tenants" element={<PlatformTenantsPage />} />
+            <Route path="plans" element={<PlatformPlansPage />} />
+            <Route path="upgrade-requests" element={<PlatformUpgradeRequestsPage />} />
           </Route>
         </Route>
 

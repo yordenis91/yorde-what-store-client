@@ -4,9 +4,13 @@
     "dashboard": "Panel",
     "products": "Productos",
     "orders": "Órdenes",
-    "staff": "Personal",
+    "coupons": "Cupones",
+    "shipping": "Envíos",
+    "staff": "Equipo",
     "settings": "Configuración de tienda",
     "plans": "Planes",
+    "tenants": "Tiendas",
+    "upgradeRequests": "Solicitudes de upgrade",
     "logout": "Cerrar sesión",
     "login": "Iniciar sesión",
     "register": "Crear tienda",
@@ -14,7 +18,7 @@
   },
   "footer": {
     "rights": "Todos los derechos reservados.",
-    "poweredBy": "Impulsado por Yorde What Store"
+    "poweredBy": "Impulsado por www.yordeniscorreoso.com"
   },
   "auth": {
     "loginTitle": "Iniciar sesión en tu tienda",

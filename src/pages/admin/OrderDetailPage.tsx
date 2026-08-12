@@ -36,9 +36,14 @@ export function OrderDetailPage() {
 
   return (
     <div className="max-w-2xl">
-      <button onClick={() => navigate('/admin/orders')} className="mb-4 text-sm text-brand-700">
-        ← {t('common.back')}
-      </button>
+      <div className="mb-4 flex items-center justify-between print:hidden">
+        <button onClick={() => navigate('/admin/orders')} className="text-sm text-brand-700">
+          ← {t('common.back')}
+        </button>
+        <Button variant="secondary" onClick={() => window.print()}>
+          Print receipt
+        </Button>
+      </div>
       <h1 className="mb-1 text-2xl font-semibold text-gray-900">{order.orderNumber}</h1>
       <p className="mb-6 text-sm text-gray-500">{formatDate(order.createdAt)}</p>
 
@@ -46,7 +51,19 @@ export function OrderDetailPage() {
         <h2 className="mb-2 font-medium text-gray-900">{t('orders.customer')}</h2>
         <p className="text-sm text-gray-700">{order.customerName}</p>
         {order.customerEmail && <p className="text-sm text-gray-500">{order.customerEmail}</p>}
-        {order.customerPhone && <p className="text-sm text-gray-500">{order.customerPhone}</p>}
+        {order.customerPhone && (
+          <p className="text-sm text-gray-500">
+            {order.customerPhone}{' '}
+            <a
+              href={`https://wa.me/${order.customerPhone.replace(/[^\d]/g, '')}`}
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-green-600 hover:underline print:hidden"
+            >
+              WhatsApp
+            </a>
+          </p>
+        )}
       </Card>
 
       <Card className="mb-4">
@@ -85,7 +102,7 @@ export function OrderDetailPage() {
         </Card>
       )}
 
-      <Card>
+      <Card className="print:hidden">
         <h2 className="mb-2 font-medium text-gray-900">{t('orders.status')}</h2>
         <div className="flex flex-wrap gap-2">
           {STATUSES.map((status) => (

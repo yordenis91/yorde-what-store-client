@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { getCurrentTenant, updateCurrentTenant } from '@/services/tenants.service'
+import { getCurrentTenant, updateCurrentTenant, listPaymentSettings, upsertPaymentSetting } from '@/services/tenants.service'
 import { useAuthStore } from '@/store/auth.store'
 import { extractErrorMessage } from '@/services/api-client'
 import type { Tenant } from '@/types/api'
@@ -104,6 +104,63 @@ export function StoreSettingsPage() {
           {t('settings.save')}
         </Button>
       </form>
+
+      <PaymentSettingsSection />
     </div>
+  )
+}
+
+interface StripeFormValues {
+  publishableKey: string
+  secretKey: string
+  isEnabled: boolean
+}
+
+function PaymentSettingsSection() {
+  const { t } = useTranslation()
+  const queryClient = useQueryClient()
+  const { data: settings } = useQuery({ queryKey: ['payment-settings'], queryFn: listPaymentSettings })
+  const { register, handleSubmit, reset } = useForm<StripeFormValues>()
+
+  useEffect(() => {
+    const stripe = settings?.find((s) => s.provider === 'STRIPE')
+    reset({ publishableKey: '', secretKey: '', isEnabled: stripe?.isEnabled ?? false })
+  }, [settings, reset])
+
+  const mutation = useMutation({
+    mutationFn: (values: StripeFormValues) =>
+      upsertPaymentSetting({
+        provider: 'STRIPE',
+        credentials: { publishableKey: values.publishableKey, secretKey: values.secretKey },
+        isEnabled: values.isEnabled,
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['payment-settings'] })
+      toast.success(t('settings.saved'))
+    },
+    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
+  })
+
+  const stripeConfigured = settings?.some((s) => s.provider === 'STRIPE' && s.isEnabled)
+
+  return (
+    <Card className="mt-6 flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <h2 className="font-medium text-gray-900">{t('settings.payments')}</h2>
+        {stripeConfigured && (
+          <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">Stripe enabled</span>
+        )}
+      </div>
+      <form onSubmit={(e) => void handleSubmit((values) => mutation.mutate(values))(e)} className="flex flex-col gap-3">
+        <label className="flex items-center gap-2 text-sm text-gray-700">
+          <input type="checkbox" {...register('isEnabled')} /> Enable Stripe checkout
+        </label>
+        <Input label="Publishable key" placeholder="pk_test_..." {...register('publishableKey')} />
+        <Input label="Secret key" type="password" placeholder="sk_test_..." {...register('secretKey')} />
+        <Button type="submit" loading={mutation.isPending} className="w-fit">
+          {t('settings.save')}
+        </Button>
+      </form>
+    </Card>
   )
 }

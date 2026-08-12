@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/Input'
 import { listOrders } from '@/services/orders.service'
 import { useAuthStore } from '@/store/auth.store'
 import { formatDate, formatMoney } from '@/utils/format'
+import type { OrderStatus } from '@/types/api'
 
 const statusColors: Record<string, string> = {
   PENDING: 'bg-yellow-100 text-yellow-700',
@@ -16,22 +17,51 @@ const statusColors: Record<string, string> = {
   REFUNDED: 'bg-red-100 text-red-700',
 }
 
+const STATUSES: OrderStatus[] = ['PENDING', 'CONFIRMED', 'PROCESSING', 'COMPLETED', 'CANCELLED', 'REFUNDED']
+
 export function OrdersListPage() {
   const { t } = useTranslation()
   const [search, setSearch] = useState('')
+  const [status, setStatus] = useState<OrderStatus | ''>('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
   const activeTenant = useAuthStore((s) => s.activeTenant)
   const symbol = activeTenant?.currencySymbol ?? '$'
   const position = (activeTenant?.currencySymbolPosition as 'pre' | 'post') ?? 'pre'
 
   const { data, isLoading } = useQuery({
-    queryKey: ['orders', search],
-    queryFn: () => listOrders({ page: 1, limit: 50, search: search || undefined }),
+    queryKey: ['orders', search, status, dateFrom, dateTo],
+    queryFn: () =>
+      listOrders({
+        page: 1,
+        limit: 50,
+        search: search || undefined,
+        status: status || undefined,
+        dateFrom: dateFrom || undefined,
+        dateTo: dateTo || undefined,
+      }),
   })
 
   return (
     <div>
       <h1 className="mb-6 text-2xl font-semibold text-gray-900">{t('orders.title')}</h1>
-      <Input placeholder={t('common.search')} value={search} onChange={(e) => setSearch(e.target.value)} className="mb-4 max-w-xs" />
+      <div className="mb-4 flex flex-wrap gap-3">
+        <Input placeholder={t('common.search')} value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-xs" />
+        <select
+          className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+          value={status}
+          onChange={(e) => setStatus(e.target.value as OrderStatus | '')}
+        >
+          <option value="">All status</option>
+          {STATUSES.map((s) => (
+            <option key={s} value={s}>
+              {s}
+            </option>
+          ))}
+        </select>
+        <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-40" />
+        <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-40" />
+      </div>
 
       {isLoading ? (
         <p className="text-sm text-gray-500">{t('common.loading')}</p>

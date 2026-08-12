@@ -7,6 +7,7 @@ import { getPublishedProduct } from '@/services/products.service'
 import { useStorefrontTenant } from '@/hooks/useStorefrontTenant'
 import { useCartStore } from '@/store/cart.store'
 import { formatMoney } from '@/utils/format'
+import { resolveMediaUrl } from '@/services/api-client'
 import { Button } from '@/components/ui/Button'
 
 export function StorefrontProductPage() {
@@ -17,6 +18,7 @@ export function StorefrontProductPage() {
   const addItem = useCartStore((s) => s.addItem)
   const [variantId, setVariantId] = useState<string | undefined>()
   const [quantity, setQuantity] = useState(1)
+  const [activeImageId, setActiveImageId] = useState<string | undefined>()
 
   const { data: product, isLoading } = useQuery({
     queryKey: ['storefront-product', slug, id],
@@ -28,6 +30,7 @@ export function StorefrontProductPage() {
   const variant = product.variants.find((v) => v.id === variantId)
   const price = Number(variant?.price ?? product.price)
   const cover = product.images.find((i) => i.isCover) ?? product.images[0]
+  const activeImage = product.images.find((i) => i.id === activeImageId) ?? cover
 
   function handleAddToCart() {
     addItem({
@@ -37,7 +40,7 @@ export function StorefrontProductPage() {
       variantName: variant?.name,
       unitPrice: price,
       quantity,
-      imageUrl: cover?.url,
+      imageUrl: cover ? resolveMediaUrl(cover.url) : undefined,
     })
     toast.success(t('storefront.addToCart'))
     navigate(`/store/${slug}/cart`)
@@ -45,8 +48,27 @@ export function StorefrontProductPage() {
 
   return (
     <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-      <div className="aspect-square overflow-hidden rounded-xl bg-gray-100">
-        {cover && <img src={cover.url} alt={product.name} className="h-full w-full object-cover" />}
+      <div>
+        <div className="aspect-square overflow-hidden rounded-xl bg-gray-100">
+          {activeImage && (
+            <img src={resolveMediaUrl(activeImage.url)} alt={product.name} className="h-full w-full object-cover" />
+          )}
+        </div>
+        {product.images.length > 1 && (
+          <div className="mt-3 flex gap-2">
+            {product.images.map((img) => (
+              <button
+                key={img.id}
+                onClick={() => setActiveImageId(img.id)}
+                className={`h-16 w-16 overflow-hidden rounded-lg border-2 ${
+                  (activeImage?.id ?? cover?.id) === img.id ? 'border-brand-600' : 'border-transparent'
+                }`}
+              >
+                <img src={resolveMediaUrl(img.url)} alt="" className="h-full w-full object-cover" />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       <div>
         <h1 className="text-2xl font-semibold text-gray-900">{product.name}</h1>
