@@ -1,5 +1,7 @@
 {
-  "app": { "name": "Yorde What Store" },
+  "app": {
+    "name": "Yorde What Store"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "products": "Products",
@@ -101,7 +103,16 @@
     "telegram": "Telegram checkout",
     "payments": "Payment methods",
     "save": "Save changes",
-    "saved": "Settings saved"
+    "saved": "Settings saved",
+    "banner": "Header banner",
+    "bannerHint": "Wide image behind your storefront header. Without one, a gradient in your theme colour is used.",
+    "logo": "Logo",
+    "logoHint": "Shown in the header and next to your store name.",
+    "upload": "Upload image",
+    "remove": "Remove",
+    "social": "Social links",
+    "socialHint": "Shown as icons in your storefront header. Leave blank to hide.",
+    "appearance": "Appearance"
   },
   "storefront": {
     "addToCart": "Add to cart",
@@ -122,7 +133,18 @@
     "customerEmail": "Email (optional)",
     "placeOrder": "Place order",
     "orderConfirmed": "Order confirmed",
-    "continueShopping": "Continue shopping"
+    "continueShopping": "Continue shopping",
+    "categories": "Categories",
+    "allCategories": "All",
+    "noProducts": "No products found.",
+    "sortNewest": "Newest",
+    "sortPriceAsc": "Price: low to high",
+    "sortPriceDesc": "Price: high to low",
+    "chooseOptions": "Choose options",
+    "soldOut": "Sold out",
+    "inCart": "In cart ({{count}})",
+    "increaseQuantity": "Increase quantity",
+    "decreaseQuantity": "Decrease quantity"
   },
   "common": {
     "loading": "Loading...",

@@ -23,6 +23,7 @@ export interface Tenant {
   currencySymbolPosition: string
   locale: string
   logoUrl: string | null
+  bannerUrl: string | null
   theme: string
   whatsappEnabled: boolean
   whatsappNumber: string | null
@@ -43,6 +44,7 @@ export interface PublicTenant {
   tagline: string | null
   about: string | null
   logoUrl: string | null
+  bannerUrl: string | null
   theme: string
   currency: string
   currencySymbol: string

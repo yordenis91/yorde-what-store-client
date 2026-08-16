@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm, type UseFormRegister } from 'react-hook-form'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -8,7 +8,9 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { getCurrentTenant, updateCurrentTenant, listPaymentSettings, upsertPaymentSetting } from '@/services/tenants.service'
 import { useAuthStore } from '@/store/auth.store'
-import { extractErrorMessage } from '@/services/api-client'
+import { extractErrorMessage, resolveMediaUrl } from '@/services/api-client'
+import { uploadImage } from '@/services/uploads.service'
+import { SOCIAL_NETWORKS } from '@/config/social'
 import { DEFAULT_THEME, THEME_NAMES, themeSwatch } from '@/config/themes'
 import type { Tenant } from '@/types/api'
 
@@ -17,6 +19,9 @@ type FormValues = Pick<
   | 'name'
   | 'tagline'
   | 'theme'
+  | 'logoUrl'
+  | 'bannerUrl'
+  | 'socialLinks'
   | 'currencySymbol'
   | 'whatsappEnabled'
   | 'whatsappNumber'
@@ -32,7 +37,7 @@ export function StoreSettingsPage() {
   const setActiveTenant = useAuthStore((s) => s.setActiveTenant)
 
   const { data: tenant } = useQuery({ queryKey: ['current-tenant'], queryFn: getCurrentTenant })
-  const { register, handleSubmit, reset, watch } = useForm<FormValues>()
+  const { register, handleSubmit, reset, watch, setValue } = useForm<FormValues>()
 
   useEffect(() => {
     if (tenant) {
@@ -40,6 +45,9 @@ export function StoreSettingsPage() {
         name: tenant.name,
         tagline: tenant.tagline,
         theme: tenant.theme,
+        logoUrl: tenant.logoUrl,
+        bannerUrl: tenant.bannerUrl,
+        socialLinks: tenant.socialLinks ?? {},
         currencySymbol: tenant.currencySymbol,
         whatsappEnabled: tenant.whatsappEnabled,
         whatsappNumber: tenant.whatsappNumber,
@@ -74,7 +82,48 @@ export function StoreSettingsPage() {
           <Input label="Currency symbol" {...register('currencySymbol')} className="max-w-[120px]" />
         </Card>
 
+        <Card className="flex flex-col gap-5">
+          <h2 className="font-medium text-gray-900">{t('settings.appearance')}</h2>
+          <ImageField
+            label={t('settings.logo')}
+            hint={t('settings.logoHint')}
+            value={watch('logoUrl')}
+            onChange={(url) => setValue('logoUrl', url, { shouldDirty: true })}
+            previewClassName="h-20 w-20 rounded-xl"
+          />
+          <ImageField
+            label={t('settings.banner')}
+            hint={t('settings.bannerHint')}
+            value={watch('bannerUrl')}
+            onChange={(url) => setValue('bannerUrl', url, { shouldDirty: true })}
+            previewClassName="aspect-[4/1] w-full rounded-xl"
+          />
+        </Card>
+
         <ThemePicker selected={watch('theme')} register={register} />
+
+        <Card className="flex flex-col gap-3">
+          <div>
+            <h2 className="font-medium text-gray-900">{t('settings.social')}</h2>
+            <p className="mt-1 text-xs text-gray-500">{t('settings.socialHint')}</p>
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {SOCIAL_NETWORKS.map(({ key, label, Icon, placeholder }) => (
+              <label key={key} className="flex items-center gap-2">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-600">
+                  <Icon className="h-4 w-4" />
+                </span>
+                <input
+                  type="url"
+                  placeholder={placeholder}
+                  aria-label={label}
+                  className="min-w-0 flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  {...register(`socialLinks.${key}`)}
+                />
+              </label>
+            ))}
+          </div>
+        </Card>
 
         <Card className="flex flex-col gap-4">
           <h2 className="font-medium text-gray-900">{t('settings.whatsapp')}</h2>
@@ -111,6 +160,63 @@ export function StoreSettingsPage() {
       </form>
 
       <PaymentSettingsSection />
+    </div>
+  )
+}
+
+/** Upload-or-clear field for a single stored image, with a live preview. */
+function ImageField({
+  label,
+  hint,
+  value,
+  onChange,
+  previewClassName,
+}: {
+  label: string
+  hint: string
+  value: string | null | undefined
+  onChange: (url: string | null) => void
+  previewClassName: string
+}) {
+  const { t } = useTranslation()
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
+
+  async function handleFile(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      onChange(await uploadImage(file))
+    } catch (error) {
+      toast.error(extractErrorMessage(error, t('errors.generic')))
+    } finally {
+      setUploading(false)
+      // Clear it so re-picking the same file still fires a change event.
+      event.target.value = ''
+    }
+  }
+
+  return (
+    <div>
+      <p className="text-sm font-medium text-gray-700">{label}</p>
+      <p className="mt-0.5 text-xs text-gray-500">{hint}</p>
+      <div className="mt-2 flex items-start gap-3">
+        <div className={`shrink-0 overflow-hidden border border-gray-200 bg-gray-50 ${previewClassName}`}>
+          {value && <img src={resolveMediaUrl(value)} alt="" className="h-full w-full object-cover" />}
+        </div>
+        <div className="flex flex-col gap-2">
+          <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={(e) => void handleFile(e)} />
+          <Button type="button" variant="secondary" loading={uploading} onClick={() => inputRef.current?.click()}>
+            {t('settings.upload')}
+          </Button>
+          {value && (
+            <button type="button" onClick={() => onChange(null)} className="text-xs text-gray-500 hover:text-red-600">
+              {t('settings.remove')}
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

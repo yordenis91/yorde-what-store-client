@@ -1,14 +1,14 @@
 import { useCallback, useEffect } from 'react'
-import { Link, Outlet, useParams } from 'react-router-dom'
+import { Outlet, useLocation, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import { getPublicStorefront } from '@/services/tenants.service'
-import { resolveMediaUrl, setStorefrontTenant } from '@/services/api-client'
+import { setStorefrontTenant } from '@/services/api-client'
 import { TENANT_SLUG_FROM_HOST, storefrontPath } from '@/config/storefront'
 import { applyStorefrontTheme, clearStorefrontTheme } from '@/config/themes'
 import { useCartStore } from '@/store/cart.store'
-import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
+import { StorefrontHeader } from '@/components/storefront/StorefrontHeader'
 import { FullPageSpinner } from '@/components/ui/Spinner'
 import { NotFound } from '@/pages/NotFoundPage'
 import type { StorefrontContext } from '@/hooks/useStorefront'
@@ -18,6 +18,7 @@ export function PublicLayout() {
   // On a store subdomain the slug is the host, and there is no route param.
   const slug = TENANT_SLUG_FROM_HOST ?? slugParam
   const { t } = useTranslation()
+  const location = useLocation()
   const setTenantSlug = useCartStore((s) => s.setTenantSlug)
   const cartCount = useCartStore((s) => s.items.reduce((sum, i) => sum + i.quantity, 0))
 
@@ -63,39 +64,29 @@ export function PublicLayout() {
     )
   }
 
+  const stripSlash = (value: string) => value.replace(/\/+$/, '')
+  const isHome = stripSlash(location.pathname) === stripSlash(path())
+
   return (
     <div className="flex min-h-screen flex-col bg-white">
-      <header className="border-b border-gray-200">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-          <Link to={path()} className="flex items-center gap-2">
-            {tenant.logoUrl && (
-              <img src={resolveMediaUrl(tenant.logoUrl)} alt={tenant.name} className="h-8 w-8 rounded" />
-            )}
-            <span className="text-lg font-bold text-gray-900">{tenant.name}</span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <LanguageSwitcher />
-            <Link to={path('/cart')} className="relative text-sm font-medium text-gray-700">
-              {t('nav.cart')}
-              {cartCount > 0 && (
-                <span className="absolute -right-3 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-brand-600 text-xs text-white">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-          </div>
-        </div>
-      </header>
+      <StorefrontHeader
+        tenant={tenant}
+        cartCount={cartCount}
+        homePath={path()}
+        cartPath={path('/cart')}
+        showHero={isHome}
+      />
 
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
         <Outlet context={{ tenant, slug, path } satisfies StorefrontContext} />
       </main>
 
-      <footer className="border-t border-gray-200 py-6 text-center text-sm text-gray-500">
-        <p>
-          © {new Date().getFullYear()} {tenant.name} — {t('footer.rights')}
+      <footer className="mt-8 border-t border-gray-200 bg-gray-50/60 py-8 text-center text-sm text-gray-500">
+        <p className="font-medium text-gray-700">{tenant.name}</p>
+        <p className="mt-1">
+          © {new Date().getFullYear()} — {t('footer.rights')}
         </p>
-        <p className="mt-1 text-xs text-gray-400">{t('footer.poweredBy')}</p>
+        <p className="mt-2 text-xs text-gray-400">{t('footer.poweredBy')}</p>
       </footer>
     </div>
   )

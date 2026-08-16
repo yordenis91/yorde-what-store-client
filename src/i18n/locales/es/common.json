@@ -1,5 +1,7 @@
 {
-  "app": { "name": "Yorde What Store" },
+  "app": {
+    "name": "Yorde What Store"
+  },
   "nav": {
     "dashboard": "Panel",
     "products": "Productos",
@@ -101,7 +103,16 @@
     "telegram": "Checkout por Telegram",
     "payments": "Métodos de pago",
     "save": "Guardar cambios",
-    "saved": "Configuración guardada"
+    "saved": "Configuración guardada",
+    "banner": "Banner de cabecera",
+    "bannerHint": "Imagen ancha detrás de la cabecera de tu tienda. Sin ella se usa un degradado con el color de tu tema.",
+    "logo": "Logo",
+    "logoHint": "Se muestra en la cabecera y junto al nombre de tu tienda.",
+    "upload": "Subir imagen",
+    "remove": "Quitar",
+    "social": "Redes sociales",
+    "socialHint": "Se muestran como iconos en la cabecera de tu tienda. Déjalas vacías para ocultarlas.",
+    "appearance": "Apariencia"
   },
   "storefront": {
     "addToCart": "Agregar al carrito",
@@ -122,7 +133,18 @@
     "customerEmail": "Email (opcional)",
     "placeOrder": "Confirmar pedido",
     "orderConfirmed": "Pedido confirmado",
-    "continueShopping": "Seguir comprando"
+    "continueShopping": "Seguir comprando",
+    "categories": "Categorías",
+    "allCategories": "Todas",
+    "noProducts": "No se encontraron productos.",
+    "sortNewest": "Más recientes",
+    "sortPriceAsc": "Precio: de menor a mayor",
+    "sortPriceDesc": "Precio: de mayor a menor",
+    "chooseOptions": "Ver opciones",
+    "soldOut": "Agotado",
+    "inCart": "En el carrito ({{count}})",
+    "increaseQuantity": "Aumentar cantidad",
+    "decreaseQuantity": "Disminuir cantidad"
   },
   "common": {
     "loading": "Cargando...",

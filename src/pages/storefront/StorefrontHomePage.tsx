@@ -1,11 +1,9 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { listPublishedProducts, listPublicCategories } from '@/services/products.service'
 import { useStorefront } from '@/hooks/useStorefront'
-import { formatMoney } from '@/utils/format'
-import { resolveMediaUrl } from '@/services/api-client'
+import { ProductCard } from '@/components/storefront/ProductCard'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
@@ -41,38 +39,31 @@ export function StorefrontHomePage() {
   const symbol = tenant.currencySymbol
   const position = tenant.currencySymbolPosition as 'pre' | 'post'
 
+  function selectCategory(id: string) {
+    setCategoryId(id)
+    setPage(1)
+  }
+
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-[200px_1fr]">
+    <div className="grid grid-cols-1 gap-8 md:grid-cols-[210px_1fr]">
       <aside>
-        {tenant.tagline && <p className="mb-4 text-sm text-gray-600">{tenant.tagline}</p>}
-        <p className="mb-2 text-xs font-semibold uppercase text-gray-500">Categories</p>
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+          {t('storefront.categories')}
+        </p>
         <div className="flex flex-col gap-1">
-          <button
-            onClick={() => {
-              setCategoryId('')
-              setPage(1)
-            }}
-            className={`rounded-lg px-2 py-1 text-left text-sm ${!categoryId ? 'bg-brand-50 text-brand-700' : 'text-gray-600 hover:bg-gray-50'}`}
-          >
-            All
-          </button>
+          <CategoryButton active={!categoryId} onClick={() => selectCategory('')}>
+            {t('storefront.allCategories')}
+          </CategoryButton>
           {categories?.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => {
-                setCategoryId(c.id)
-                setPage(1)
-              }}
-              className={`rounded-lg px-2 py-1 text-left text-sm ${categoryId === c.id ? 'bg-brand-50 text-brand-700' : 'text-gray-600 hover:bg-gray-50'}`}
-            >
+            <CategoryButton key={c.id} active={categoryId === c.id} onClick={() => selectCategory(c.id)}>
               {c.name}
-            </button>
+            </CategoryButton>
           ))}
         </div>
       </aside>
 
       <div>
-        <div className="mb-4 flex flex-wrap gap-3">
+        <div className="mb-5 flex flex-wrap gap-3">
           <Input
             placeholder={t('common.search')}
             value={search}
@@ -80,50 +71,45 @@ export function StorefrontHomePage() {
               setSearch(e.target.value)
               setPage(1)
             }}
-            className="max-w-xs"
+            className="max-w-xs flex-1"
           />
           <select
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+            className="rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
             value={sort}
             onChange={(e) => setSort(e.target.value as SortOption)}
           >
-            <option value="newest">Newest</option>
-            <option value="price_asc">Price: Low to High</option>
-            <option value="price_desc">Price: High to Low</option>
+            <option value="newest">{t('storefront.sortNewest')}</option>
+            <option value="price_asc">{t('storefront.sortPriceAsc')}</option>
+            <option value="price_desc">{t('storefront.sortPriceDesc')}</option>
           </select>
         </div>
 
         {isLoading ? (
           <p className="text-sm text-gray-500">{t('common.loading')}</p>
         ) : (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-            {data?.items.map((product) => {
-              const cover = product.images.find((i) => i.isCover) ?? product.images[0]
-              return (
-                <Link
-                  key={product.id}
-                  to={path(`/product/${product.id}`)}
-                  className="group rounded-xl border border-gray-200 bg-white p-3 transition-shadow hover:shadow-md"
-                >
-                  <div className="mb-3 aspect-square overflow-hidden rounded-lg bg-gray-100">
-                    {cover && <img src={resolveMediaUrl(cover.url)} alt={product.name} className="h-full w-full object-cover" />}
-                  </div>
-                  <p className="text-sm font-medium text-gray-900 group-hover:text-brand-700">{product.name}</p>
-                  <p className="mt-1 text-sm text-gray-600">{formatMoney(product.price, symbol, position)}</p>
-                </Link>
-              )
-            })}
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {data?.items.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                to={path(`/product/${product.id}`)}
+                symbol={symbol}
+                position={position}
+              />
+            ))}
           </div>
         )}
 
-        {data?.items.length === 0 && <Card className="text-center text-sm text-gray-500">No products found.</Card>}
+        {data?.items.length === 0 && (
+          <Card className="text-center text-sm text-gray-500">{t('storefront.noProducts')}</Card>
+        )}
 
         {data && data.meta.totalPages > 1 && (
-          <div className="mt-6 flex items-center justify-center gap-2">
+          <div className="mt-8 flex items-center justify-center gap-3">
             <Button variant="secondary" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
               ←
             </Button>
-            <span className="text-sm text-gray-500">
+            <span className="text-sm tabular-nums text-gray-500">
               {page} / {data.meta.totalPages}
             </span>
             <Button variant="secondary" disabled={page >= data.meta.totalPages} onClick={() => setPage((p) => p + 1)}>
@@ -133,5 +119,26 @@ export function StorefrontHomePage() {
         )}
       </div>
     </div>
+  )
+}
+
+function CategoryButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`rounded-lg px-3 py-1.5 text-left text-sm transition-colors ${
+        active ? 'bg-brand-600 font-medium text-white' : 'text-gray-600 hover:bg-brand-50 hover:text-brand-700'
+      }`}
+    >
+      {children}
+    </button>
   )
 }
