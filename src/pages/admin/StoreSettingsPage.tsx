@@ -22,6 +22,7 @@ type FormValues = Pick<
   | 'logoUrl'
   | 'bannerUrl'
   | 'socialLinks'
+  | 'tracksInventory'
   | 'currencySymbol'
   | 'whatsappEnabled'
   | 'whatsappNumber'
@@ -48,6 +49,7 @@ export function StoreSettingsPage() {
         logoUrl: tenant.logoUrl,
         bannerUrl: tenant.bannerUrl,
         socialLinks: tenant.socialLinks ?? {},
+        tracksInventory: tenant.tracksInventory,
         currencySymbol: tenant.currencySymbol,
         whatsappEnabled: tenant.whatsappEnabled,
         whatsappNumber: tenant.whatsappNumber,
@@ -98,6 +100,17 @@ export function StoreSettingsPage() {
             onChange={(url) => setValue('bannerUrl', url, { shouldDirty: true })}
             previewClassName="aspect-[4/1] w-full rounded-xl"
           />
+        </Card>
+
+        <Card className="flex flex-col gap-3">
+          <div>
+            <h2 className="font-medium text-gray-900">{t('settings.inventory')}</h2>
+            <p className="mt-1 text-xs text-gray-500">{t('settings.inventoryHint')}</p>
+          </div>
+          <label className="flex items-start gap-2 text-sm text-gray-700">
+            <input type="checkbox" className="mt-0.5" {...register('tracksInventory')} />
+            <span>{t('settings.tracksInventory')}</span>
+          </label>
         </Card>
 
         <ThemePicker selected={watch('theme')} register={register} />

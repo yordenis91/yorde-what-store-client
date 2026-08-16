@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useStorefront } from '@/hooks/useStorefront'
@@ -129,6 +129,9 @@ export function StorefrontCheckoutPage() {
   }, [quote?.couponError])
 
   const isLastStep = step === STEP_FIELDS.length - 1
+  // Reported by the quote so the customer finds out here, not after filling in
+  // three steps. Order creation is what actually enforces it.
+  const stockIssues = quote?.stockIssues ?? []
 
   async function nextStep() {
     if (await trigger(STEP_FIELDS[step] as unknown as (keyof FormValues)[])) {
@@ -351,7 +354,7 @@ export function StorefrontCheckoutPage() {
             <Button
               type="button"
               loading={isLastStep && submitting}
-              disabled={isLastStep && (quoting || !quote)}
+              disabled={isLastStep && (quoting || !quote || stockIssues.length > 0)}
               onClick={() => void (isLastStep ? handleSubmit(onSubmit)() : nextStep())}
             >
               {isLastStep ? t('storefront.placeOrder') : t('storefront.continue')}
@@ -360,6 +363,24 @@ export function StorefrontCheckoutPage() {
         </div>
 
         <aside className="lg:sticky lg:top-20 lg:self-start">
+          {stockIssues.length > 0 && (
+            <div className="mb-4 rounded-xl border border-amber-300 bg-amber-50 p-4">
+              <p className="text-sm font-medium text-amber-900">{t('storefront.stockChanged')}</p>
+              <ul className="mt-2 flex flex-col gap-1 text-xs text-amber-800">
+                {stockIssues.map((issue) => (
+                  <li key={`${issue.productId}-${issue.variantId ?? ''}`}>
+                    {issue.available > 0
+                      ? t('storefront.stockOnly', { name: issue.name, available: issue.available })
+                      : t('storefront.stockNone', { name: issue.name })}
+                  </li>
+                ))}
+              </ul>
+              <Link to={path('/cart')} className="mt-3 inline-block text-xs font-semibold text-amber-900 underline">
+                {t('storefront.fixInCart')}
+              </Link>
+            </div>
+          )}
+
           <div className="rounded-xl border border-gray-200 bg-white p-5">
             <h2 className="font-semibold text-gray-900">{t('storefront.orderSummary')}</h2>
 

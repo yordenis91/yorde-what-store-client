@@ -112,7 +112,10 @@
     "remove": "Quitar",
     "social": "Redes sociales",
     "socialHint": "Se muestran como iconos en la cabecera de tu tienda. Déjalas vacías para ocultarlas.",
-    "appearance": "Apariencia"
+    "appearance": "Apariencia",
+    "inventory": "Inventario",
+    "inventoryHint": "Desactivado por defecto. Activalo solo si mantenés al día las cantidades de tus productos — con esto activo, un pedido que supere el stock se rechaza.",
+    "tracksInventory": "Controlar stock en esta tienda"
   },
   "storefront": {
     "addToCart": "Agregar al carrito",
@@ -180,7 +183,11 @@
     "checkoutTelegramHint": "Se notifica a la tienda por Telegram.",
     "checkoutCardHint": "Pagá de forma segura con tarjeta.",
     "couponApplied": "Cupón {{code}} aplicado",
-    "free": "Gratis"
+    "free": "Gratis",
+    "stockChanged": "El stock cambió mientras comprabas",
+    "stockOnly": "{{name}}: quedan solo {{available}}",
+    "stockNone": "{{name}}: sin stock",
+    "fixInCart": "Ajustar en el carrito"
   },
   "common": {
     "loading": "Cargando...",

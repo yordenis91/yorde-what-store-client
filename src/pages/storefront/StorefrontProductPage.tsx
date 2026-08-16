@@ -49,7 +49,10 @@ export function StorefrontProductPage() {
   const position = tenant.currencySymbolPosition as 'pre' | 'post'
 
   const needsVariant = hasVariants && !variantId
-  const soldOut = !needsVariant && stock <= 0
+  // Quantities are only stock when the store tracks inventory; otherwise they
+  // sit at their default of 0 and would read as sold out everywhere.
+  const tracksInventory = tenant.tracksInventory
+  const soldOut = tracksInventory && !needsVariant && stock <= 0
 
   function handleAddToCart() {
     addItem({
@@ -60,7 +63,7 @@ export function StorefrontProductPage() {
       unitPrice: price,
       quantity,
       imageUrl: cover ? resolveMediaUrl(cover.url) : undefined,
-      maxQuantity: stock,
+      maxQuantity: tracksInventory ? stock : undefined,
     })
     // Deliberately stays on the page instead of jumping to the cart: the "go to
     // cart" link below appears once something is in it, so continuing to browse
@@ -133,7 +136,7 @@ export function StorefrontProductPage() {
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{product.name}</h1>
           <p className="mt-2 text-2xl font-bold text-brand-700">{formatMoney(price, symbol, position)}</p>
 
-          {!needsVariant && (
+          {tracksInventory && !needsVariant && (
             <p className="mt-2 text-sm">
               {soldOut ? (
                 <span className="font-medium text-gray-400">{t('storefront.soldOut')}</span>
@@ -160,7 +163,7 @@ export function StorefrontProductPage() {
                       setVariantId(v.id)
                       setQuantity(1)
                     }}
-                    disabled={v.quantity <= 0}
+                    disabled={tracksInventory && v.quantity <= 0}
                     className={`rounded-lg border px-3 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
                       variantId === v.id
                         ? 'border-brand-600 bg-brand-50 font-medium text-brand-700'
@@ -178,7 +181,7 @@ export function StorefrontProductPage() {
             <QuantityStepper
               value={quantity}
               onChange={setQuantity}
-              max={needsVariant ? undefined : Math.max(1, stock)}
+              max={tracksInventory && !needsVariant ? Math.max(1, stock) : undefined}
               size="md"
               className="w-36"
             />

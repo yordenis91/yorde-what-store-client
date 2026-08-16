@@ -14,9 +14,11 @@ interface ProductCardProps {
   to: string
   symbol: string
   position: 'pre' | 'post'
+  /** Whether this store's product quantities are real stock. */
+  tracksInventory: boolean
 }
 
-export function ProductCard({ product, to, symbol, position }: ProductCardProps) {
+export function ProductCard({ product, to, symbol, position, tracksInventory }: ProductCardProps) {
   const { t } = useTranslation()
   const addItem = useCartStore((s) => s.addItem)
   // Reference from the store's array, so this selector is referentially stable.
@@ -26,8 +28,11 @@ export function ProductCard({ product, to, symbol, position }: ProductCardProps)
   const cover = product.images.find((i) => i.isCover) ?? product.images[0]
   // Variants need a choice the card can't offer, so those go to the product page.
   const needsVariantChoice = product.hasVariants && product.variants.length > 0
-  const soldOut = !needsVariantChoice && product.quantity <= 0
-  const max = needsVariantChoice ? Infinity : Math.max(1, product.quantity)
+  // `quantity` is only real stock when the store says so — it defaults to 0, so
+  // reading it unconditionally marks every product in a store that doesn't
+  // track inventory as sold out.
+  const soldOut = tracksInventory && !needsVariantChoice && product.quantity <= 0
+  const max = tracksInventory && !needsVariantChoice ? Math.max(1, product.quantity) : undefined
 
   function handleAdd() {
     addItem({
@@ -36,7 +41,7 @@ export function ProductCard({ product, to, symbol, position }: ProductCardProps)
       unitPrice: Number(product.price),
       quantity,
       imageUrl: cover ? resolveMediaUrl(cover.url) : undefined,
-      maxQuantity: product.quantity,
+      maxQuantity: tracksInventory ? product.quantity : undefined,
     })
     setQuantity(1)
   }

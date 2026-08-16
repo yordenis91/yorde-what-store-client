@@ -25,6 +25,7 @@ export interface Tenant {
   logoUrl: string | null
   bannerUrl: string | null
   theme: string
+  tracksInventory: boolean
   whatsappEnabled: boolean
   whatsappNumber: string | null
   telegramEnabled: boolean
@@ -46,6 +47,7 @@ export interface PublicTenant {
   logoUrl: string | null
   bannerUrl: string | null
   theme: string
+  tracksInventory: boolean
   currency: string
   currencySymbol: string
   currencySymbolPosition: string

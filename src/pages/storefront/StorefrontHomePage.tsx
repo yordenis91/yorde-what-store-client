@@ -119,6 +119,7 @@ export function StorefrontHomePage() {
                 to={path(`/product/${product.id}`)}
                 symbol={symbol}
                 position={position}
+                tracksInventory={tenant.tracksInventory}
               />
             ))}
           </div>

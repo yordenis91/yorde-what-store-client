@@ -41,6 +41,8 @@ export interface OrderQuote {
   /** Set when a code was sent but couldn't be applied; totals exclude it. */
   couponError: string | null
   shipping: { id: string; name: string; cost: number } | null
+  /** Lines the store can no longer fulfil. Empty when the store doesn't track stock. */
+  stockIssues: { productId: string; variantId: string | null; name: string; requested: number; available: number }[]
   items: {
     productId: string
     variantId: string | null

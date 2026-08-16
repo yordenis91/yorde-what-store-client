@@ -112,7 +112,10 @@
     "remove": "Remove",
     "social": "Social links",
     "socialHint": "Shown as icons in your storefront header. Leave blank to hide.",
-    "appearance": "Appearance"
+    "appearance": "Appearance",
+    "inventory": "Inventory",
+    "inventoryHint": "Off by default. Turn it on only if you keep product quantities up to date — with it on, an order that exceeds stock is rejected.",
+    "tracksInventory": "Track stock for this store"
   },
   "storefront": {
     "addToCart": "Add to cart",
@@ -180,7 +183,11 @@
     "checkoutTelegramHint": "The store is notified on Telegram.",
     "checkoutCardHint": "Pay securely by card.",
     "couponApplied": "Coupon {{code}} applied",
-    "free": "Free"
+    "free": "Free",
+    "stockChanged": "Stock changed while you were shopping",
+    "stockOnly": "{{name}}: only {{available}} left",
+    "stockNone": "{{name}}: out of stock",
+    "fixInCart": "Adjust in the cart"
   },
   "common": {
     "loading": "Loading...",
