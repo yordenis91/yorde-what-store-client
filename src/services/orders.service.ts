@@ -24,6 +24,47 @@ export async function createOrder(slug: string, payload: CreateOrderPayload) {
   return data.data
 }
 
+export interface QuoteOrderPayload {
+  items: { productId: string; variantId?: string; quantity: number }[]
+  couponCode?: string
+  shippingId?: string
+}
+
+export interface OrderQuote {
+  currency: string
+  subtotal: number
+  taxTotal: number
+  discountTotal: number
+  shippingTotal: number
+  grandTotal: number
+  coupon: { code: string; discountType: 'PERCENTAGE' | 'FIXED' } | null
+  /** Set when a code was sent but couldn't be applied; totals exclude it. */
+  couponError: string | null
+  shipping: { id: string; name: string; cost: number } | null
+  items: {
+    productId: string
+    variantId: string | null
+    name: string
+    variantName: string | null
+    unitPrice: number
+    quantity: number
+    taxAmount: number
+    lineTotal: number
+  }[]
+}
+
+/**
+ * Server-side pricing for the checkout. Totals must never be computed in the
+ * browser: taxes are per-product and coupons apply to the taxed total, so any
+ * local approximation drifts from what the order is actually charged.
+ */
+export async function quoteOrder(slug: string, payload: QuoteOrderPayload) {
+  const { data } = await apiClient.post<ApiEnvelope<OrderQuote>>('/storefront/orders/quote', payload, {
+    headers: { 'X-Tenant-ID': slug },
+  })
+  return data.data
+}
+
 export interface OrderListParams {
   page?: number
   limit?: number
