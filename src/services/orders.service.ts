@@ -37,7 +37,7 @@ export interface OrderQuote {
   discountTotal: number
   shippingTotal: number
   grandTotal: number
-  coupon: { code: string; discountType: 'PERCENTAGE' | 'FIXED' } | null
+  coupon: { code: string; discountType: 'PERCENTAGE' | 'FLAT' } | null
   /** Set when a code was sent but couldn't be applied; totals exclude it. */
   couponError: string | null
   shipping: { id: string; name: string; cost: number } | null
