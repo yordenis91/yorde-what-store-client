@@ -294,24 +294,55 @@ precio y disponibilidad en cada producto). El carrito y el checkout van con
 Esto lo genera React en el navegador, y **Google ejecuta JavaScript**, así que
 para búsqueda funciona.
 
-**Lo que no cubre:** los desplegadores de enlaces —WhatsApp, Facebook, Telegram,
-iMessage— leen el HTML crudo y no ejecutan JavaScript. Al compartir el enlace de
-una tienda o un producto, la vista previa sale del `index.html` estático, o sea
-el título genérico de la plataforma y sin imagen. Para un negocio que vende por
-WhatsApp, esto importa.
+### Vistas previas de enlaces (WhatsApp, Facebook, Telegram)
 
-Resolverlo requiere HTML distinto por URL desde el servidor. Tres caminos, de
-menor a mayor esfuerzo:
+Los desplegadores de enlaces leen el HTML crudo y **no ejecutan JavaScript**, así
+que las etiquetas que genera React no existen para ellos. Sin nada más, compartir
+el enlace de una tienda mostraría el título genérico de la plataforma y ninguna
+imagen.
 
-1. **Middleware de prerender solo para bots** — detectar el user-agent del
-   desplegador en el proxy y servirle un HTML mínimo con las etiquetas correctas,
-   generado por la API. Es el que menos toca la arquitectura actual.
-2. **Prerender en el build** — solo sirve para páginas conocidas de antemano; con
-   catálogos que cambian, se queda corto.
-3. **SSR** — la solución completa, y la que más cambia el despliegue: el
-   frontend deja de ser un contenedor de nginx con ficheros estáticos.
+Para eso nginx desvía **solo a esos user-agents** hacia un endpoint de la API,
+`GET /api/v1/storefront/preview`, que devuelve HTML real con las etiquetas de esa
+tienda o producto. Los navegadores y los buscadores siguen recibiendo la SPA
+intacta.
 
-Sin decidir esto, el resto del SEO ya está en su sitio.
+**Configuración:** una sola variable en el servicio `web`.
+
+```env
+PRERENDER_UPSTREAM=yws_api:3000
+```
+
+Es la dirección de la API en la red interna del proyecto — el mismo nombre de
+host que usaste en `DATABASE_URL` para Postgres, con el puerto de la API. **Si la
+dejas vacía, la función queda inerte** y todo se comporta como sin ella; no hay
+riesgo de romper el sitio por no configurarla.
+
+Opcionalmente, `DNS_RESOLVER` (por defecto `127.0.0.11`, el DNS interno de
+Docker) si tu entorno resuelve nombres de otra forma.
+
+**Detalles que conviene conocer:**
+
+- **Los buscadores no pasan por aquí, a propósito.** Google ejecuta JavaScript;
+  si le sirviéramos este HTML mínimo indexaría el resumen en lugar de la página
+  real, que sería peor que no hacer nada.
+- Funciona en los dos modos de multitenencia: por subdominio (el tenant sale del
+  `Host`) y por ruta `/store/<slug>`.
+- Las peticiones a ficheros con extensión nunca se desvían, así que un bot que
+  pida un `.js` o una imagen recibe el fichero.
+- Una tienda o producto inexistente devuelve una vista previa genérica válida, no
+  un error.
+
+**Para probarlo** una vez desplegado, sin esperar a WhatsApp:
+
+```bash
+curl -A "WhatsApp/2.23" https://mitienda.tudominio.com/product/<id> | grep og:
+```
+
+Debe salir el `og:title` con el nombre del producto y el `og:image` con su foto.
+Las herramientas oficiales de depuración de Facebook y Telegram también sirven, y
+además fuerzan el refresco de su caché — útil porque **guardan la vista previa
+durante días**: si compartiste un enlace antes de este despliegue, seguirás viendo
+la versión antigua hasta que caduque o la refresques a mano.
 
 ## Desarrollo local
 
