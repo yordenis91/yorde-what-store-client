@@ -39,7 +39,17 @@
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
-    "required": "This field is required"
+    "required": "This field is required",
+    "boundaryTitle": "Something went wrong",
+    "boundaryBody": "This page couldn't be displayed. Reloading usually fixes it.",
+    "staleVersionTitle": "A new version is available",
+    "staleVersionBody": "The store was updated while this page was open. Reload to continue.",
+    "reload": "Reload page",
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "The page you're looking for doesn't exist or has been moved.",
+    "storeNotFoundTitle": "Store not found",
+    "storeNotFoundBody": "There's no store at this address. Check the link and try again.",
+    "goHome": "Go to home"
   },
   "dashboard": {
     "title": "Dashboard",

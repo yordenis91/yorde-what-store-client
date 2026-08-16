@@ -1,5 +1,5 @@
 import { Suspense, lazy } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import { FullPageSpinner } from '@/components/ui/Spinner'
 import { AuthLayout } from '@/components/layout/AuthLayout'
 import { AdminLayout } from '@/components/layout/AdminLayout'
@@ -8,6 +8,7 @@ import { PublicLayout } from '@/components/layout/PublicLayout'
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute'
 import { PlatformRoute } from '@/components/layout/PlatformRoute'
 import { LandingPage } from '@/pages/LandingPage'
+import { NotFoundPage } from '@/pages/NotFoundPage'
 import { useBootstrapAuth } from '@/hooks/useBootstrapAuth'
 
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage').then((m) => ({ default: m.LoginPage })))
@@ -103,7 +104,9 @@ export default function App() {
           <Route path="order-confirmed/:id" element={<StorefrontOrderConfirmedPage />} />
         </Route>
 
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* Shows a 404 instead of bouncing to the landing page, which looked like
+            the link had worked and left no trace of the bad URL. */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
   )

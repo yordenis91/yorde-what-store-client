@@ -39,7 +39,17 @@
   },
   "errors": {
     "generic": "Algo salió mal. Intentá de nuevo.",
-    "required": "Este campo es obligatorio"
+    "required": "Este campo es obligatorio",
+    "boundaryTitle": "Algo salió mal",
+    "boundaryBody": "No se pudo mostrar esta página. Recargar suele resolverlo.",
+    "staleVersionTitle": "Hay una versión nueva",
+    "staleVersionBody": "La tienda se actualizó mientras tenías esta página abierta. Recargá para continuar.",
+    "reload": "Recargar página",
+    "notFoundTitle": "Página no encontrada",
+    "notFoundBody": "La página que buscás no existe o fue movida.",
+    "storeNotFoundTitle": "Tienda no encontrada",
+    "storeNotFoundBody": "No hay ninguna tienda en esta dirección. Revisá el enlace e intentá de nuevo.",
+    "goHome": "Ir al inicio"
   },
   "dashboard": {
     "title": "Panel",
