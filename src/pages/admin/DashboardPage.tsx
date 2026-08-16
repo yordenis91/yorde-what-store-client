@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 import { Card } from '@/components/ui/Card'
 import { getDashboardSummary } from '@/services/dashboard.service'
 import { useAuthStore } from '@/store/auth.store'
+import { storefrontUrl } from '@/config/storefront'
 import { formatDate, formatMoney } from '@/utils/format'
 
 function OrdersChart({ data }: { data: { date: string; count: number }[] }) {
@@ -35,16 +36,18 @@ export function DashboardPage() {
 
   const { data: summary, isLoading } = useQuery({ queryKey: ['dashboard-summary'], queryFn: getDashboardSummary })
 
-  const storefrontUrl = activeTenant ? `${window.location.origin}/store/${activeTenant.slug}` : ''
+  // Resolves to the store's own subdomain when one is configured, so the QR code
+  // and the shared link point at the customer-facing address, not the admin host.
+  const storefrontLink = activeTenant ? storefrontUrl(activeTenant.slug) : ''
 
   useEffect(() => {
-    if (canvasRef.current && storefrontUrl) {
-      void QRCode.toCanvas(canvasRef.current, storefrontUrl, { width: 120, margin: 1 })
+    if (canvasRef.current && storefrontLink) {
+      void QRCode.toCanvas(canvasRef.current, storefrontLink, { width: 120, margin: 1 })
     }
-  }, [storefrontUrl])
+  }, [storefrontLink])
 
   function copyLink() {
-    void navigator.clipboard.writeText(storefrontUrl).then(() => {
+    void navigator.clipboard.writeText(storefrontLink).then(() => {
       setCopied(true)
       toast.success('Link copied')
       setTimeout(() => setCopied(false), 2000)

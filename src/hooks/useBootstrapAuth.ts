@@ -13,7 +13,7 @@ import { useAuthStore } from '@/store/auth.store'
  * chain (a `cancelled` flag here would be flipped by the synthetic cleanup
  * before the real bootstrap finishes, permanently stalling isBootstrapping).
  */
-export function useBootstrapAuth() {
+export function useBootstrapAuth({ enabled = true }: { enabled?: boolean } = {}) {
   const setAccessToken = useAuthStore((s) => s.setAccessToken)
   const setSession = useAuthStore((s) => s.setSession)
   const setTenants = useAuthStore((s) => s.setTenants)
@@ -25,6 +25,11 @@ export function useBootstrapAuth() {
   useEffect(() => {
     if (started.current) return
     started.current = true
+
+    if (!enabled) {
+      setBootstrapping(false)
+      return
+    }
 
     async function bootstrap() {
       try {
@@ -49,7 +54,7 @@ export function useBootstrapAuth() {
     }
 
     void bootstrap()
-  }, [setAccessToken, setSession, setTenants, setActiveTenant, setBootstrapping])
+  }, [enabled, setAccessToken, setSession, setTenants, setActiveTenant, setBootstrapping])
 
   return isBootstrapping
 }

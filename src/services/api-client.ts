@@ -1,23 +1,14 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
+import { runtimeValue } from '@/config/runtime'
 import { useAuthStore } from '@/store/auth.store'
 
 /**
- * Resolves the API base URL, preferring runtime config over build-time env so a
- * single container image can be deployed to any environment.
- *
- * 1. `window.__APP_CONFIG__.apiUrl` — written by docker-entrypoint.sh on boot.
- *    Values still wrapped in double underscores are the repo's placeholders
- *    (nothing substituted them), and are ignored.
- * 2. `VITE_API_URL` — baked at build time, used by `npm run dev`.
- * 3. The local backend default.
+ * API base URL, preferring runtime config over build-time env so a single
+ * container image can be deployed to any environment: the value written by
+ * docker-entrypoint.sh wins, then `VITE_API_URL` from `npm run dev`, then the
+ * local backend default.
  */
-function resolveApiUrl(): string {
-  const runtime = window.__APP_CONFIG__?.apiUrl
-  if (runtime && !/^__.*__$/.test(runtime)) return runtime
-  return import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api/v1'
-}
-
-export const API_URL = resolveApiUrl()
+export const API_URL = runtimeValue('apiUrl') ?? import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api/v1'
 
 /**
  * Origin serving the backend's static `/uploads`. Empty when the API is exposed

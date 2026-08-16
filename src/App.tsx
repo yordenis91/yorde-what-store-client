@@ -9,6 +9,7 @@ import { ProtectedRoute } from '@/components/layout/ProtectedRoute'
 import { PlatformRoute } from '@/components/layout/PlatformRoute'
 import { LandingPage } from '@/pages/LandingPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
+import { TENANT_SLUG_FROM_HOST } from '@/config/storefront'
 import { useBootstrapAuth } from '@/hooks/useBootstrapAuth'
 
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage').then((m) => ({ default: m.LoginPage })))
@@ -55,10 +56,43 @@ const StorefrontOrderConfirmedPage = lazy(() =>
   import('@/pages/storefront/StorefrontOrderConfirmedPage').then((m) => ({ default: m.StorefrontOrderConfirmedPage })),
 )
 
+/**
+ * Storefront pages, mounted under whatever path the current host implies: the
+ * root on a store subdomain, `/store/:slug` on the platform host.
+ */
+const storefrontRoutes = (
+  <>
+    <Route index element={<StorefrontHomePage />} />
+    <Route path="product/:id" element={<StorefrontProductPage />} />
+    <Route path="cart" element={<StorefrontCartPage />} />
+    <Route path="checkout" element={<StorefrontCheckoutPage />} />
+    <Route path="order-confirmed/:id" element={<StorefrontOrderConfirmedPage />} />
+  </>
+)
+
+/**
+ * A store subdomain serves that store and nothing else — the admin, the auth
+ * pages and the platform panel live on the platform host. Keeping them off the
+ * store's own domain means a customer can never wander into them.
+ */
+function StorefrontApp() {
+  return (
+    <Suspense fallback={<FullPageSpinner />}>
+      <Routes>
+        <Route path="/" element={<PublicLayout />}>{storefrontRoutes}</Route>
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </Suspense>
+  )
+}
+
 export default function App() {
-  const isBootstrapping = useBootstrapAuth()
+  // Nothing to restore on a store subdomain: storefront checkout is guest-only,
+  // so skipping the bootstrap saves a doomed refresh call on every visit.
+  const isBootstrapping = useBootstrapAuth({ enabled: TENANT_SLUG_FROM_HOST === null })
 
   if (isBootstrapping) return <FullPageSpinner />
+  if (TENANT_SLUG_FROM_HOST) return <StorefrontApp />
 
   return (
     <Suspense fallback={<FullPageSpinner />}>
@@ -96,12 +130,10 @@ export default function App() {
           </Route>
         </Route>
 
+        {/* Kept alongside subdomain mode: existing links stay valid, and it is
+            the only way to reach a store when no root domain is configured. */}
         <Route path="/store/:slug" element={<PublicLayout />}>
-          <Route index element={<StorefrontHomePage />} />
-          <Route path="product/:id" element={<StorefrontProductPage />} />
-          <Route path="cart" element={<StorefrontCartPage />} />
-          <Route path="checkout" element={<StorefrontCheckoutPage />} />
-          <Route path="order-confirmed/:id" element={<StorefrontOrderConfirmedPage />} />
+          {storefrontRoutes}
         </Route>
 
         {/* Shows a 404 instead of bouncing to the landing page, which looked like

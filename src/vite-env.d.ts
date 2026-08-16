@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_API_URL?: string
+  readonly VITE_STOREFRONT_ROOT_DOMAIN?: string
 }
 
 interface ImportMeta {
@@ -12,5 +13,6 @@ interface ImportMeta {
 interface Window {
   __APP_CONFIG__?: {
     apiUrl?: string
+    storefrontRootDomain?: string
   }
 }

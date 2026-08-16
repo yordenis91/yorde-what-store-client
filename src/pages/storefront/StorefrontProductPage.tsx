@@ -4,17 +4,17 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { getPublishedProduct } from '@/services/products.service'
-import { useStorefrontTenant } from '@/hooks/useStorefrontTenant'
+import { useStorefront } from '@/hooks/useStorefront'
 import { useCartStore } from '@/store/cart.store'
 import { formatMoney } from '@/utils/format'
 import { resolveMediaUrl } from '@/services/api-client'
 import { Button } from '@/components/ui/Button'
 
 export function StorefrontProductPage() {
-  const { slug = '', id = '' } = useParams()
+  const { id = '' } = useParams()
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const tenant = useStorefrontTenant()
+  const { tenant, slug, path } = useStorefront()
   const addItem = useCartStore((s) => s.addItem)
   const [variantId, setVariantId] = useState<string | undefined>()
   const [quantity, setQuantity] = useState(1)
@@ -43,7 +43,7 @@ export function StorefrontProductPage() {
       imageUrl: cover ? resolveMediaUrl(cover.url) : undefined,
     })
     toast.success(t('storefront.addToCart'))
-    navigate(`/store/${slug}/cart`)
+    navigate(path('/cart'))
   }
 
   return (

@@ -2,14 +2,14 @@ import { Link, useLocation, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { useStorefrontTenant } from '@/hooks/useStorefrontTenant'
+import { useStorefront } from '@/hooks/useStorefront'
 import { formatMoney } from '@/utils/format'
 import type { Order } from '@/types/api'
 
 export function StorefrontOrderConfirmedPage() {
-  const { slug = '', id } = useParams()
+  const { id } = useParams()
   const { t } = useTranslation()
-  const tenant = useStorefrontTenant()
+  const { tenant, path } = useStorefront()
   const location = useLocation()
   const order = (location.state as { order?: Order } | null)?.order
 
@@ -74,7 +74,7 @@ export function StorefrontOrderConfirmedPage() {
             Print receipt
           </Button>
         )}
-        <Link to={`/store/${slug}`}>
+        <Link to={path()}>
           <Button variant="secondary">{t('storefront.continueShopping')}</Button>
         </Link>
       </div>

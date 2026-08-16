@@ -1,14 +1,13 @@
-import { Link, useParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useStorefrontTenant } from '@/hooks/useStorefrontTenant'
+import { useStorefront } from '@/hooks/useStorefront'
 import { useCartStore } from '@/store/cart.store'
 import { formatMoney } from '@/utils/format'
 import { Button } from '@/components/ui/Button'
 
 export function StorefrontCartPage() {
-  const { slug = '' } = useParams()
   const { t } = useTranslation()
-  const tenant = useStorefrontTenant()
+  const { tenant, path } = useStorefront()
   const items = useCartStore((s) => s.items)
   const updateQuantity = useCartStore((s) => s.updateQuantity)
   const removeItem = useCartStore((s) => s.removeItem)
@@ -21,7 +20,7 @@ export function StorefrontCartPage() {
     return (
       <div className="text-center">
         <p className="mb-4 text-gray-500">{t('storefront.cartEmpty')}</p>
-        <Link to={`/store/${slug}`}>
+        <Link to={path()}>
           <Button variant="secondary">{t('storefront.continueShopping')}</Button>
         </Link>
       </div>
@@ -62,7 +61,7 @@ export function StorefrontCartPage() {
         <span>{formatMoney(subtotal, symbol, position)}</span>
       </div>
 
-      <Link to={`/store/${slug}/checkout`}>
+      <Link to={path('/checkout')}>
         <Button className="mt-6 w-full">{t('storefront.checkout')}</Button>
       </Link>
     </div>

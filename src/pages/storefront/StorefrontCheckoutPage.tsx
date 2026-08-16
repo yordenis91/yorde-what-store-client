@@ -3,10 +3,10 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useQuery } from '@tanstack/react-query'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { useStorefrontTenant } from '@/hooks/useStorefrontTenant'
+import { useStorefront } from '@/hooks/useStorefront'
 import { useCartStore } from '@/store/cart.store'
 import { createOrder } from '@/services/orders.service'
 import { createStripeCheckout } from '@/services/payments.service'
@@ -26,10 +26,9 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>
 
 export function StorefrontCheckoutPage() {
-  const { slug = '' } = useParams()
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const tenant = useStorefrontTenant()
+  const { tenant, slug, path } = useStorefront()
   const items = useCartStore((s) => s.items)
   const clearCart = useCartStore((s) => s.clear)
   const [method, setMethod] = useState<FulfillmentMethod>(tenant.whatsappEnabled ? 'WHATSAPP' : 'STRIPE')
@@ -87,20 +86,20 @@ export function StorefrontCheckoutPage() {
       if (result.fulfillment.type === 'WHATSAPP') {
         clearCart()
         window.open(result.fulfillment.redirectUrl, '_blank')
-        navigate(`/store/${slug}/order-confirmed/${result.order.id}`, { state: { order: result.order } })
+        navigate(path(`/order-confirmed/${result.order.id}`), { state: { order: result.order } })
         return
       }
 
       if (result.fulfillment.type === 'TELEGRAM') {
         clearCart()
-        navigate(`/store/${slug}/order-confirmed/${result.order.id}`, { state: { order: result.order } })
+        navigate(path(`/order-confirmed/${result.order.id}`), { state: { order: result.order } })
         return
       }
 
       const checkout = await createStripeCheckout(slug, {
         orderId: result.order.id,
-        successUrl: `${window.location.origin}/store/${slug}/order-confirmed/${result.order.id}`,
-        cancelUrl: `${window.location.origin}/store/${slug}/checkout`,
+        successUrl: `${window.location.origin}${path(`/order-confirmed/${result.order.id}`)}`,
+        cancelUrl: `${window.location.origin}${path('/checkout')}`,
       })
       clearCart()
       window.location.href = checkout.checkoutUrl

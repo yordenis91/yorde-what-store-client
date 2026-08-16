@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Link, useParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { listPublishedProducts, listPublicCategories } from '@/services/products.service'
-import { useStorefrontTenant } from '@/hooks/useStorefrontTenant'
+import { useStorefront } from '@/hooks/useStorefront'
 import { formatMoney } from '@/utils/format'
 import { resolveMediaUrl } from '@/services/api-client'
 import { Card } from '@/components/ui/Card'
@@ -13,9 +13,8 @@ import { Button } from '@/components/ui/Button'
 type SortOption = 'newest' | 'price_asc' | 'price_desc'
 
 export function StorefrontHomePage() {
-  const { slug = '' } = useParams()
   const { t } = useTranslation()
-  const tenant = useStorefrontTenant()
+  const { tenant, slug, path } = useStorefront()
   const [search, setSearch] = useState('')
   const [categoryId, setCategoryId] = useState('')
   const [sort, setSort] = useState<SortOption>('newest')
@@ -103,7 +102,7 @@ export function StorefrontHomePage() {
               return (
                 <Link
                   key={product.id}
-                  to={`/store/${slug}/product/${product.id}`}
+                  to={path(`/product/${product.id}`)}
                   className="group rounded-xl border border-gray-200 bg-white p-3 transition-shadow hover:shadow-md"
                 >
                   <div className="mb-3 aspect-square overflow-hidden rounded-lg bg-gray-100">

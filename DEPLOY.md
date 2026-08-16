@@ -142,15 +142,19 @@ Las migraciones de Prisma se aplican solas en cada arranque, desde
 **Dominio:** `tudominio.com`, ruta `/`, puerto `80`. Activa HTTPS — EasyPanel
 emite y renueva el certificado Let's Encrypt.
 
-**Variable de entorno:**
+**Variables de entorno:**
 
 ```env
 VITE_API_URL=/api/v1
+VITE_STOREFRONT_ROOT_DOMAIN=tudominio.com
 ```
 
-Es una ruta relativa a propósito: el navegador la resuelve contra el origen
-actual, así que el mismo contenedor sirve `tudominio.com` y cualquier dominio de
-tienda que conectes después, sin reconstruir la imagen.
+`VITE_API_URL` es una ruta relativa a propósito: el navegador la resuelve contra
+el origen actual, así que el mismo contenedor sirve `tudominio.com` y cualquier
+subdominio de tienda, sin reconstruir la imagen.
+
+`VITE_STOREFRONT_ROOT_DOMAIN` activa los subdominios por tienda (sección 7). Si
+la dejas vacía, las tiendas solo son accesibles en `/store/<slug>`.
 
 ### Cómo funciona la configuración en runtime
 
@@ -212,17 +216,72 @@ Copia el signing secret a `STRIPE_WEBHOOK_SECRET` y redespliega la API. La
 verificación de firma necesita el cuerpo crudo, que ya viene habilitado
 (`rawBody: true` en `src/main.ts:14`).
 
-## Subdominios por tienda (pendiente)
+## 7. Subdominios por tienda
 
-El backend **ya resuelve el tenant por subdominio**
-(`src/common/middleware/tenant.middleware.ts`): acepta `X-Tenant-ID` con id o
-slug, y si no viene, extrae el subdominio del `Host`. El frontend todavía no lo
-usa — enruta solo por `/store/:slug`.
+Con `VITE_STOREFRONT_ROOT_DOMAIN` configurada, cada tienda queda accesible en su
+propio subdominio y el storefront se monta en la raíz:
 
-Para activarlo hará falta, del lado del frontend, resolver el tenant desde el
-hostname; y en EasyPanel, un dominio comodín `*.tudominio.com` con un registro
-DNS comodín y un certificado wildcard (requiere validación DNS-01, no la HTTP-01
-por defecto). Es un trabajo aparte, no incluido en este despliegue.
+```
+mitienda.tudominio.com/                   →  portada de la tienda
+mitienda.tudominio.com/product/<id>       →  producto
+mitienda.tudominio.com/cart, /checkout    →  carrito y checkout
+```
+
+Las rutas `/store/<slug>` **siguen funcionando** en el dominio principal, así que
+los enlaces que ya hayas repartido no se rompen.
+
+### Qué hace cada lado
+
+El frontend deduce el slug del hostname: toma la etiqueta que está justo debajo
+del dominio raíz. El dominio raíz a secas y `www` son la plataforma, no una
+tienda, igual que los subdominios reservados (`api`, `admin`, `app`, `panel`,
+`static`, `cdn`, `mail`). Un host con dos etiquetas por debajo del raíz
+(`a.b.tudominio.com`) tampoco cuenta como tienda.
+
+En un subdominio de tienda **solo existe el storefront**: el panel de
+administración, el login y el panel de plataforma no están montados ahí y
+devuelven 404. Un cliente no puede acabar en el admin desde la tienda.
+
+El backend ya resolvía el tenant por subdominio desde antes
+(`src/common/middleware/tenant.middleware.ts`), aunque en la práctica no depende
+de eso: el frontend sigue enviando el slug en la cabecera `X-Tenant-ID`, que
+tiene prioridad.
+
+### Configuración en el VPS
+
+1. **DNS:** añade un registro comodín `*.tudominio.com` de tipo `A` apuntando a
+   la IP del VPS, además del registro del dominio raíz.
+2. **EasyPanel:** añade el host `*.tudominio.com` al servicio `web` (ruta `/`), y
+   también al servicio `api` para las rutas `/api` y `/uploads` — si no, las
+   peticiones desde un subdominio de tienda no encuentran la API.
+3. **Certificado:** un certificado comodín necesita validación **DNS-01**, no la
+   HTTP-01 por defecto. Hay que configurar en EasyPanel el proveedor DNS de tu
+   dominio (token de API de Cloudflare u otro) para que pueda emitirlo.
+
+El paso 3 es el que suele atascar. Si no quieres lidiar con DNS-01 todavía, deja
+`VITE_STOREFRONT_ROOT_DOMAIN` vacía y sigue con `/store/<slug>`, que funciona con
+el certificado normal del dominio.
+
+### Dominios propios por tienda
+
+Sigue **sin estar soportado**. La resolución por hostname del backend extrae la
+primera etiqueta del `Host`, así que solo entiende subdominios del dominio raíz;
+un dominio completamente distinto (`latiendadeana.com`) necesitaría una búsqueda
+por dominio completo en la base de datos, que hoy no existe. Es trabajo de
+backend, no de frontend.
+
+### En local
+
+`*.localhost` resuelve a 127.0.0.1 en Chrome y Firefox, así que puedes probarlo
+sin tocar `/etc/hosts`:
+
+```env
+# .env.local
+VITE_STOREFRONT_ROOT_DOMAIN=localhost
+```
+
+Con eso, `http://mitienda.localhost:5173/` sirve la tienda `mitienda` y
+`http://localhost:5173/` sigue siendo la plataforma.
 
 ## Desarrollo local
 
