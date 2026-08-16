@@ -1,4 +1,12 @@
-# React + TypeScript + Vite
+# Yorde What Store — Frontend
+
+SPA de React + TypeScript + Vite para la plataforma de ecommerce multitenante.
+La API vive en [`yorde-what-store-api`](https://github.com/yordenis91/yorde-what-store-api).
+
+Para desplegar en un VPS con EasyPanel, y para el arranque en local de la pila
+completa, consulta **[DEPLOY.md](./DEPLOY.md)**.
+
+## React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
