@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+
+# One file serves every store, so only paths that are private on all of them
+# are disallowed. Carts and checkouts hold a single visitor's session; the
+# admin and platform panels are behind authentication.
+Disallow: /admin
+Disallow: /platform
+Disallow: /login
+Disallow: /register
+Disallow: /cart
+Disallow: /checkout
+Disallow: /order-confirmed
+Disallow: /store/*/cart
+Disallow: /store/*/checkout
+Disallow: /store/*/order-confirmed

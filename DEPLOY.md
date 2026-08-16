@@ -283,6 +283,36 @@ VITE_STOREFRONT_ROOT_DOMAIN=localhost
 Con eso, `http://mitienda.localhost:5173/` sirve la tienda `mitienda` y
 `http://localhost:5173/` sigue siendo la plataforma.
 
+## SEO: lo que está resuelto y lo que no
+
+Cada página del storefront genera su propio `<title>`, `description`, etiquetas
+Open Graph y datos estructurados JSON-LD (`Store` en la portada, `Product` con
+precio y disponibilidad en cada producto). El carrito y el checkout van con
+`noindex`, y `<html lang>` sigue al idioma elegido. Hay un `robots.txt` en
+`public/`.
+
+Esto lo genera React en el navegador, y **Google ejecuta JavaScript**, así que
+para búsqueda funciona.
+
+**Lo que no cubre:** los desplegadores de enlaces —WhatsApp, Facebook, Telegram,
+iMessage— leen el HTML crudo y no ejecutan JavaScript. Al compartir el enlace de
+una tienda o un producto, la vista previa sale del `index.html` estático, o sea
+el título genérico de la plataforma y sin imagen. Para un negocio que vende por
+WhatsApp, esto importa.
+
+Resolverlo requiere HTML distinto por URL desde el servidor. Tres caminos, de
+menor a mayor esfuerzo:
+
+1. **Middleware de prerender solo para bots** — detectar el user-agent del
+   desplegador en el proxy y servirle un HTML mínimo con las etiquetas correctas,
+   generado por la API. Es el que menos toca la arquitectura actual.
+2. **Prerender en el build** — solo sirve para páginas conocidas de antemano; con
+   catálogos que cambian, se queda corto.
+3. **SSR** — la solución completa, y la que más cambia el despliegue: el
+   frontend deja de ser un contenedor de nginx con ficheros estáticos.
+
+Sin decidir esto, el resto del SEO ya está en su sitio.
+
 ## Desarrollo local
 
 ```bash

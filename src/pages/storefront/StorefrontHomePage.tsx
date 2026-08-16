@@ -3,7 +3,10 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { listPublishedProducts, listPublicCategories } from '@/services/products.service'
 import { useStorefront } from '@/hooks/useStorefront'
+import { resolveMediaUrl } from '@/services/api-client'
 import { ProductCard } from '@/components/storefront/ProductCard'
+import { Seo } from '@/components/storefront/Seo'
+import { metaDescription } from '@/utils/seo'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
@@ -44,8 +47,29 @@ export function StorefrontHomePage() {
     setPage(1)
   }
 
+  const social = tenant.bannerUrl ?? tenant.logoUrl
+
   return (
     <div className="grid grid-cols-1 gap-8 md:grid-cols-[210px_1fr]">
+      <Seo
+        title={tenant.tagline ? `${tenant.name} — ${tenant.tagline}` : tenant.name}
+        description={metaDescription(tenant.about, tenant.tagline)}
+        image={social ? new URL(resolveMediaUrl(social), window.location.origin).href : null}
+        siteName={tenant.name}
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'Store',
+          name: tenant.name,
+          description: metaDescription(tenant.about, tenant.tagline),
+          url: `${window.location.origin}${window.location.pathname}`,
+          ...(tenant.logoUrl
+            ? { logo: new URL(resolveMediaUrl(tenant.logoUrl), window.location.origin).href }
+            : {}),
+          ...(Object.values(tenant.socialLinks).filter(Boolean).length > 0
+            ? { sameAs: Object.values(tenant.socialLinks).filter(Boolean) }
+            : {}),
+        }}
+      />
       <aside>
         <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
           {t('storefront.categories')}

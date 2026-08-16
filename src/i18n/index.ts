@@ -19,4 +19,16 @@ void i18n
     detection: { order: ['localStorage', 'navigator'], caches: ['localStorage'] },
   })
 
+/**
+ * Keeps `<html lang>` in step with the active language. It ships as `en` in
+ * index.html, so without this a Spanish storefront tells crawlers and screen
+ * readers it is English.
+ */
+function syncDocumentLanguage(language: string) {
+  document.documentElement.lang = language.split('-')[0]
+}
+
+syncDocumentLanguage(i18n.language)
+i18n.on('languageChanged', syncDocumentLanguage)
+
 export default i18n

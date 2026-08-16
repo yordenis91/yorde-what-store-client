@@ -6,6 +6,7 @@ import { formatMoney } from '@/utils/format'
 import { BackLink } from '@/components/storefront/BackLink'
 import { QuantityStepper } from '@/components/storefront/QuantityStepper'
 import { CartIcon, TrashIcon } from '@/components/ui/icons'
+import { Seo } from '@/components/storefront/Seo'
 
 export function StorefrontCartPage() {
   const { t } = useTranslation()
@@ -19,9 +20,12 @@ export function StorefrontCartPage() {
   const subtotal = items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0)
   const unitCount = items.reduce((sum, i) => sum + i.quantity, 0)
 
+  const seo = <Seo title={`${t('nav.cart')} — ${tenant.name}`} noIndex />
+
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-md py-12 text-center">
+        {seo}
         <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-50 text-brand-600">
           <CartIcon className="h-7 w-7" />
         </span>
@@ -39,6 +43,7 @@ export function StorefrontCartPage() {
 
   return (
     <div>
+      {seo}
       <BackLink fallbackTo={path()} label={t('storefront.continueShopping')} className="mb-5" />
 
       <h1 className="text-2xl font-bold tracking-tight text-gray-900">{t('nav.cart')}</h1>

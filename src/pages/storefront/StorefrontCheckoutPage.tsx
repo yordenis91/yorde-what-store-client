@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
 import { BackLink } from '@/components/storefront/BackLink'
 import { CheckoutSteps } from '@/components/storefront/CheckoutSteps'
+import { Seo } from '@/components/storefront/Seo'
 import { extractErrorMessage } from '@/services/api-client'
 import type { FulfillmentMethod } from '@/types/api'
 
@@ -195,6 +196,7 @@ export function StorefrontCheckoutPage() {
 
   return (
     <div>
+      <Seo title={`${t('storefront.checkout')} — ${tenant.name}`} noIndex />
       <BackLink fallbackTo={path('/cart')} label={t('nav.cart')} className="mb-5" />
       <h1 className="text-2xl font-bold tracking-tight text-gray-900">{t('storefront.checkout')}</h1>
 

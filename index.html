@@ -4,6 +4,17 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      Fallback title only, and deliberately nothing else.
+
+      React 19 appends the metadata rendered by src/components/storefront/Seo.tsx
+      rather than replacing what is already here, so a static <meta
+      name="description"> would sit ahead of the per-page one and be the copy
+      crawlers read. <title> is the exception: React does replace it.
+
+      Note this static response is what link unfurlers (WhatsApp, Facebook,
+      Telegram) see, since they do not run JavaScript.
+    -->
     <title>Yorde What Store</title>
   </head>
   <body>

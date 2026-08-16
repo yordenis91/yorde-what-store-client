@@ -10,6 +10,8 @@ import { formatMoney } from '@/utils/format'
 import { resolveMediaUrl } from '@/services/api-client'
 import { BackLink } from '@/components/storefront/BackLink'
 import { QuantityStepper } from '@/components/storefront/QuantityStepper'
+import { Seo } from '@/components/storefront/Seo'
+import { metaDescription } from '@/utils/seo'
 import { CartIcon, CheckIcon } from '@/components/ui/icons'
 import { Spinner } from '@/components/ui/Spinner'
 
@@ -67,8 +69,34 @@ export function StorefrontProductPage() {
     setQuantity(1)
   }
 
+  const coverUrl = cover ? new URL(resolveMediaUrl(cover.url), window.location.origin).href : null
+
   return (
     <div>
+      <Seo
+        type="product"
+        title={`${product.name} — ${tenant.name}`}
+        description={metaDescription(product.description, tenant.tagline)}
+        image={coverUrl}
+        siteName={tenant.name}
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: product.name,
+          description: metaDescription(product.description),
+          ...(product.sku ? { sku: product.sku } : {}),
+          ...(coverUrl ? { image: coverUrl } : {}),
+          offers: {
+            '@type': 'Offer',
+            price: price.toFixed(2),
+            priceCurrency: tenant.currency,
+            url: `${window.location.origin}${window.location.pathname}`,
+            availability: soldOut ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
+            seller: { '@type': 'Organization', name: tenant.name },
+          },
+        }}
+      />
+
       <BackLink fallbackTo={path()} label={t('storefront.backToStore')} className="mb-5" />
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
