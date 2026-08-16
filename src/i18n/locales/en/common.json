@@ -144,7 +144,21 @@
     "soldOut": "Sold out",
     "inCart": "In cart ({{count}})",
     "increaseQuantity": "Increase quantity",
-    "decreaseQuantity": "Decrease quantity"
+    "decreaseQuantity": "Decrease quantity",
+    "backToStore": "Back to store",
+    "addedToCart": "Added to cart",
+    "viewCart": "View cart",
+    "options": "Options",
+    "selectAnOption": "Select an option",
+    "inStock": "In stock",
+    "lowStock": "Only {{count}} left",
+    "each": "each",
+    "removeItem": "Remove item",
+    "orderSummary": "Order summary",
+    "extrasAtCheckout": "Taxes and shipping are calculated at checkout.",
+    "itemCount": "{{count}} item",
+    "itemCount_other": "{{count}} items",
+    "cartEmptyHint": "Browse the store and add something you like."
   },
   "common": {
     "loading": "Loading...",

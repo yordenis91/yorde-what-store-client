@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { resolveMediaUrl } from '@/services/api-client'
 import { useCartStore } from '@/store/cart.store'
 import { formatMoney } from '@/utils/format'
-import { CartIcon, CheckIcon, MinusIcon, PlusIcon } from '@/components/ui/icons'
+import { CartIcon, CheckIcon } from '@/components/ui/icons'
+import { QuantityStepper } from '@/components/storefront/QuantityStepper'
 import type { Product } from '@/types/api'
 
 interface ProductCardProps {
@@ -79,27 +80,7 @@ export function ProductCard({ product, to, symbol, position }: ProductCardProps)
           </span>
         ) : (
           <>
-            <div className="flex items-center justify-between rounded-lg border border-gray-200 p-1">
-              <button
-                type="button"
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                disabled={quantity <= 1}
-                aria-label={t('storefront.decreaseQuantity')}
-                className="flex h-7 w-7 items-center justify-center rounded-md text-gray-600 transition-colors hover:bg-brand-50 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
-              >
-                <MinusIcon className="h-4 w-4" />
-              </button>
-              <span className="min-w-6 text-center text-sm font-medium tabular-nums text-gray-900">{quantity}</span>
-              <button
-                type="button"
-                onClick={() => setQuantity((q) => Math.min(max, q + 1))}
-                disabled={quantity >= max}
-                aria-label={t('storefront.increaseQuantity')}
-                className="flex h-7 w-7 items-center justify-center rounded-md text-gray-600 transition-colors hover:bg-brand-50 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
-              >
-                <PlusIcon className="h-4 w-4" />
-              </button>
-            </div>
+            <QuantityStepper value={quantity} onChange={setQuantity} max={max} />
 
             <button
               type="button"

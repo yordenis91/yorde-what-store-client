@@ -144,7 +144,21 @@
     "soldOut": "Agotado",
     "inCart": "En el carrito ({{count}})",
     "increaseQuantity": "Aumentar cantidad",
-    "decreaseQuantity": "Disminuir cantidad"
+    "decreaseQuantity": "Disminuir cantidad",
+    "backToStore": "Volver a la tienda",
+    "addedToCart": "Agregado al carrito",
+    "viewCart": "Ver carrito",
+    "options": "Opciones",
+    "selectAnOption": "Elegí una opción",
+    "inStock": "En stock",
+    "lowStock": "Quedan solo {{count}}",
+    "each": "c/u",
+    "removeItem": "Quitar artículo",
+    "orderSummary": "Resumen del pedido",
+    "extrasAtCheckout": "Impuestos y envío se calculan en el checkout.",
+    "itemCount": "{{count}} artículo",
+    "itemCount_other": "{{count}} artículos",
+    "cartEmptyHint": "Recorré la tienda y agregá algo que te guste."
   },
   "common": {
     "loading": "Cargando...",

@@ -59,6 +59,22 @@ export function CheckIcon(props: IconProps) {
   )
 }
 
+export function ArrowLeftIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M19 12H5m0 0 6-6m-6 6 6 6" />
+    </Icon>
+  )
+}
+
+export function TrashIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 7h16M10 11v6M14 11v6M5 7l1 12.2A1.8 1.8 0 0 0 7.8 21h8.4a1.8 1.8 0 0 0 1.8-1.8L19 7M9 7V4.8A.8.8 0 0 1 9.8 4h4.4a.8.8 0 0 1 .8.8V7" />
+    </Icon>
+  )
+}
+
 /** Brand marks use fills, so they override the stroke defaults. */
 function BrandIcon({ children, ...props }: IconProps) {
   return (
