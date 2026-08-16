@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, type UseFormRegister } from 'react-hook-form'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -9,12 +9,14 @@ import { Card } from '@/components/ui/Card'
 import { getCurrentTenant, updateCurrentTenant, listPaymentSettings, upsertPaymentSetting } from '@/services/tenants.service'
 import { useAuthStore } from '@/store/auth.store'
 import { extractErrorMessage } from '@/services/api-client'
+import { DEFAULT_THEME, THEME_NAMES, themeSwatch } from '@/config/themes'
 import type { Tenant } from '@/types/api'
 
 type FormValues = Pick<
   Tenant,
   | 'name'
   | 'tagline'
+  | 'theme'
   | 'currencySymbol'
   | 'whatsappEnabled'
   | 'whatsappNumber'
@@ -37,6 +39,7 @@ export function StoreSettingsPage() {
       reset({
         name: tenant.name,
         tagline: tenant.tagline,
+        theme: tenant.theme,
         currencySymbol: tenant.currencySymbol,
         whatsappEnabled: tenant.whatsappEnabled,
         whatsappNumber: tenant.whatsappNumber,
@@ -70,6 +73,8 @@ export function StoreSettingsPage() {
           <Input label="Tagline" {...register('tagline')} />
           <Input label="Currency symbol" {...register('currencySymbol')} className="max-w-[120px]" />
         </Card>
+
+        <ThemePicker selected={watch('theme')} register={register} />
 
         <Card className="flex flex-col gap-4">
           <h2 className="font-medium text-gray-900">{t('settings.whatsapp')}</h2>
@@ -107,6 +112,54 @@ export function StoreSettingsPage() {
 
       <PaymentSettingsSection />
     </div>
+  )
+}
+
+/**
+ * Colour picker for the storefront. Each swatch paints itself with the theme it
+ * selects, so the choice is visible without a preview pane.
+ */
+function ThemePicker({
+  selected,
+  register,
+}: {
+  selected: string | undefined
+  register: UseFormRegister<FormValues>
+}) {
+  const { t } = useTranslation()
+  const active = selected ?? DEFAULT_THEME
+
+  return (
+    <Card className="flex flex-col gap-3">
+      <div>
+        <h2 className="font-medium text-gray-900">{t('settings.theme')}</h2>
+        <p className="mt-1 text-xs text-gray-500">{t('settings.themeHint')}</p>
+      </div>
+      <div className="flex flex-wrap gap-3">
+        {THEME_NAMES.map((name) => {
+          const isActive = active === name
+          return (
+            <label
+              key={name}
+              title={t(`settings.themes.${name}`)}
+              className={`flex cursor-pointer flex-col items-center gap-1.5 rounded-lg border px-3 py-2 transition-colors ${
+                isActive ? 'border-gray-900 bg-gray-50' : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <input type="radio" value={name} className="sr-only" {...register('theme')} />
+              <span
+                aria-hidden
+                className="h-7 w-7 rounded-full ring-1 ring-black/10"
+                style={{ backgroundColor: themeSwatch(name) }}
+              />
+              <span className={`text-xs ${isActive ? 'font-medium text-gray-900' : 'text-gray-500'}`}>
+                {t(`settings.themes.${name}`)}
+              </span>
+            </label>
+          )
+        })}
+      </div>
+    </Card>
   )
 }
 

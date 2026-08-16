@@ -85,6 +85,18 @@
   "settings": {
     "title": "Configuración de tienda",
     "general": "General",
+    "theme": "Color de la tienda",
+    "themeHint": "Define el color de acento que ven tus clientes en toda la tienda.",
+    "themes": {
+      "default": "Azul",
+      "emerald": "Esmeralda",
+      "teal": "Turquesa",
+      "violet": "Violeta",
+      "rose": "Rosa",
+      "orange": "Naranja",
+      "amber": "Ámbar",
+      "slate": "Pizarra"
+    },
     "whatsapp": "Checkout por WhatsApp",
     "telegram": "Checkout por Telegram",
     "payments": "Métodos de pago",

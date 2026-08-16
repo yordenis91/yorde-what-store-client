@@ -6,6 +6,7 @@ import axios from 'axios'
 import { getPublicStorefront } from '@/services/tenants.service'
 import { resolveMediaUrl, setStorefrontTenant } from '@/services/api-client'
 import { TENANT_SLUG_FROM_HOST, storefrontPath } from '@/config/storefront'
+import { applyStorefrontTheme, clearStorefrontTheme } from '@/config/themes'
 import { useCartStore } from '@/store/cart.store'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { FullPageSpinner } from '@/components/ui/Spinner'
@@ -37,6 +38,14 @@ export function PublicLayout() {
     setStorefrontTenant(slug)
     setTenantSlug(slug)
   }, [slug, setTenantSlug])
+
+  // Runs before the early returns below, so it has to tolerate a tenant that
+  // hasn't loaded. Cleared on unmount so leaving a storefront for the platform
+  // in `/store/:slug` mode doesn't leave the store's colours behind.
+  useEffect(() => {
+    applyStorefrontTheme(tenant?.theme)
+    return clearStorefrontTheme
+  }, [tenant?.theme])
 
   const path = useCallback((subpath = '') => storefrontPath(slug, subpath), [slug])
 

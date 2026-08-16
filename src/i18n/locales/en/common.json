@@ -85,6 +85,18 @@
   "settings": {
     "title": "Store settings",
     "general": "General",
+    "theme": "Storefront colour",
+    "themeHint": "Sets the accent colour customers see across your store.",
+    "themes": {
+      "default": "Blue",
+      "emerald": "Emerald",
+      "teal": "Teal",
+      "violet": "Violet",
+      "rose": "Rose",
+      "orange": "Orange",
+      "amber": "Amber",
+      "slate": "Slate"
+    },
     "whatsapp": "WhatsApp checkout",
     "telegram": "Telegram checkout",
     "payments": "Payment methods",
