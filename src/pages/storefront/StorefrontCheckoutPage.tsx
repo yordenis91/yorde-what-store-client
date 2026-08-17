@@ -198,7 +198,7 @@ export function StorefrontCheckoutPage() {
   ]
 
   return (
-    <div>
+    <div className="pb-24 lg:pb-0">
       <Seo title={`${t('storefront.checkout')} — ${tenant.name}`} noIndex />
       <BackLink fallbackTo={path('/cart')} label={t('nav.cart')} className="mb-5" />
       <h1 className="text-2xl font-bold tracking-tight text-gray-900">{t('storefront.checkout')}</h1>
@@ -341,7 +341,7 @@ export function StorefrontCheckoutPage() {
             </div>
           )}
 
-          <div className="mt-6 flex items-center justify-between gap-3 border-t border-gray-100 pt-5">
+          <div className="mt-6 hidden items-center justify-between gap-3 border-t border-gray-100 pt-5 lg:flex">
             <button
               type="button"
               onClick={() => setStep((s) => Math.max(0, s - 1))}
@@ -461,6 +461,35 @@ export function StorefrontCheckoutPage() {
           </div>
         </aside>
       </form>
+
+      {/* Replaces the in-form Back/Continue row on mobile (hidden above lg),
+          so navigation and the running total stay reachable without
+          scrolling past whichever step is currently showing. */}
+      <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-gray-200 bg-white p-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] lg:hidden">
+        <button
+          type="button"
+          onClick={() => setStep((s) => Math.max(0, s - 1))}
+          disabled={step === 0}
+          className="shrink-0 text-sm font-medium text-gray-500 transition-colors hover:text-brand-700 disabled:invisible"
+        >
+          {t('common.back')}
+        </button>
+        <div className="min-w-0 flex-1 text-right">
+          <p className="text-xs text-gray-500">{t('storefront.total')}</p>
+          <p className="truncate text-base font-bold text-brand-700">
+            {quote ? formatMoney(quote.grandTotal, symbol, position) : '—'}
+          </p>
+        </div>
+        <Button
+          type="button"
+          loading={isLastStep && submitting}
+          disabled={isLastStep && (quoting || !quote || stockIssues.length > 0)}
+          onClick={() => void (isLastStep ? handleSubmit(onSubmit)() : nextStep())}
+          className="shrink-0"
+        >
+          {isLastStep ? t('storefront.placeOrder') : t('storefront.continue')}
+        </Button>
+      </div>
     </div>
   )
 }

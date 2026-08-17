@@ -62,7 +62,7 @@ export function ProductCard({ product, to, symbol, position, tracksInventory }: 
         )}
       </Link>
 
-      <div className="flex flex-1 flex-col gap-3 p-3">
+      <div className="flex flex-1 flex-col gap-2 p-2.5 sm:gap-3 sm:p-3">
         <div className="flex-1">
           <Link to={to} className="line-clamp-2 text-sm font-medium text-gray-900 transition-colors hover:text-brand-700">
             {product.name}
@@ -75,7 +75,7 @@ export function ProductCard({ product, to, symbol, position, tracksInventory }: 
         {needsVariantChoice ? (
           <Link
             to={to}
-            className="flex items-center justify-center rounded-lg border border-brand-600 px-3 py-2 text-sm font-medium text-brand-700 transition-colors hover:bg-brand-50"
+            className="flex items-center justify-center rounded-lg border border-brand-600 px-3 py-2.5 text-sm font-medium text-brand-700 transition-colors hover:bg-brand-50 sm:py-2"
           >
             {t('storefront.chooseOptions')}
           </Link>
@@ -90,7 +90,7 @@ export function ProductCard({ product, to, symbol, position, tracksInventory }: 
             <button
               type="button"
               onClick={handleAdd}
-              className={`flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+              className={`flex items-center justify-center gap-1.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors sm:py-2 ${
                 inCart
                   ? 'border border-brand-600 bg-brand-50 text-brand-700 hover:bg-brand-100'
                   : 'bg-brand-600 text-white hover:bg-brand-700'

@@ -35,7 +35,7 @@ export function CheckoutSteps({ steps, current, onGoTo }: CheckoutStepsProps) {
                 {done ? <CheckIcon className="h-4 w-4" /> : index + 1}
               </span>
               <span
-                className={`hidden text-sm sm:inline ${
+                className={`text-sm ${active ? 'inline' : 'hidden sm:inline'} ${
                   active ? 'font-semibold text-gray-900' : done ? 'font-medium text-gray-600' : 'text-gray-400'
                 }`}
               >

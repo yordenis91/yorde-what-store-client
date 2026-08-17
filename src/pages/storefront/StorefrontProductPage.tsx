@@ -75,7 +75,7 @@ export function StorefrontProductPage() {
   const coverUrl = cover ? new URL(resolveMediaUrl(cover.url), window.location.origin).href : null
 
   return (
-    <div>
+    <div className="pb-24 lg:pb-0">
       <Seo
         type="product"
         title={`${product.name} — ${tenant.name}`}
@@ -164,7 +164,7 @@ export function StorefrontProductPage() {
                       setQuantity(1)
                     }}
                     disabled={tracksInventory && v.quantity <= 0}
-                    className={`rounded-lg border px-3 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                    className={`rounded-lg border px-3 py-2.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40 sm:py-1.5 ${
                       variantId === v.id
                         ? 'border-brand-600 bg-brand-50 font-medium text-brand-700'
                         : 'border-gray-300 text-gray-700 hover:border-brand-500'
@@ -212,6 +212,29 @@ export function StorefrontProductPage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Always-reachable add-to-cart on mobile — the product info column above
+          can run long (description, variants), pushing the inline button
+          below the fold. */}
+      <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-gray-200 bg-white p-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] lg:hidden">
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-xs text-gray-500">{product.name}</p>
+          <p className="text-base font-bold text-brand-700">{formatMoney(price, symbol, position)}</p>
+        </div>
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          disabled={needsVariant || soldOut}
+          className="flex shrink-0 items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+        >
+          <CartIcon className="h-4.5 w-4.5" />
+          {soldOut
+            ? t('storefront.soldOut')
+            : needsVariant
+              ? t('storefront.selectAnOption')
+              : t('storefront.addToCart')}
+        </button>
       </div>
     </div>
   )

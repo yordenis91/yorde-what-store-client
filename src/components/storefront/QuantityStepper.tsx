@@ -21,8 +21,8 @@ export function QuantityStepper({
   className = '',
 }: QuantityStepperProps) {
   const { t } = useTranslation()
-  const button = size === 'md' ? 'h-9 w-9' : 'h-7 w-7'
-  const icon = size === 'md' ? 'h-4.5 w-4.5' : 'h-4 w-4'
+  const button = size === 'md' ? 'h-11 w-11 sm:h-9 sm:w-9' : 'h-11 w-11 sm:h-8 sm:w-8'
+  const icon = size === 'md' ? 'h-5 w-5 sm:h-4.5 sm:w-4.5' : 'h-5 w-5 sm:h-4 sm:w-4'
 
   return (
     <div className={`flex items-center justify-between rounded-lg border border-gray-200 p-1 ${className}`}>

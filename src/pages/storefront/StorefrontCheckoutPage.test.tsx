@@ -76,7 +76,7 @@ let currentTenant: PublicTenant = buildTenant()
 async function fillContactAndContinue() {
   await userEvent.type(screen.getByLabelText(/full name/i), 'Ana Pérez')
   await userEvent.type(screen.getByLabelText(/phone/i), '+15551234567')
-  await userEvent.click(screen.getByRole('button', { name: /continue/i }))
+  await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
   await screen.findByRole('heading', { name: 'Delivery' })
 }
 
@@ -99,7 +99,8 @@ describe('totals', () => {
   it('shows the figures the server quoted, including tax', async () => {
     renderCheckout()
 
-    expect(await screen.findByText('$60.50')).toBeInTheDocument()
+    // Once in the order summary card, once in the mobile sticky total bar.
+    expect(await screen.findAllByText('$60.50')).toHaveLength(2)
     expect(screen.getByText('$10.50')).toBeInTheDocument()
     // Once on the basket line, once on the subtotal row.
     expect(screen.getAllByText('$50.00')).toHaveLength(2)
@@ -131,7 +132,7 @@ describe('step gating', () => {
     renderCheckout()
     await screen.findByRole('heading', { name: /contact/i })
 
-    await userEvent.click(screen.getByRole('button', { name: /continue/i }))
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
 
     expect(screen.getByRole('heading', { name: /contact/i })).toBeInTheDocument()
   })
@@ -143,7 +144,7 @@ describe('step gating', () => {
     await userEvent.type(screen.getByLabelText(/full name/i), 'Ana')
     await userEvent.type(screen.getByLabelText(/phone/i), '+15551234567')
     await userEvent.type(screen.getByLabelText(/email/i), 'not-an-email')
-    await userEvent.click(screen.getByRole('button', { name: /continue/i }))
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
 
     expect(await screen.findByText(/enter a valid email/i)).toBeInTheDocument()
   })
@@ -164,7 +165,7 @@ describe('step gating', () => {
 
     expect(screen.queryByLabelText(/street and number/i)).not.toBeInTheDocument()
 
-    await userEvent.click(screen.getByRole('button', { name: /continue/i }))
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
 
     expect(await screen.findByRole('heading', { name: /payment/i })).toBeInTheDocument()
   })
@@ -178,7 +179,7 @@ describe('step gating', () => {
     await userEvent.click(await screen.findByRole('button', { name: /^Delivery/ }))
     expect(await screen.findByLabelText(/street and number/i)).toBeInTheDocument()
 
-    await userEvent.click(screen.getByRole('button', { name: /continue/i }))
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
 
     expect(screen.getByRole('heading', { name: 'Delivery' })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: /payment/i })).not.toBeInTheDocument()
@@ -199,7 +200,7 @@ describe('placing the order', () => {
     await screen.findByRole('heading', { name: /contact/i })
     await fillContactAndContinue()
 
-    await userEvent.click(screen.getByRole('button', { name: /continue/i }))
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
     await screen.findByRole('heading', { name: /payment/i })
 
     expect(createOrder).not.toHaveBeenCalled()
@@ -209,10 +210,10 @@ describe('placing the order', () => {
     renderCheckout()
     await screen.findByRole('heading', { name: /contact/i })
     await fillContactAndContinue()
-    await userEvent.click(screen.getByRole('button', { name: /continue/i }))
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
     await screen.findByRole('heading', { name: /payment/i })
 
-    await userEvent.click(screen.getByRole('button', { name: /place order/i }))
+    await userEvent.click(screen.getAllByRole('button', { name: /place order/i })[0])
 
     await waitFor(() => expect(createOrder).toHaveBeenCalledTimes(1))
   })
@@ -221,9 +222,9 @@ describe('placing the order', () => {
     renderCheckout()
     await screen.findByRole('heading', { name: /contact/i })
     await fillContactAndContinue()
-    await userEvent.click(screen.getByRole('button', { name: /continue/i }))
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
     await screen.findByRole('heading', { name: /payment/i })
-    await userEvent.click(screen.getByRole('button', { name: /place order/i }))
+    await userEvent.click(screen.getAllByRole('button', { name: /place order/i })[0])
 
     await waitFor(() => expect(createOrder).toHaveBeenCalled())
     expect(createOrder.mock.calls[0][1]).toMatchObject({
@@ -247,9 +248,9 @@ describe('placing the order', () => {
     await userEvent.click(await screen.findByRole('button', { name: /^Delivery/ }))
     await userEvent.type(await screen.findByLabelText(/street and number/i), 'Av. Siempre Viva 742')
     await userEvent.type(screen.getByLabelText(/city/i), 'Springfield')
-    await userEvent.click(screen.getByRole('button', { name: /continue/i }))
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
     await screen.findByRole('heading', { name: /payment/i })
-    await userEvent.click(screen.getByRole('button', { name: /place order/i }))
+    await userEvent.click(screen.getAllByRole('button', { name: /place order/i })[0])
 
     await waitFor(() => expect(createOrder).toHaveBeenCalled())
     expect(createOrder.mock.calls[0][1]).toMatchObject({
@@ -277,10 +278,10 @@ describe('stock shortfalls', () => {
     renderCheckout()
     await screen.findByRole('heading', { name: /contact/i })
     await fillContactAndContinue()
-    await userEvent.click(screen.getByRole('button', { name: /continue/i }))
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
     await screen.findByRole('heading', { name: /payment/i })
 
-    expect(screen.getByRole('button', { name: /place order/i })).toBeDisabled()
+    expect(screen.getAllByRole('button', { name: /place order/i })[0]).toBeDisabled()
   })
 })
 
@@ -290,7 +291,7 @@ describe('payment methods', () => {
     renderCheckout()
     await screen.findByRole('heading', { name: /contact/i })
     await fillContactAndContinue()
-    await userEvent.click(screen.getByRole('button', { name: /continue/i }))
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
     await screen.findByRole('heading', { name: /payment/i })
 
     expect(screen.getByRole('button', { name: /order via whatsapp/i })).toBeInTheDocument()

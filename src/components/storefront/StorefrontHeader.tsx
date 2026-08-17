@@ -63,7 +63,7 @@ export function StorefrontHeader({ tenant, cartCount, homePath, cartPath, showHe
             <Link
               to={cartPath}
               aria-label={t('nav.cart')}
-              className="relative flex h-10 items-center gap-2 rounded-lg bg-brand-600 px-3 text-sm font-medium text-white transition-colors hover:bg-brand-700"
+              className="relative flex h-11 items-center gap-2 rounded-lg bg-brand-600 px-3 text-sm font-medium text-white transition-colors hover:bg-brand-700 sm:h-10"
             >
               <CartIcon className="h-4.5 w-4.5" />
               <span className="hidden sm:inline">{t('nav.cart')}</span>

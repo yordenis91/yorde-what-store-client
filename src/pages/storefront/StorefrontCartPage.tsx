@@ -42,7 +42,7 @@ export function StorefrontCartPage() {
   }
 
   return (
-    <div>
+    <div className="pb-24 lg:pb-0">
       {seo}
       <BackLink fallbackTo={path()} label={t('storefront.continueShopping')} className="mb-5" />
 
@@ -86,7 +86,7 @@ export function StorefrontCartPage() {
                       onClick={() => removeItem(item.productId, item.variantId)}
                       aria-label={t('storefront.removeItem')}
                       title={t('storefront.removeItem')}
-                      className="shrink-0 rounded-md p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 sm:h-8 sm:w-8"
                     >
                       <TrashIcon className="h-4 w-4" />
                     </button>
@@ -136,6 +136,21 @@ export function StorefrontCartPage() {
             </Link>
           </div>
         </aside>
+      </div>
+
+      {/* Always-reachable checkout action on mobile — the full summary below
+          can sit past a long item list, out of view without scrolling. */}
+      <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-gray-200 bg-white p-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] lg:hidden">
+        <div className="min-w-0 flex-1">
+          <p className="text-xs text-gray-500">{t('storefront.total')}</p>
+          <p className="text-base font-bold text-brand-700">{formatMoney(subtotal, symbol, position)}</p>
+        </div>
+        <Link
+          to={path('/checkout')}
+          className="flex shrink-0 items-center justify-center rounded-lg bg-brand-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-700"
+        >
+          {t('storefront.checkout')}
+        </Link>
       </div>
     </div>
   )

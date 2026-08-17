@@ -70,11 +70,11 @@ export function StorefrontHomePage() {
             : {}),
         }}
       />
-      <aside>
+      <aside className="order-2 md:order-1">
         <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
           {t('storefront.categories')}
         </p>
-        <div className="flex flex-col gap-1">
+        <div className="flex gap-2 overflow-x-auto pb-1 md:flex-col md:overflow-visible md:pb-0">
           <CategoryButton active={!categoryId} onClick={() => selectCategory('')}>
             {t('storefront.allCategories')}
           </CategoryButton>
@@ -86,7 +86,7 @@ export function StorefrontHomePage() {
         </div>
       </aside>
 
-      <div>
+      <div className="order-1 md:order-2">
         <div className="mb-5 flex flex-wrap gap-3">
           <Input
             placeholder={t('common.search')}
@@ -111,7 +111,7 @@ export function StorefrontHomePage() {
         {isLoading ? (
           <p className="text-sm text-gray-500">{t('common.loading')}</p>
         ) : (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
             {data?.items.map((product) => (
               <ProductCard
                 key={product.id}
@@ -159,7 +159,7 @@ function CategoryButton({
   return (
     <button
       onClick={onClick}
-      className={`rounded-lg px-3 py-1.5 text-left text-sm transition-colors ${
+      className={`shrink-0 whitespace-nowrap rounded-lg px-3 py-2 text-left text-sm transition-colors md:py-1.5 ${
         active ? 'bg-brand-600 font-medium text-white' : 'text-gray-600 hover:bg-brand-50 hover:text-brand-700'
       }`}
     >
