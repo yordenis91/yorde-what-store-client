@@ -5,7 +5,6 @@ dist
 .env
 .env.*
 !.env.example
-tests
 *.log
 .DS_Store
 .vscode
