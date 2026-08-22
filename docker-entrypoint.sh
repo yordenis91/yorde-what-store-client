@@ -34,6 +34,27 @@ echo "[entrypoint] runtime config written: apiUrl=${API_URL} storefrontRootDomai
 PRERENDER_UPSTREAM="${PRERENDER_UPSTREAM:-}"
 DNS_RESOLVER="${DNS_RESOLVER:-127.0.0.11}"
 
+# ---------------------------------------------------------------------------
+# Product images (/uploads).
+#
+# The API serves uploaded files at /uploads (src/main.ts, useStaticAssets),
+# outside its own /api/v1 prefix. Same-origin deployments used to rely on a
+# second Traefik path rule ("<domain> -> /uploads -> api service") to route
+# these requests directly to the API, bypassing this container entirely — but
+# in practice that rule's priority against this service's catch-all
+# Host(...) rule has proven unreliable to get right in EasyPanel, silently
+# falling back to this container's SPA, which serves index.html for the
+# request with a 200 (a broken image, not an error anyone notices).
+#
+# So nginx now proxies /uploads/ itself instead, the same way it already
+# proxies link-preview requests below — one fewer moving part outside this
+# image's control. Defaults to PRERENDER_UPSTREAM since it's almost always
+# the same address; set UPLOADS_UPSTREAM separately only if it needs to
+# differ. Left unset, /uploads/ 502s loudly instead of quietly serving HTML
+# as if it were a JPEG.
+# ---------------------------------------------------------------------------
+UPLOADS_UPSTREAM="${UPLOADS_UPSTREAM:-$PRERENDER_UPSTREAM}"
+
 {
   # Resolved per request rather than at startup, so nginx boots even when the
   # API container isn't up yet.
@@ -51,6 +72,11 @@ DNS_RESOLVER="${DNS_RESOLVER:-127.0.0.11}"
     echo "    \"~*^1:.*(facebookexternalhit|WhatsApp|Twitterbot|TelegramBot|LinkedInBot|Slackbot|Discordbot|Pinterest|SkypeUriPreview|vkShare|redditbot|Iframely|embedly)\" \"${PRERENDER_UPSTREAM}\";"
   fi
   echo '}'
+  echo ''
+  echo 'map "" $uploads_upstream {'
+  echo "    default \"${UPLOADS_UPSTREAM}\";"
+  echo '}'
 } > /etc/nginx/conf.d/00-prerender.conf
 
 echo "[entrypoint] link-preview prerender: ${PRERENDER_UPSTREAM:-disabled}"
+echo "[entrypoint] uploads proxy: ${UPLOADS_UPSTREAM:-disabled (will 502)}"
