@@ -70,6 +70,35 @@ Ambos quedan accesibles solo dentro de la red interna del proyecto, con nombre d
 host `<proyecto>_<servicio>` (p. ej. `yws_postgres`). No les asignes dominio: no
 deben ser accesibles desde fuera.
 
+### Rol dedicado para respaldos (una sola vez)
+
+Cada tabla con datos de tenant tiene `FORCE ROW LEVEL SECURITY` — a propósito,
+es lo que hace que el aislamiento entre tiendas sea real y no solo de
+convención. Pero eso mismo bloquea `pg_dump` para cualquier rol que no tenga el
+atributo `BYPASSRLS`, sin excepción ni para el dueño de las tablas. **No se lo
+des al rol que usa la API día a día** (el de `DATABASE_URL`) — eso anularía
+justo la garantía de aislamiento que probamos con la suite de RLS. Crea un rol
+aparte, solo para respaldos:
+
+```sql
+CREATE ROLE yws_backup LOGIN PASSWORD 'una-clave-fuerte-distinta' BYPASSRLS;
+GRANT <rol_de_DATABASE_URL> TO yws_backup;  -- p. ej. GRANT yws TO yws_backup;
+```
+
+Corre esto una vez, conectado como el usuario administrador que EasyPanel creó
+para el servicio `postgres` (el mismo que usaste para anotar usuario/clave
+arriba). La forma más simple: abre la consola/terminal del servicio `api` en
+EasyPanel — ya trae `psql` instalado — y conéctate al host interno de Postgres:
+
+```bash
+psql "postgresql://ADMIN_USER:ADMIN_PASSWORD@yws_postgres:5432/BASE"
+```
+
+El `GRANT` hace que `yws_backup` herede los privilegios del rol dueño de las
+tablas (lectura y escritura completas), mientras `BYPASSRLS` lo exime de la
+política forzada. `BACKUP_DATABASE_URL` (sección siguiente) usa este rol, no
+el de `DATABASE_URL`.
+
 ## 2. Servicio `api`
 
 **Origen:** repositorio `yordenis91/yorde-what-store-api`, rama `main`.
@@ -142,6 +171,18 @@ MAIL_FROM=no-reply@tudominio.com
 
 SUPER_ADMIN_EMAIL=tu@email.com
 SUPER_ADMIN_PASSWORD=una-clave-fuerte
+
+# Respaldos automáticos de Postgres — opcional, pero fuertemente recomendado
+# antes de aceptar clientes reales. Si falta cualquiera de estas variables,
+# la función queda inerte (un aviso en el log al arrancar, nada se rompe) en
+# vez de fallar. Requiere el rol yws_backup creado en la sección 1 de esta
+# guía — NO reutilices el usuario de DATABASE_URL aquí.
+BACKUP_DATABASE_URL=postgresql://yws_backup:CLAVE@yws_postgres:5432/BASE
+BACKUP_S3_ENDPOINT=https://<account_id>.r2.cloudflarestorage.com
+BACKUP_S3_BUCKET=yws-backups
+BACKUP_S3_REGION=auto
+BACKUP_S3_ACCESS_KEY_ID=...
+BACKUP_S3_SECRET_ACCESS_KEY=...
 ```
 
 Dos avisos sobre estas variables:
@@ -314,6 +355,37 @@ VITE_STOREFRONT_ROOT_DOMAIN=localhost
 
 Con eso, `http://mitienda.localhost:5173/` sirve la tienda `mitienda` y
 `http://localhost:5173/` sigue siendo la plataforma.
+
+## 8. Respaldos y restauración
+
+Con `BACKUP_DATABASE_URL` y `BACKUP_S3_*` configuradas (sección 2), la API
+respalda Postgres solo, todos los días a las 3am UTC por defecto
+(`BACKUP_CRON`), y borra los respaldos más viejos que los últimos
+`BACKUP_RETENTION_COUNT` (14 por defecto). Tres rutas, todas
+`SUPER_ADMIN`:
+
+```bash
+# Ver los respaldos que existen ahora mismo
+curl -H "Authorization: Bearer $TOKEN" https://tudominio.com/api/v1/platform/backups
+
+# Forzar uno fuera de horario, sin esperar al cron
+curl -X POST -H "Authorization: Bearer $TOKEN" https://tudominio.com/api/v1/platform/backups/run
+
+# El simulacro de restauración — la prueba real de que un respaldo sirve
+curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  https://tudominio.com/api/v1/platform/backups/restore \
+  -d '{"key": "postgres/yws-2026-08-24T03-00-00-000Z.dump", "targetDatabaseUrl": "postgresql://..."}'
+```
+
+**`targetDatabaseUrl` tiene que ser una base distinta a la que sirve tráfico
+real.** El servicio rechaza cualquier valor que coincida con `DATABASE_URL`.
+Usa una base nueva, vacía, con las migraciones ya aplicadas (`npx prisma
+migrate deploy` contra ella) — puede ser un servicio Postgres aparte en
+EasyPanel que borres después, o una base local si te conectas por túnel.
+
+Haz este simulacro **al menos una vez** antes de tu primer cliente real, y
+después cada vez que quieras dormir tranquilo: un respaldo que nadie ha
+restaurado es una esperanza, no un respaldo.
 
 ## SEO: lo que está resuelto y lo que no
 
