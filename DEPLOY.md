@@ -13,7 +13,7 @@ EasyPanel (Traefik) reparte por prefijo de ruta:
 ```
 tudominio.com/            →  web (nginx, puerto 80)
 tudominio.com/api/v1/...  →  api (NestJS, puerto 3000)
-tudominio.com/uploads/... →  api (imágenes de producto en disco)
+tudominio.com/uploads/... →  web, que lo reenvía internamente a api
 ```
 
 No es una preferencia estética, resuelve tres problemas concretos:
@@ -27,8 +27,13 @@ No es una preferencia estética, resuelve tres problemas concretos:
   conecte su propio dominio, ese dominio sirve frontend y API juntos, y la cookie
   sigue siendo same-site.
 
-Traefik evalúa las reglas de ruta más específicas primero, así que `/api` y
-`/uploads` ganan sobre `/` sin configuración extra.
+Traefik evalúa las reglas de ruta más específicas primero, así que `/api` gana
+sobre `/` sin configuración extra. `/uploads` **no** depende de eso — en la
+práctica, hacer que Traefik priorice esa ruta hacia el servicio `api` por
+encima de la regla `Host(...)` sin ruta del servicio `web` resultó poco fiable
+en EasyPanel (redesplegar no lo corregía). En vez de pelear con eso, `web`
+(nginx) reenvía `/uploads/` directo a `api` por la red interna — ver
+`UPLOADS_UPSTREAM` en la sección 3.
 
 ## Antes de empezar
 
@@ -78,15 +83,20 @@ deben ser accesibles desde fuera.
 Las imágenes de producto se guardan en disco local (`src/main.ts:19`). Sin este
 volumen, **cada redespliegue borra todas las imágenes de todas las tiendas**.
 
-**Dominios:** añade dos entradas, ambas al puerto `3000`:
+**Dominios:** añade una entrada al puerto `3000`:
 
 | Host           | Ruta       |
 | -------------- | ---------- |
 | `tudominio.com` | `/api`     |
-| `tudominio.com` | `/uploads` |
 
 Deja la ruta **sin recortar** (sin *strip path*): la API espera recibir el
 `/api/v1` completo, porque es su prefijo global.
+
+`/uploads` **no** lleva entrada aquí — lo sirve el servicio `web`, que lo
+reenvía internamente a este servicio por la red del proyecto (ver la variable
+`UPLOADS_UPSTREAM` en la sección 3). Si ya tienes una entrada vieja de
+`/uploads` apuntando aquí de una configuración anterior, puedes borrarla sin
+problema; no hace nada porque `web` intercepta esa ruta primero.
 
 **Variables de entorno:**
 
@@ -147,6 +157,7 @@ emite y renueva el certificado Let's Encrypt.
 ```env
 VITE_API_URL=/api/v1
 VITE_STOREFRONT_ROOT_DOMAIN=tudominio.com
+UPLOADS_UPSTREAM=yws_api:3000
 ```
 
 `VITE_API_URL` es una ruta relativa a propósito: el navegador la resuelve contra
@@ -155,6 +166,15 @@ subdominio de tienda, sin reconstruir la imagen.
 
 `VITE_STOREFRONT_ROOT_DOMAIN` activa los subdominios por tienda (sección 7). Si
 la dejas vacía, las tiendas solo son accesibles en `/store/<slug>`.
+
+`UPLOADS_UPSTREAM` es la dirección del servicio `api` en la red interna del
+proyecto (mismo formato que `DATABASE_URL` usa para Postgres, con el puerto de
+la API). nginx reenvía ahí toda petición a `/uploads/`, en vez de depender de
+una regla de ruta de Traefik hacia el servicio `api` — ver la nota al inicio de
+este documento. Si ya configuraste `PRERENDER_UPSTREAM` (sección 7, para las
+vistas previas de WhatsApp) con la misma dirección, puedes omitir esta
+variable: cae a ese valor por defecto. Sin ninguna de las dos, `/uploads/`
+responde `502` en vez de servir HTML disfrazado de imagen.
 
 ### Cómo funciona la configuración en runtime
 
@@ -252,8 +272,9 @@ tiene prioridad.
 1. **DNS:** añade un registro comodín `*.tudominio.com` de tipo `A` apuntando a
    la IP del VPS, además del registro del dominio raíz.
 2. **EasyPanel:** añade el host `*.tudominio.com` al servicio `web` (ruta `/`), y
-   también al servicio `api` para las rutas `/api` y `/uploads` — si no, las
-   peticiones desde un subdominio de tienda no encuentran la API.
+   también al servicio `api` para la ruta `/api` — si no, las peticiones desde
+   un subdominio de tienda no encuentran la API. `/uploads` no necesita entrada
+   propia: la sirve `web` en cualquier host, comodín incluido.
 3. **Certificado:** un certificado comodín necesita validación **DNS-01**, no la
    HTTP-01 por defecto. Hay que configurar en EasyPanel el proveedor DNS de tu
    dominio (token de API de Cloudflare u otro) para que pueda emitirlo.
