@@ -9,6 +9,7 @@
     "coupons": "Coupons",
     "shipping": "Shipping",
     "staff": "Staff",
+    "emailTemplates": "Email templates",
     "settings": "Store settings",
     "plans": "Plans",
     "tenants": "Tenants",
@@ -58,7 +59,11 @@
     "totalProducts": "Products",
     "totalOrders": "Orders",
     "pendingOrders": "Pending orders",
-    "revenue": "Revenue (paid orders)"
+    "revenue": "Revenue (paid orders)",
+    "conversionRate": "Conversion rate",
+    "visitsLast7Days": "Visits — last 7 days",
+    "topReferrers": "Top referrers",
+    "noReferrers": "No referrer traffic yet."
   },
   "products": {
     "title": "Products",
@@ -188,6 +193,39 @@
     "stockOnly": "{{name}}: only {{available}} left",
     "stockNone": "{{name}}: out of stock",
     "fixInCart": "Adjust in the cart"
+  },
+  "account": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "createAccount": "Create account",
+    "createAccountAtCheckout": "Create an account with these details",
+    "haveAccount": "Already have an account? Sign in",
+    "noAccount": "New here?",
+    "myAccount": "My account",
+    "myOrders": "My orders",
+    "noOrders": "You haven't placed any orders yet.",
+    "invalidCredentials": "Invalid email or password",
+    "forgotPassword": "Forgot your password?",
+    "forgotPasswordSent": "If that email is registered, a reset link is on its way.",
+    "sendResetLink": "Send reset link",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "resetPassword": "Reset password",
+    "resetPasswordDone": "Your password has been reset. You can now sign in with it.",
+    "newPassword": "New password"
+  },
+  "emailTemplates": {
+    "hint": "Edit the wording of automatic emails your store sends. Placeholders in curly braces are filled in for each send.",
+    "subject": "Subject",
+    "body": "Body",
+    "placeholders": "Placeholders",
+    "customized": "Customized",
+    "restoreDefault": "Restore default",
+    "reverted": "Restored to the default",
+    "keys": {
+      "staff-invite": "Staff invitation",
+      "order-confirmation": "Order confirmation",
+      "password-reset": "Customer password reset"
+    }
   },
   "common": {
     "loading": "Loading...",

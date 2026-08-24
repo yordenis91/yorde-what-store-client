@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useCartStore } from '@/store/cart.store'
+import { useCustomerStore } from '@/store/customer.store'
 import { buildTenant } from '../../../tests/factories'
 import { StorefrontCheckoutPage } from './StorefrontCheckoutPage'
 import type { OrderQuote } from '@/services/orders.service'
@@ -13,6 +14,7 @@ const createOrder = vi.fn()
 const quoteOrder = vi.fn()
 const listPublicShippings = vi.fn()
 const createStripeCheckout = vi.fn()
+const registerCustomer = vi.fn()
 
 vi.mock('@/services/orders.service', () => ({
   createOrder: (...args: unknown[]) => createOrder(...args),
@@ -23,6 +25,9 @@ vi.mock('@/services/shipping.service', () => ({
 }))
 vi.mock('@/services/payments.service', () => ({
   createStripeCheckout: (...args: unknown[]) => createStripeCheckout(...args),
+}))
+vi.mock('@/services/customers.service', () => ({
+  registerCustomer: (...args: unknown[]) => registerCustomer(...args),
 }))
 vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }))
 
@@ -87,11 +92,16 @@ beforeEach(() => {
     items: [{ productId: 'p1', name: 'Soap', unitPrice: 25, quantity: 2 }],
     couponCode: null,
   })
+  useCustomerStore.setState({ tenantSlug: null, customer: null, accessToken: null, isBootstrapping: false })
   quoteOrder.mockResolvedValue(buildQuote())
   listPublicShippings.mockResolvedValue([])
   createOrder.mockResolvedValue({
     order: { id: 'order-1', orderNumber: 'ORD-1' },
     fulfillment: { type: 'TELEGRAM', queued: true },
+  })
+  registerCustomer.mockResolvedValue({
+    customer: { id: 'cust-1', name: 'Ana Pérez', email: 'ana@test.com', phone: null, createdAt: '2026-01-01' },
+    accessToken: 'customer-token',
   })
 })
 
@@ -282,6 +292,62 @@ describe('stock shortfalls', () => {
     await screen.findByRole('heading', { name: /payment/i })
 
     expect(screen.getAllByRole('button', { name: /place order/i })[0]).toBeDisabled()
+  })
+})
+
+describe('account creation at checkout', () => {
+  it('is not offered to a shopper who is already signed in', async () => {
+    useCustomerStore.setState({
+      tenantSlug: 'vortex',
+      customer: { id: 'cust-1', name: 'Ana', email: 'ana@test.com', phone: null, createdAt: '2026-01-01' },
+      accessToken: 'existing-token',
+      isBootstrapping: false,
+    })
+    renderCheckout()
+    await screen.findByRole('heading', { name: /contact/i })
+
+    expect(screen.queryByText(/create an account with these details/i)).not.toBeInTheDocument()
+  })
+
+  it('requires a password once the checkbox is ticked', async () => {
+    renderCheckout()
+    await screen.findByRole('heading', { name: /contact/i })
+
+    await userEvent.type(screen.getByLabelText(/full name/i), 'Ana Pérez')
+    await userEvent.type(screen.getByLabelText(/phone/i), '+15551234567')
+    await userEvent.type(screen.getByLabelText(/email/i), 'ana@test.com')
+    await userEvent.click(screen.getByLabelText(/create an account with these details/i))
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
+
+    expect(await screen.findByText(/at least 8 characters/i)).toBeInTheDocument()
+    expect(registerCustomer).not.toHaveBeenCalled()
+  })
+
+  it('registers the account before placing the order, and still places it as a guest if registration fails', async () => {
+    registerCustomer.mockRejectedValueOnce(new Error('Email already registered'))
+    renderCheckout()
+    await screen.findByRole('heading', { name: /contact/i })
+
+    await userEvent.type(screen.getByLabelText(/full name/i), 'Ana Pérez')
+    await userEvent.type(screen.getByLabelText(/phone/i), '+15551234567')
+    await userEvent.type(screen.getByLabelText(/email/i), 'ana@test.com')
+    await userEvent.click(screen.getByLabelText(/create an account with these details/i))
+    await userEvent.type(screen.getByLabelText(/^password$/i), 'password123')
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
+    await screen.findByRole('heading', { name: 'Delivery' })
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
+    await screen.findByRole('heading', { name: /payment/i })
+
+    await userEvent.click(screen.getAllByRole('button', { name: /place order/i })[0])
+
+    await waitFor(() => expect(registerCustomer).toHaveBeenCalledWith({
+      email: 'ana@test.com',
+      password: 'password123',
+      name: 'Ana Pérez',
+      phone: '+15551234567',
+    }))
+    // Registration rejected above — the order still goes through as a guest.
+    await waitFor(() => expect(createOrder).toHaveBeenCalledTimes(1))
   })
 })
 

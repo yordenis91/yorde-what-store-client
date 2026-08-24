@@ -11,6 +11,7 @@ const navItems = [
   { to: '/admin/coupons', label: 'nav.coupons' },
   { to: '/admin/shipping', label: 'nav.shipping' },
   { to: '/admin/staff', label: 'nav.staff' },
+  { to: '/admin/email-templates', label: 'nav.emailTemplates' },
   { to: '/admin/plans', label: 'nav.plans' },
   { to: '/admin/settings', label: 'nav.settings' },
 ]

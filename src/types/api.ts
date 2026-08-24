@@ -142,6 +142,25 @@ export interface Order {
   createdAt: string
 }
 
+export interface Customer {
+  id: string
+  name: string
+  email: string | null
+  phone: string | null
+  createdAt: string
+}
+
+export interface CustomerOrderSummary {
+  id: string
+  orderNumber: string
+  status: OrderStatus
+  fulfillmentMethod: FulfillmentMethod
+  grandTotal: string
+  currency: string
+  createdAt: string
+  items: { id: string; productName: string; variantName: string | null; quantity: number; lineTotal: string }[]
+}
+
 export interface PaginatedResult<T> {
   items: T[]
   meta: { page: number; limit: number; total: number; totalPages: number }

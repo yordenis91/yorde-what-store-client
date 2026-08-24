@@ -8,6 +8,8 @@ import { setStorefrontTenant } from '@/services/api-client'
 import { TENANT_SLUG_FROM_HOST, storefrontPath } from '@/config/storefront'
 import { applyStorefrontTheme, clearStorefrontTheme } from '@/config/themes'
 import { useCartStore } from '@/store/cart.store'
+import { useBootstrapCustomerAuth } from '@/hooks/useBootstrapCustomerAuth'
+import { useVisitTracking } from '@/hooks/useVisitTracking'
 import { StorefrontHeader } from '@/components/storefront/StorefrontHeader'
 import { FullPageSpinner } from '@/components/ui/Spinner'
 import { NotFound } from '@/pages/NotFoundPage'
@@ -39,6 +41,12 @@ export function PublicLayout() {
     setStorefrontTenant(slug)
     setTenantSlug(slug)
   }, [slug, setTenantSlug])
+
+  // Declared after the effect above so, within this component, it always
+  // commits second — setStorefrontTenant(slug) has already run by the time
+  // this hook's own effect fires its `apiClient`-backed profile fetch.
+  useBootstrapCustomerAuth(slug)
+  useVisitTracking()
 
   // Runs before the early returns below, so it has to tolerate a tenant that
   // hasn't loaded. Cleared on unmount so leaving a storefront for the platform
@@ -74,6 +82,8 @@ export function PublicLayout() {
         cartCount={cartCount}
         homePath={path()}
         cartPath={path('/cart')}
+        accountPath={path('/account')}
+        loginPath={path('/login')}
         showHero={isHome}
       />
 

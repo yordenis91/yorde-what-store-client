@@ -2,8 +2,9 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { resolveMediaUrl } from '@/services/api-client'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
-import { CartIcon } from '@/components/ui/icons'
+import { CartIcon, UserIcon } from '@/components/ui/icons'
 import { SOCIAL_NETWORKS } from '@/config/social'
+import { useCustomerStore } from '@/store/customer.store'
 import type { PublicTenant } from '@/types/api'
 
 interface StorefrontHeaderProps {
@@ -11,6 +12,8 @@ interface StorefrontHeaderProps {
   cartCount: number
   homePath: string
   cartPath: string
+  accountPath: string
+  loginPath: string
   /** The hero belongs on the store's front page, not on cart or checkout. */
   showHero?: boolean
 }
@@ -38,8 +41,17 @@ function SocialLinks({ links, className = '' }: { links: Record<string, string>;
   )
 }
 
-export function StorefrontHeader({ tenant, cartCount, homePath, cartPath, showHero }: StorefrontHeaderProps) {
+export function StorefrontHeader({
+  tenant,
+  cartCount,
+  homePath,
+  cartPath,
+  accountPath,
+  loginPath,
+  showHero,
+}: StorefrontHeaderProps) {
   const { t } = useTranslation()
+  const customer = useCustomerStore((s) => s.customer)
   const logo = tenant.logoUrl ? resolveMediaUrl(tenant.logoUrl) : null
   const banner = tenant.bannerUrl ? resolveMediaUrl(tenant.bannerUrl) : null
 
@@ -60,6 +72,16 @@ export function StorefrontHeader({ tenant, cartCount, homePath, cartPath, showHe
 
           <div className="flex shrink-0 items-center gap-2">
             <LanguageSwitcher />
+            <Link
+              to={customer ? accountPath : loginPath}
+              aria-label={customer ? t('account.myAccount') : t('account.signIn')}
+              className="flex h-11 items-center gap-1.5 rounded-lg px-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 sm:h-10"
+            >
+              <UserIcon className="h-4.5 w-4.5" />
+              <span className="hidden max-w-[8rem] truncate sm:inline">
+                {customer ? customer.name : t('account.signIn')}
+              </span>
+            </Link>
             <Link
               to={cartPath}
               aria-label={t('nav.cart')}

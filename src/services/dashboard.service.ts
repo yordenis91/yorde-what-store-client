@@ -16,6 +16,11 @@ export interface DashboardSummary {
     grandTotal: string
     createdAt: string
   }[]
+  visitsLast7Days: { date: string; count: number }[]
+  totalVisits: number
+  /** Orders divided by entry-page (home/product) visits in the same 7-day window. Null with no visits yet. */
+  conversionRate: number | null
+  topReferrers: { referrer: string; count: number }[]
 }
 
 export async function getDashboardSummary() {

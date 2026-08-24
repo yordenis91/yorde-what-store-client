@@ -25,6 +25,9 @@ const StoreSettingsPage = lazy(() => import('@/pages/admin/StoreSettingsPage').t
 const StaffPage = lazy(() => import('@/pages/admin/StaffPage').then((m) => ({ default: m.StaffPage })))
 const PlansPage = lazy(() => import('@/pages/admin/PlansPage').then((m) => ({ default: m.PlansPage })))
 const CouponsPage = lazy(() => import('@/pages/admin/CouponsPage').then((m) => ({ default: m.CouponsPage })))
+const EmailTemplatesPage = lazy(() =>
+  import('@/pages/admin/EmailTemplatesPage').then((m) => ({ default: m.EmailTemplatesPage })),
+)
 const ShippingPage = lazy(() => import('@/pages/admin/ShippingPage').then((m) => ({ default: m.ShippingPage })))
 
 const PlatformDashboardPage = lazy(() =>
@@ -55,6 +58,12 @@ const StorefrontCheckoutPage = lazy(() =>
 const StorefrontOrderConfirmedPage = lazy(() =>
   import('@/pages/storefront/StorefrontOrderConfirmedPage').then((m) => ({ default: m.StorefrontOrderConfirmedPage })),
 )
+const StorefrontLoginPage = lazy(() =>
+  import('@/pages/storefront/StorefrontLoginPage').then((m) => ({ default: m.StorefrontLoginPage })),
+)
+const StorefrontAccountPage = lazy(() =>
+  import('@/pages/storefront/StorefrontAccountPage').then((m) => ({ default: m.StorefrontAccountPage })),
+)
 
 /**
  * Storefront pages, mounted under whatever path the current host implies: the
@@ -67,6 +76,8 @@ const storefrontRoutes = (
     <Route path="cart" element={<StorefrontCartPage />} />
     <Route path="checkout" element={<StorefrontCheckoutPage />} />
     <Route path="order-confirmed/:id" element={<StorefrontOrderConfirmedPage />} />
+    <Route path="login" element={<StorefrontLoginPage />} />
+    <Route path="account" element={<StorefrontAccountPage />} />
   </>
 )
 
@@ -116,6 +127,7 @@ export default function App() {
             <Route path="coupons" element={<CouponsPage />} />
             <Route path="shipping" element={<ShippingPage />} />
             <Route path="staff" element={<StaffPage />} />
+            <Route path="email-templates" element={<EmailTemplatesPage />} />
             <Route path="plans" element={<PlansPage />} />
             <Route path="settings" element={<StoreSettingsPage />} />
           </Route>

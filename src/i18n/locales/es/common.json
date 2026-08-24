@@ -9,6 +9,7 @@
     "coupons": "Cupones",
     "shipping": "Envíos",
     "staff": "Equipo",
+    "emailTemplates": "Plantillas de email",
     "settings": "Configuración de tienda",
     "plans": "Planes",
     "tenants": "Tiendas",
@@ -58,7 +59,11 @@
     "totalProducts": "Productos",
     "totalOrders": "Órdenes",
     "pendingOrders": "Órdenes pendientes",
-    "revenue": "Ingresos (órdenes pagadas)"
+    "revenue": "Ingresos (órdenes pagadas)",
+    "conversionRate": "Tasa de conversión",
+    "visitsLast7Days": "Visitas — últimos 7 días",
+    "topReferrers": "Principales referentes",
+    "noReferrers": "Todavía no hay tráfico de referencia."
   },
   "products": {
     "title": "Productos",
@@ -188,6 +193,39 @@
     "stockOnly": "{{name}}: quedan solo {{available}}",
     "stockNone": "{{name}}: sin stock",
     "fixInCart": "Ajustar en el carrito"
+  },
+  "account": {
+    "signIn": "Iniciar sesión",
+    "signOut": "Cerrar sesión",
+    "createAccount": "Crear cuenta",
+    "createAccountAtCheckout": "Crear una cuenta con estos datos",
+    "haveAccount": "¿Ya tienes cuenta? Inicia sesión",
+    "noAccount": "¿Primera vez aquí?",
+    "myAccount": "Mi cuenta",
+    "myOrders": "Mis pedidos",
+    "noOrders": "Todavía no has hecho ningún pedido.",
+    "invalidCredentials": "Email o contraseña incorrectos",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "forgotPasswordSent": "Si ese email está registrado, te llegará un link para restablecerla.",
+    "sendResetLink": "Enviar link de restablecimiento",
+    "passwordTooShort": "La contraseña debe tener al menos 8 caracteres",
+    "resetPassword": "Restablecer contraseña",
+    "resetPasswordDone": "Tu contraseña fue restablecida. Ya puedes iniciar sesión con ella.",
+    "newPassword": "Nueva contraseña"
+  },
+  "emailTemplates": {
+    "hint": "Edita el texto de los emails automáticos que envía tu tienda. Los placeholders entre llaves se completan en cada envío.",
+    "subject": "Asunto",
+    "body": "Cuerpo",
+    "placeholders": "Placeholders",
+    "customized": "Personalizado",
+    "restoreDefault": "Restaurar default",
+    "reverted": "Restaurado al default",
+    "keys": {
+      "staff-invite": "Invitación de personal",
+      "order-confirmation": "Confirmación de pedido",
+      "password-reset": "Restablecimiento de contraseña de cliente"
+    }
   },
   "common": {
     "loading": "Cargando...",

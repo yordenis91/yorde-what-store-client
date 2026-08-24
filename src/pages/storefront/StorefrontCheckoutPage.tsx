@@ -8,8 +8,10 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useStorefront } from '@/hooks/useStorefront'
 import { useCartStore } from '@/store/cart.store'
+import { useCustomerStore } from '@/store/customer.store'
 import { createOrder, quoteOrder } from '@/services/orders.service'
 import { createStripeCheckout } from '@/services/payments.service'
+import { registerCustomer } from '@/services/customers.service'
 import { listPublicShippings } from '@/services/shipping.service'
 import { formatMoney } from '@/utils/format'
 import { Input } from '@/components/ui/Input'
@@ -26,6 +28,8 @@ const schema = z
     customerName: z.string().min(2),
     customerPhone: z.string().min(6),
     customerEmail: z.string().email().optional().or(z.literal('')),
+    createAccount: z.boolean().optional(),
+    password: z.string().optional(),
     shippingId: z.string(),
     address: z.object({
       line1: z.string(),
@@ -48,11 +52,23 @@ const schema = z
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['address', 'city'], message: 'required' })
     }
   })
+  // Account creation is opt-in and piggybacks on the contact step: it needs an
+  // email (the backend requires one to register) and an actual password, but
+  // only when the shopper has ticked the box — guest checkout never hits this.
+  .superRefine((values, ctx) => {
+    if (!values.createAccount) return
+    if (!values.customerEmail) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['customerEmail'], message: 'required' })
+    }
+    if (!values.password || values.password.length < 8) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['password'], message: 'tooShort' })
+    }
+  })
 
 type FormValues = z.infer<typeof schema>
 
 const STEP_FIELDS = [
-  ['customerName', 'customerPhone', 'customerEmail'],
+  ['customerName', 'customerPhone', 'customerEmail', 'createAccount', 'password'],
   ['shippingId', 'address.line1', 'address.city', 'address.postalCode'],
   ['fulfillmentMethod'],
 ] as const
@@ -63,6 +79,8 @@ export function StorefrontCheckoutPage() {
   const { tenant, slug, path } = useStorefront()
   const items = useCartStore((s) => s.items)
   const clearCart = useCartStore((s) => s.clear)
+  const loggedInCustomer = useCustomerStore((s) => s.customer)
+  const setCustomerSession = useCustomerStore((s) => s.setSession)
 
   const [step, setStep] = useState(0)
   const [couponInput, setCouponInput] = useState('')
@@ -86,6 +104,8 @@ export function StorefrontCheckoutPage() {
       customerName: '',
       customerPhone: '',
       customerEmail: '',
+      createAccount: false,
+      password: '',
       shippingId: '',
       address: { line1: '', line2: '', city: '', state: '', postalCode: '', notes: '' },
       fulfillmentMethod: tenant.whatsappEnabled ? 'WHATSAPP' : tenant.telegramEnabled ? 'TELEGRAM' : 'STRIPE',
@@ -142,6 +162,27 @@ export function StorefrontCheckoutPage() {
   async function onSubmit(values: FormValues) {
     setSubmitting(true)
     try {
+      // Deliberately best-effort: an account-creation failure (e.g. email
+      // already registered) must not stop the purchase — the order still
+      // goes through as a guest. Once this resolves, createOrder below runs
+      // with a customer access token already in the store, so apiClient
+      // attaches it automatically and the order links to the account.
+      if (values.createAccount && values.password && !loggedInCustomer) {
+        try {
+          const session = await registerCustomer({
+            // superRefine guarantees a non-empty email whenever createAccount is
+            // checked; the fallback only satisfies the wider form field type.
+            email: values.customerEmail ?? '',
+            password: values.password,
+            name: values.customerName,
+            phone: values.customerPhone,
+          })
+          setCustomerSession(session)
+        } catch (error) {
+          toast.error(extractErrorMessage(error, t('errors.generic')))
+        }
+      }
+
       const result = await createOrder(slug, {
         customerName: values.customerName,
         customerPhone: values.customerPhone,
@@ -246,9 +287,28 @@ export function StorefrontCheckoutPage() {
                 label={t('storefront.customerEmail')}
                 type="email"
                 {...register('customerEmail')}
-                error={errors.customerEmail && t('storefront.emailInvalid')}
+                error={errors.customerEmail && (errors.customerEmail.message === 'required' ? t('errors.required') : t('storefront.emailInvalid'))}
               />
               <p className="text-xs text-gray-500">{t('storefront.contactHint')}</p>
+
+              {!loggedInCustomer && (
+                <div className="rounded-lg border border-gray-200 p-3">
+                  <label className="flex items-center gap-2 text-sm text-gray-700">
+                    <input type="checkbox" {...register('createAccount')} />
+                    {t('account.createAccountAtCheckout')}
+                  </label>
+                  {watch('createAccount') && (
+                    <Input
+                      label={t('auth.password')}
+                      type="password"
+                      autoComplete="new-password"
+                      className="mt-3"
+                      {...register('password')}
+                      error={errors.password && t('account.passwordTooShort')}
+                    />
+                  )}
+                </div>
+              )}
             </div>
           )}
 

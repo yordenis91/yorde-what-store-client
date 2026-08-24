@@ -1,6 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { runtimeValue } from '@/config/runtime'
 import { useAuthStore } from '@/store/auth.store'
+import { useCustomerStore } from '@/store/customer.store'
 
 /**
  * API base URL, preferring runtime config over build-time env so a single
@@ -31,12 +32,25 @@ export function setStorefrontTenant(slug: string | null) {
   storefrontTenantSlug = slug
 }
 
+/**
+ * The backend namespaces every guest/customer-facing endpoint under
+ * `storefront/*` (see StorefrontOrdersController et al.) and everything else
+ * under staff/tenant-admin routes — so this prefix is also the correct signal
+ * for which of the two, unrelated bearer tokens a request should carry. Matters
+ * in `/store/:slug` fallback mode, where an admin and a storefront page share
+ * one origin (and could each hold a session) at the same time.
+ */
+function isStorefrontUrl(url?: string): boolean {
+  return (url ?? '').replace(/^\//, '').startsWith('storefront/')
+}
+
 apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const { accessToken, activeTenant } = useAuthStore.getState()
-  if (accessToken) {
-    config.headers.set('Authorization', `Bearer ${accessToken}`)
+  const storefrontCall = isStorefrontUrl(config.url)
+  const token = storefrontCall ? useCustomerStore.getState().accessToken : useAuthStore.getState().accessToken
+  if (token) {
+    config.headers.set('Authorization', `Bearer ${token}`)
   }
-  const tenantId = activeTenant?.id ?? storefrontTenantSlug
+  const tenantId = useAuthStore.getState().activeTenant?.id ?? storefrontTenantSlug
   if (tenantId) {
     config.headers.set('X-Tenant-ID', tenantId)
   }
@@ -58,24 +72,58 @@ async function refreshAccessToken(): Promise<string | null> {
   }
 }
 
+let customerRefreshPromise: Promise<string | null> | null = null
+
+async function refreshCustomerAccessToken(): Promise<string | null> {
+  try {
+    const { data } = await axios.post<{ success: true; data: { accessToken: string } }>(
+      `${API_URL}/storefront/customers/auth/refresh`,
+      {},
+      {
+        withCredentials: true,
+        headers: storefrontTenantSlug ? { 'X-Tenant-ID': storefrontTenantSlug } : undefined,
+      },
+    )
+    return data.data.accessToken
+  } catch {
+    return null
+  }
+}
+
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const original = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined
     const status = error.response?.status
+    const storefrontCall = isStorefrontUrl(original?.url)
+    const authEndpoint = storefrontCall ? '/storefront/customers/auth/' : '/auth/'
 
-    if (status === 401 && original && !original._retry && !original.url?.includes('/auth/')) {
+    if (status === 401 && original && !original._retry && !original.url?.includes(authEndpoint)) {
       original._retry = true
-      refreshPromise ??= refreshAccessToken().finally(() => {
-        refreshPromise = null
-      })
-      const newToken = await refreshPromise
-      if (newToken) {
-        useAuthStore.getState().setAccessToken(newToken)
-        original.headers.set('Authorization', `Bearer ${newToken}`)
-        return apiClient(original)
+
+      if (storefrontCall) {
+        customerRefreshPromise ??= refreshCustomerAccessToken().finally(() => {
+          customerRefreshPromise = null
+        })
+        const newToken = await customerRefreshPromise
+        if (newToken) {
+          useCustomerStore.getState().setAccessToken(newToken)
+          original.headers.set('Authorization', `Bearer ${newToken}`)
+          return apiClient(original)
+        }
+        useCustomerStore.getState().clear()
+      } else {
+        refreshPromise ??= refreshAccessToken().finally(() => {
+          refreshPromise = null
+        })
+        const newToken = await refreshPromise
+        if (newToken) {
+          useAuthStore.getState().setAccessToken(newToken)
+          original.headers.set('Authorization', `Bearer ${newToken}`)
+          return apiClient(original)
+        }
+        useAuthStore.getState().clear()
       }
-      useAuthStore.getState().clear()
     }
 
     return Promise.reject(error)

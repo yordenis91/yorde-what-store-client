@@ -62,12 +62,16 @@ export function DashboardPage() {
     { label: t('dashboard.totalOrders'), value: summary?.totalOrders ?? '—' },
     { label: t('dashboard.pendingOrders'), value: summary?.pendingOrders ?? '—' },
     { label: t('dashboard.revenue'), value: formatMoney(summary?.revenue ?? 0, symbol, position) },
+    {
+      label: t('dashboard.conversionRate'),
+      value: summary?.conversionRate == null ? '—' : `${(summary.conversionRate * 100).toFixed(1)}%`,
+    },
   ]
 
   return (
     <div>
       <h1 className="mb-6 text-2xl font-semibold text-gray-900">{t('dashboard.title')}</h1>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {stats.map((stat) => (
           <Card key={stat.label}>
             <p className="text-sm text-gray-500">{stat.label}</p>
@@ -123,6 +127,28 @@ export function DashboardPage() {
               </Link>
             ))}
             {summary?.recentOrders.length === 0 && <p className="py-4 text-center text-sm text-gray-400">No orders yet.</p>}
+          </div>
+        </Card>
+      </div>
+
+      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <h2 className="mb-3 font-medium text-gray-900">{t('dashboard.visitsLast7Days')}</h2>
+          {isLoading ? <p className="text-sm text-gray-500">{t('common.loading')}</p> : <OrdersChart data={summary?.visitsLast7Days ?? []} />}
+        </Card>
+
+        <Card>
+          <h2 className="mb-3 font-medium text-gray-900">{t('dashboard.topReferrers')}</h2>
+          <div className="flex flex-col divide-y divide-gray-100">
+            {summary?.topReferrers.map((r) => (
+              <div key={r.referrer} className="flex items-center justify-between py-2 text-sm">
+                <span className="truncate text-gray-700">{r.referrer}</span>
+                <span className="text-gray-500">{r.count}</span>
+              </div>
+            ))}
+            {summary?.topReferrers.length === 0 && (
+              <p className="py-4 text-center text-sm text-gray-400">{t('dashboard.noReferrers')}</p>
+            )}
           </div>
         </Card>
       </div>
