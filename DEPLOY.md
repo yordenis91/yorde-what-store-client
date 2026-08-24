@@ -41,11 +41,13 @@ en EasyPanel (redesplegar no lo corregía). En vez de pelear con eso, `web`
 - Un dominio con un registro `A` apuntando a la IP del VPS.
 - Los dos repositorios conectados a EasyPanel vía GitHub.
 
-Genera los tres secretos que vas a necesitar (uno distinto cada uno):
+Genera los cinco secretos que vas a necesitar (uno distinto cada uno):
 
 ```bash
 openssl rand -hex 32   # JWT_SECRET
 openssl rand -hex 32   # JWT_REFRESH_SECRET
+openssl rand -hex 32   # JWT_CUSTOMER_SECRET
+openssl rand -hex 32   # JWT_CUSTOMER_REFRESH_SECRET
 openssl rand -hex 32   # ENCRYPTION_KEY
 ```
 
@@ -116,6 +118,15 @@ JWT_SECRET=...
 JWT_EXPIRES_IN=15m
 JWT_REFRESH_SECRET=...
 JWT_REFRESH_EXPIRES_IN=30d
+
+# Cuentas de cliente (login de compradores) — un par de secretos aparte del
+# staff de arriba, obligatorio: sin él, CustomerJwtStrategy tira
+# "JwtStrategy requires a secret or key" al arrancar y la API entera no
+# levanta, no solo las rutas de clientes.
+JWT_CUSTOMER_SECRET=...
+JWT_CUSTOMER_EXPIRES_IN=15m
+JWT_CUSTOMER_REFRESH_SECRET=...
+JWT_CUSTOMER_REFRESH_EXPIRES_IN=30d
 
 TOTP_ISSUER=YWS
 ENCRYPTION_KEY=...
