@@ -63,8 +63,16 @@ plantillas oficiales:
 
 | Servicio   | Plantilla  | Notas                                    |
 | ---------- | ---------- | ---------------------------------------- |
-| `postgres` | PostgreSQL | 16 o superior. Anota usuario/clave/base.  |
+| `postgres` | PostgreSQL | **17** — debe coincidir con el `postgresql-client-17` que trae fijado la imagen de la API (ver más abajo). Anota usuario/clave/base. |
 | `redis`    | Redis      | 7 o superior. Anota la contraseña.        |
+
+**Por qué la versión importa:** `pg_dump` (usado para los respaldos, sección 8)
+rechaza volcar un servidor cuya versión mayor sea más nueva que la suya —
+"aborting because of server version mismatch", sin excepción. La imagen de la
+API fija `postgresql-client-17` en su `Dockerfile` (búscalo por
+`postgresql-client-17`) para que coincida con esta tabla. Si eliges otra
+versión mayor de Postgres aquí, ajusta esa línea del Dockerfile para que
+coincida, o los respaldos fallarán en el primer `pg_dump`.
 
 Ambos quedan accesibles solo dentro de la red interna del proyecto, con nombre de
 host `<proyecto>_<servicio>` (p. ej. `yws_postgres`). No les asignes dominio: no
