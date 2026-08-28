@@ -66,8 +66,16 @@ export function ProductFormPage() {
   const [newTaxRate, setNewTaxRate] = useState('')
   const [attr1, setAttr1] = useState('')
   const [attr2, setAttr2] = useState('')
-  const [uploading, setUploading] = useState(false)
+  const [pendingPreview, setPendingPreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // In case the upload is still in flight when this page unmounts (e.g. the
+  // user navigates away) — otherwise the object URL never gets released.
+  useEffect(() => {
+    return () => {
+      if (pendingPreview) URL.revokeObjectURL(pendingPreview)
+    }
+  }, [pendingPreview])
 
   const { data: categories } = useQuery({ queryKey: ['categories'], queryFn: listCategories })
   const { data: taxes } = useQuery({ queryKey: ['taxes'], queryFn: listTaxes })
@@ -155,7 +163,12 @@ export function ProductFormPage() {
     },
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['product', id] }),
     onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
-    onSettled: () => setUploading(false),
+    onSettled: () => {
+      setPendingPreview((prev) => {
+        if (prev) URL.revokeObjectURL(prev)
+        return null
+      })
+    },
   })
 
   const removeImageMutation = useMutation({
@@ -171,7 +184,7 @@ export function ProductFormPage() {
   function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-    setUploading(true)
+    setPendingPreview(URL.createObjectURL(file))
     uploadMutation.mutate(file)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
@@ -225,14 +238,22 @@ export function ProductFormPage() {
                 </div>
               </div>
             ))}
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-              className="flex h-24 w-24 flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 text-xs text-gray-500 hover:border-brand-500 hover:text-brand-600 disabled:opacity-50"
-            >
-              {uploading ? '...' : '+ Upload'}
-            </button>
+            {pendingPreview ? (
+              <div className="relative h-24 w-24 overflow-hidden rounded-lg border border-gray-200">
+                <img src={pendingPreview} alt="" className="h-full w-full object-cover" />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-white">
+                  <span className="h-6 w-6 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex h-24 w-24 flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 text-xs text-gray-500 hover:border-brand-500 hover:text-brand-600"
+              >
+                + Upload
+              </button>
+            )}
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelected} />
           </div>
         </Card>
