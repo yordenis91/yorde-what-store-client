@@ -346,7 +346,7 @@ export function ProductFormPage() {
           <p className="mb-2 text-xs text-gray-500">
             Generate combinations from attribute options (e.g. "S, M, L" × "Red, Blue")
           </p>
-          <div className="mb-3 grid grid-cols-[1fr_1fr_auto] gap-2">
+          <div className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-[1fr_1fr_auto]">
             <Input placeholder="Size: S, M, L" value={attr1} onChange={(e) => setAttr1(e.target.value)} />
             <Input placeholder="Color: Red, Blue (optional)" value={attr2} onChange={(e) => setAttr2(e.target.value)} />
             <Button type="button" variant="secondary" onClick={generateVariants}>
@@ -362,11 +362,18 @@ export function ProductFormPage() {
           </div>
           <div className="flex flex-col gap-3">
             {fields.map((field, index) => (
-              <div key={field.id} className="grid grid-cols-[2fr_1fr_1fr_auto] items-end gap-2">
-                <Input placeholder="Name" {...register(`variants.${index}.name` as const)} />
+              <div
+                key={field.id}
+                className="grid grid-cols-2 items-end gap-2 sm:grid-cols-[2fr_1fr_1fr_auto]"
+              >
+                <Input
+                  placeholder="Name"
+                  className="col-span-2 sm:col-auto"
+                  {...register(`variants.${index}.name` as const)}
+                />
                 <Input placeholder="Price" type="number" step="0.01" {...register(`variants.${index}.price` as const)} />
                 <Input placeholder="Qty" type="number" {...register(`variants.${index}.quantity` as const)} />
-                <Button type="button" variant="danger" onClick={() => remove(index)}>
+                <Button type="button" variant="danger" className="col-span-2 sm:col-auto" onClick={() => remove(index)}>
                   ×
                 </Button>
               </div>
