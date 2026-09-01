@@ -21,7 +21,9 @@
   },
   "footer": {
     "rights": "Todos los derechos reservados.",
-    "poweredBy": "Impulsado por www.yordeniscorreoso.com"
+    "poweredBy": "Impulsado por www.yordeniscorreoso.com",
+    "terms": "Términos de servicio",
+    "privacy": "Política de privacidad"
   },
   "auth": {
     "loginTitle": "Iniciar sesión en tu tienda",
@@ -38,7 +40,9 @@
     "twoFactorTitle": "Verificación en dos pasos",
     "twoFactorCode": "Código de 6 dígitos",
     "twoFactorSubmit": "Verificar",
-    "invalidCredentials": "Email o contraseña inválidos"
+    "invalidCredentials": "Email o contraseña inválidos",
+    "legalConsentPrefix": "Al crear una cuenta, aceptás nuestros",
+    "legalConsentAnd": "y nuestra"
   },
   "errors": {
     "generic": "Algo salió mal. Intentá de nuevo.",

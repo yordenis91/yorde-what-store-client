@@ -87,6 +87,17 @@ export function RegisterPage() {
       <Button type="submit" loading={loading} className="mt-2">
         {t('auth.submitRegister')}
       </Button>
+      <p className="text-center text-xs text-gray-500">
+        {t('auth.legalConsentPrefix')}{' '}
+        <Link to="/terms" className="font-medium text-brand-700">
+          {t('footer.terms')}
+        </Link>{' '}
+        {t('auth.legalConsentAnd')}{' '}
+        <Link to="/privacy" className="font-medium text-brand-700">
+          {t('footer.privacy')}
+        </Link>
+        .
+      </p>
       <p className="text-center text-sm text-gray-500">
         {t('auth.hasAccount')}{' '}
         <Link to="/login" className="font-medium text-brand-700">

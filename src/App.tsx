@@ -12,6 +12,13 @@ import { NotFoundPage } from '@/pages/NotFoundPage'
 import { TENANT_SLUG_FROM_HOST } from '@/config/storefront'
 import { useBootstrapAuth } from '@/hooks/useBootstrapAuth'
 
+const TermsOfServicePage = lazy(() =>
+  import('@/pages/legal/TermsOfServicePage').then((m) => ({ default: m.TermsOfServicePage })),
+)
+const PrivacyPolicyPage = lazy(() =>
+  import('@/pages/legal/PrivacyPolicyPage').then((m) => ({ default: m.PrivacyPolicyPage })),
+)
+
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage').then((m) => ({ default: m.LoginPage })))
 const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage').then((m) => ({ default: m.RegisterPage })))
 const TwoFactorPage = lazy(() => import('@/pages/auth/TwoFactorPage').then((m) => ({ default: m.TwoFactorPage })))
@@ -109,6 +116,8 @@ export default function App() {
     <Suspense fallback={<FullPageSpinner />}>
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/terms" element={<TermsOfServicePage />} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
 
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<LoginPage />} />

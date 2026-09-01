@@ -20,6 +20,14 @@ export function LandingPage() {
           <Button>{t('nav.register')}</Button>
         </Link>
       </div>
+      <footer className="absolute bottom-4 flex gap-4 text-xs text-gray-500">
+        <Link to="/terms" className="hover:text-gray-700">
+          {t('footer.terms')}
+        </Link>
+        <Link to="/privacy" className="hover:text-gray-700">
+          {t('footer.privacy')}
+        </Link>
+      </footer>
     </div>
   )
 }
