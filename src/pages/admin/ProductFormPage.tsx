@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -12,10 +12,12 @@ import { Card } from '@/components/ui/Card'
 import {
   addProductImage,
   createCategory,
+  createCategoryFromTemplate,
   createProduct,
   createTax,
   getProduct,
   listCategories,
+  listCategoryTemplates,
   listTaxes,
   removeProductImage,
   setCoverImage,
@@ -24,6 +26,7 @@ import {
 import { uploadImage } from '@/services/uploads.service'
 import { resolveMediaUrl } from '@/services/api-client'
 import { extractErrorMessage } from '@/services/api-client'
+import type { CategoryTemplate } from '@/types/api'
 
 const variantSchema = z.object({
   name: z.string().min(1),
@@ -44,6 +47,22 @@ const schema = z.object({
   variants: z.array(variantSchema).optional(),
 })
 type FormValues = z.infer<typeof schema>
+
+/** "Celulares" -> "Electrónica / Celulares", so a flat <select> still shows a template's place in the catalog. */
+function templateLabels(templates: CategoryTemplate[]): Map<string, string> {
+  const byId = new Map(templates.map((t) => [t.id, t]))
+  const labels = new Map<string, string>()
+  function labelFor(t: CategoryTemplate): string {
+    const cached = labels.get(t.id)
+    if (cached) return cached
+    const parent = t.parentId ? byId.get(t.parentId) : undefined
+    const label = parent ? `${labelFor(parent)} / ${t.name}` : t.name
+    labels.set(t.id, label)
+    return label
+  }
+  templates.forEach(labelFor)
+  return labels
+}
 
 function cartesian(groups: string[][]): string[] {
   return groups.reduce<string[]>(
@@ -78,6 +97,7 @@ export function ProductFormPage() {
   }, [pendingPreview])
 
   const { data: categories } = useQuery({ queryKey: ['categories'], queryFn: listCategories })
+  const { data: categoryTemplates } = useQuery({ queryKey: ['category-templates'], queryFn: listCategoryTemplates })
   const { data: taxes } = useQuery({ queryKey: ['taxes'], queryFn: listTaxes })
   const { data: existing } = useQuery({
     queryKey: ['product', id],
@@ -91,6 +111,8 @@ export function ProductFormPage() {
     handleSubmit,
     reset,
     watch,
+    setValue,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -140,6 +162,16 @@ export function ProductFormPage() {
       void queryClient.invalidateQueries({ queryKey: ['categories'] })
       setNewCategoryName('')
       setShowNewCategory(false)
+    },
+    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
+  })
+
+  const createCategoryFromTemplateMutation = useMutation({
+    mutationFn: (templateId: string) => createCategoryFromTemplate(templateId),
+    onSuccess: (category) => {
+      void queryClient.invalidateQueries({ queryKey: ['categories'] })
+      const current = getValues('categoryIds') ?? []
+      if (!current.includes(category.id)) setValue('categoryIds', [...current, category.id])
     },
     onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
   })
@@ -201,6 +233,13 @@ export function ProductFormPage() {
     setAttr1('')
     setAttr2('')
   }
+
+  const templateLabelById = useMemo(() => templateLabels(categoryTemplates ?? []), [categoryTemplates])
+  const pickedTemplateIds = useMemo(
+    () => new Set((categories ?? []).map((c) => c.templateId).filter((id): id is string => !!id)),
+    [categories],
+  )
+  const availableTemplates = (categoryTemplates ?? []).filter((t) => !pickedTemplateIds.has(t.id))
 
   return (
     <div className="max-w-2xl">
@@ -272,11 +311,30 @@ export function ProductFormPage() {
         </div>
 
         <div>
-          <div className="mb-1 flex items-center justify-between">
+          <div className="mb-1 flex items-center justify-between gap-2">
             <span className="block text-sm font-medium text-gray-700">Categories</span>
-            <button type="button" className="text-xs font-medium text-brand-700" onClick={() => setShowNewCategory((v) => !v)}>
-              + New
-            </button>
+            <div className="flex items-center gap-2">
+              {availableTemplates.length > 0 && (
+                <select
+                  className="rounded-lg border border-gray-300 px-2 py-1 text-xs text-gray-700"
+                  value=""
+                  disabled={createCategoryFromTemplateMutation.isPending}
+                  onChange={(e) => {
+                    if (e.target.value) createCategoryFromTemplateMutation.mutate(e.target.value)
+                  }}
+                >
+                  <option value="">+ From catalog</option>
+                  {availableTemplates.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {templateLabelById.get(t.id) ?? t.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+              <button type="button" className="text-xs font-medium text-brand-700" onClick={() => setShowNewCategory((v) => !v)}>
+                + New
+              </button>
+            </div>
           </div>
           {showNewCategory && (
             <div className="mb-2 flex gap-2">

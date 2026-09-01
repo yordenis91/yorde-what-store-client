@@ -60,6 +60,16 @@ export interface PublicTenant {
 export interface ProductCategory {
   id: string
   name: string
+  templateId?: string | null
+}
+
+export interface CategoryTemplate {
+  id: string
+  name: string
+  slug: string
+  parentId: string | null
+  sortOrder: number
+  isActive: boolean
 }
 
 export interface ProductTax {

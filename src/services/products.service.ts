@@ -1,5 +1,5 @@
 import { apiClient } from './api-client'
-import type { ApiEnvelope, PaginatedResult, Product, ProductCategory, ProductTax } from '@/types/api'
+import type { ApiEnvelope, CategoryTemplate, PaginatedResult, Product, ProductCategory, ProductTax } from '@/types/api'
 
 export interface ProductListParams {
   page?: number
@@ -102,6 +102,20 @@ export async function listPublicCategories(slug: string) {
 
 export async function createCategory(name: string) {
   const { data } = await apiClient.post<ApiEnvelope<ProductCategory>>(`${adminBase}/categories`, { name })
+  return data.data
+}
+
+/** The platform's curated category catalog — an alternative to typing a category name from scratch. */
+export async function listCategoryTemplates() {
+  const { data } = await apiClient.get<ApiEnvelope<CategoryTemplate[]>>(`${adminBase}/category-templates`)
+  return data.data
+}
+
+/** Turns a catalog entry into a normal category for this store — same list `listCategories` returns. */
+export async function createCategoryFromTemplate(templateId: string) {
+  const { data } = await apiClient.post<ApiEnvelope<ProductCategory>>(`${adminBase}/categories/from-template`, {
+    templateId,
+  })
   return data.data
 }
 

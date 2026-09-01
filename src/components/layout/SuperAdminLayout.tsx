@@ -7,6 +7,7 @@ const navItems = [
   { to: '/platform', label: 'nav.dashboard', end: true },
   { to: '/platform/tenants', label: 'nav.tenants' },
   { to: '/platform/plans', label: 'nav.plans' },
+  { to: '/platform/category-templates', label: 'nav.categoryTemplates' },
   { to: '/platform/upgrade-requests', label: 'nav.upgradeRequests' },
 ]
 

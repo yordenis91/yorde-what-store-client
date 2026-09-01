@@ -49,6 +49,9 @@ const PlatformPlansPage = lazy(() =>
 const PlatformUpgradeRequestsPage = lazy(() =>
   import('@/pages/platform/PlatformUpgradeRequestsPage').then((m) => ({ default: m.PlatformUpgradeRequestsPage })),
 )
+const PlatformCategoryTemplatesPage = lazy(() =>
+  import('@/pages/platform/PlatformCategoryTemplatesPage').then((m) => ({ default: m.PlatformCategoryTemplatesPage })),
+)
 
 const StorefrontHomePage = lazy(() =>
   import('@/pages/storefront/StorefrontHomePage').then((m) => ({ default: m.StorefrontHomePage })),
@@ -147,6 +150,7 @@ export default function App() {
             <Route index element={<PlatformDashboardPage />} />
             <Route path="tenants" element={<PlatformTenantsPage />} />
             <Route path="plans" element={<PlatformPlansPage />} />
+            <Route path="category-templates" element={<PlatformCategoryTemplatesPage />} />
             <Route path="upgrade-requests" element={<PlatformUpgradeRequestsPage />} />
           </Route>
         </Route>
