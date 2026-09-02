@@ -8,8 +8,8 @@ import { apiClient } from './api-client'
  * plain POST is fine anyway: this only ever fires on in-SPA route changes,
  * never on tab-close, so there's no unload race to protect against.
  */
-export function logVisit(path: string, referrer?: string) {
-  void apiClient.post('/storefront/visits', { path, referrer: referrer || undefined }).catch(() => {
+export function logVisit(path: string, referrer?: string, sessionId?: string) {
+  void apiClient.post('/storefront/visits', { path, referrer: referrer || undefined, sessionId }).catch(() => {
     // Analytics must never surface an error to the shopper or block navigation.
   })
 }

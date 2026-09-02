@@ -7,6 +7,9 @@ export interface PlatformSummary {
   totalUsers: number
   totalOrders: number
   totalRevenue: number
+  mrr: number
+  activeSubscriptions: number
+  planBreakdown: { planId: string; name: string; activeSubscriptions: number; mrr: number }[]
   recentTenants: {
     id: string
     name: string

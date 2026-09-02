@@ -21,6 +21,7 @@ import { BackLink } from '@/components/storefront/BackLink'
 import { CheckoutSteps } from '@/components/storefront/CheckoutSteps'
 import { Seo } from '@/components/storefront/Seo'
 import { extractErrorMessage } from '@/services/api-client'
+import { getAnalyticsSessionId } from '@/utils/analytics-session'
 import type { FulfillmentMethod } from '@/types/api'
 
 const schema = z
@@ -193,6 +194,7 @@ export function StorefrontCheckoutPage() {
         // Only sent for delivery; pickup orders carry no address.
         shippingAddress: values.shippingId ? values.address : undefined,
         items: orderItems,
+        sessionId: getAnalyticsSessionId(),
       })
 
       if (result.fulfillment.type === 'WHATSAPP') {

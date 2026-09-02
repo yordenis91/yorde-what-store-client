@@ -1,13 +1,22 @@
 import { apiClient } from './api-client'
 import type { ApiEnvelope } from '@/types/api'
 
+export const DASHBOARD_RANGES = ['7d', '30d', '90d'] as const
+export type DashboardRange = (typeof DASHBOARD_RANGES)[number]
+
 export interface DashboardSummary {
+  range: DashboardRange
   totalProducts: number
   totalOrders: number
   pendingOrders: number
-  revenue: number
-  ordersLast7Days: { date: string; count: number; revenue: number }[]
-  topProducts: { productId: string; name: string; quantitySold: number; revenue: number }[]
+  /** All-time revenue from PAID orders — a stable reference figure, independent of `range`. */
+  lifetimeRevenue: number
+  periodRevenue: number
+  periodOrders: number
+  averageOrderValue: number
+  revenueOverTime: { date: string; orders: number; revenue: number }[]
+  topProducts: { productId: string | null; name: string; quantitySold: number; revenue: number }[]
+  couponPerformance: { code: string; timesUsed: number; discountGiven: number }[]
   recentOrders: {
     id: string
     orderNumber: string
@@ -16,14 +25,15 @@ export interface DashboardSummary {
     grandTotal: string
     createdAt: string
   }[]
-  visitsLast7Days: { date: string; count: number }[]
-  totalVisits: number
-  /** Orders divided by entry-page (home/product) visits in the same 7-day window. Null with no visits yet. */
+  uniqueVisitors: number
+  totalPageviews: number
+  /** Converted sessions divided by unique visitor sessions in the range. Null with no visits yet. */
   conversionRate: number | null
-  topReferrers: { referrer: string; count: number }[]
+  visitsOverTime: { date: string; visitors: number; pageviews: number }[]
+  topReferrers: { referrer: string; sessions: number }[]
 }
 
-export async function getDashboardSummary() {
-  const { data } = await apiClient.get<ApiEnvelope<DashboardSummary>>('/dashboard/summary')
+export async function getDashboardSummary(range: DashboardRange = '7d') {
+  const { data } = await apiClient.get<ApiEnvelope<DashboardSummary>>('/dashboard/summary', { params: { range } })
   return data.data
 }

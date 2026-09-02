@@ -31,7 +31,7 @@ describe('useVisitTracking', () => {
     )
 
     expect(logVisit).toHaveBeenCalledTimes(1)
-    expect(logVisit).toHaveBeenCalledWith('/', expect.any(String))
+    expect(logVisit).toHaveBeenCalledWith('/', expect.any(String), expect.any(String))
   })
 
   it('logs again after an in-app navigation to a different route', async () => {
@@ -47,6 +47,6 @@ describe('useVisitTracking', () => {
     await userEvent.click(getByTestId('go-to-product'))
 
     expect(logVisit).toHaveBeenCalledTimes(2)
-    expect(logVisit).toHaveBeenLastCalledWith('/product/p1', expect.any(String))
+    expect(logVisit).toHaveBeenLastCalledWith('/product/p1', expect.any(String), expect.any(String))
   })
 })

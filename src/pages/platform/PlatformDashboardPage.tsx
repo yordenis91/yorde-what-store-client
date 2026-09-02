@@ -15,6 +15,11 @@ export function PlatformDashboardPage() {
     { label: 'Platform revenue', value: formatMoney(data?.totalRevenue ?? 0) },
   ]
 
+  const billingStats = [
+    { label: 'MRR', value: formatMoney(data?.mrr ?? 0) },
+    { label: 'Active subscriptions', value: data?.activeSubscriptions ?? '—' },
+  ]
+
   return (
     <div>
       <h1 className="mb-6 text-2xl font-semibold text-gray-900">Platform dashboard</h1>
@@ -25,6 +30,34 @@ export function PlatformDashboardPage() {
             <p className="mt-2 text-2xl font-semibold text-gray-900">{stat.value}</p>
           </Card>
         ))}
+      </div>
+
+      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-4 lg:col-span-1">
+          {billingStats.map((stat) => (
+            <Card key={stat.label}>
+              <p className="text-sm text-gray-500">{stat.label}</p>
+              <p className="mt-2 text-2xl font-semibold text-gray-900">{stat.value}</p>
+            </Card>
+          ))}
+        </div>
+
+        <Card className="lg:col-span-2">
+          <h2 className="mb-3 font-medium text-gray-900">MRR by plan</h2>
+          <div className="flex flex-col divide-y divide-gray-100">
+            {data?.planBreakdown.map((p) => (
+              <div key={p.planId} className="flex items-center justify-between py-2 text-sm">
+                <span className="text-gray-700">
+                  {p.name} <span className="text-gray-400">({p.activeSubscriptions})</span>
+                </span>
+                <span className="font-medium text-gray-900">{formatMoney(p.mrr)}</span>
+              </div>
+            ))}
+            {data?.planBreakdown.length === 0 && (
+              <p className="py-4 text-center text-sm text-gray-400">No active subscriptions yet.</p>
+            )}
+          </div>
+        </Card>
       </div>
 
       <Card className="mt-6">

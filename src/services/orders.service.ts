@@ -10,6 +10,7 @@ export interface CreateOrderPayload {
   shippingId?: string
   fulfillmentMethod: FulfillmentMethod
   shippingAddress?: Record<string, unknown>
+  sessionId?: string
 }
 
 export type CreateOrderResult =

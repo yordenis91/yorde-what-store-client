@@ -4,27 +4,51 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import QRCode from 'qrcode'
 import { toast } from 'sonner'
+import {
+  Bar,
+  CartesianGrid,
+  ComposedChart,
+  Line,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
 import { Card } from '@/components/ui/Card'
-import { getDashboardSummary } from '@/services/dashboard.service'
+import { DASHBOARD_RANGES, getDashboardSummary, type DashboardRange } from '@/services/dashboard.service'
 import { useAuthStore } from '@/store/auth.store'
 import { storefrontUrl } from '@/config/storefront'
 import { formatDate, formatMoney } from '@/utils/format'
 
-function OrdersChart({ data }: { data: { date: string; count: number }[] }) {
-  const max = Math.max(1, ...data.map((d) => d.count))
+function RevenueChart({ data }: { data: { date: string; orders: number; revenue: number }[] }) {
   return (
-    <div className="flex h-32 items-end gap-2">
-      {data.map((d) => (
-        <div key={d.date} className="flex flex-1 flex-col items-center gap-1">
-          <div
-            className="w-full rounded-t bg-brand-500"
-            style={{ height: `${Math.max(4, (d.count / max) * 100)}%` }}
-            title={`${d.count} orders`}
-          />
-          <span className="text-[10px] text-gray-400">{d.date.slice(5)}</span>
-        </div>
-      ))}
-    </div>
+    <ResponsiveContainer width="100%" height={220}>
+      <ComposedChart data={data} margin={{ left: -20, right: 8 }}>
+        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+        <XAxis dataKey="date" tickFormatter={(d: string) => d.slice(5)} fontSize={11} stroke="#9ca3af" />
+        <YAxis fontSize={11} stroke="#9ca3af" allowDecimals={false} />
+        <Tooltip
+          formatter={(value, name) => [name === 'revenue' ? Number(value).toFixed(2) : value, name]}
+        />
+        <Bar dataKey="orders" fill="#c7d2fe" radius={[4, 4, 0, 0]} />
+        <Line type="monotone" dataKey="revenue" stroke="#4f46e5" strokeWidth={2} dot={false} />
+      </ComposedChart>
+    </ResponsiveContainer>
+  )
+}
+
+function VisitsChart({ data }: { data: { date: string; visitors: number; pageviews: number }[] }) {
+  return (
+    <ResponsiveContainer width="100%" height={220}>
+      <ComposedChart data={data} margin={{ left: -20, right: 8 }}>
+        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+        <XAxis dataKey="date" tickFormatter={(d: string) => d.slice(5)} fontSize={11} stroke="#9ca3af" />
+        <YAxis fontSize={11} stroke="#9ca3af" allowDecimals={false} />
+        <Tooltip />
+        <Bar dataKey="pageviews" fill="#e5e7eb" radius={[4, 4, 0, 0]} />
+        <Line type="monotone" dataKey="visitors" stroke="#059669" strokeWidth={2} dot={false} />
+      </ComposedChart>
+    </ResponsiveContainer>
   )
 }
 
@@ -33,8 +57,12 @@ export function DashboardPage() {
   const activeTenant = useAuthStore((s) => s.activeTenant)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [copied, setCopied] = useState(false)
+  const [range, setRange] = useState<DashboardRange>('7d')
 
-  const { data: summary, isLoading } = useQuery({ queryKey: ['dashboard-summary'], queryFn: getDashboardSummary })
+  const { data: summary, isLoading } = useQuery({
+    queryKey: ['dashboard-summary', range],
+    queryFn: () => getDashboardSummary(range),
+  })
 
   // Resolves to the store's own subdomain when one is configured, so the QR code
   // and the shared link point at the customer-facing address, not the admin host.
@@ -57,22 +85,45 @@ export function DashboardPage() {
   const symbol = activeTenant?.currencySymbol ?? '$'
   const position = (activeTenant?.currencySymbolPosition as 'pre' | 'post') ?? 'pre'
 
-  const stats = [
-    { label: t('dashboard.totalProducts'), value: summary?.totalProducts ?? '—' },
-    { label: t('dashboard.totalOrders'), value: summary?.totalOrders ?? '—' },
-    { label: t('dashboard.pendingOrders'), value: summary?.pendingOrders ?? '—' },
-    { label: t('dashboard.revenue'), value: formatMoney(summary?.revenue ?? 0, symbol, position) },
+  const periodStats = [
+    { label: t('dashboard.periodRevenue'), value: formatMoney(summary?.periodRevenue ?? 0, symbol, position) },
+    { label: t('dashboard.periodOrders'), value: summary?.periodOrders ?? '—' },
+    { label: t('dashboard.averageOrderValue'), value: formatMoney(summary?.averageOrderValue ?? 0, symbol, position) },
+    { label: t('dashboard.uniqueVisitors'), value: summary?.uniqueVisitors ?? '—' },
     {
       label: t('dashboard.conversionRate'),
       value: summary?.conversionRate == null ? '—' : `${(summary.conversionRate * 100).toFixed(1)}%`,
     },
   ]
 
+  const lifetimeStats = [
+    { label: t('dashboard.totalProducts'), value: summary?.totalProducts ?? '—' },
+    { label: t('dashboard.totalOrders'), value: summary?.totalOrders ?? '—' },
+    { label: t('dashboard.pendingOrders'), value: summary?.pendingOrders ?? '—' },
+    { label: t('dashboard.lifetimeRevenue'), value: formatMoney(summary?.lifetimeRevenue ?? 0, symbol, position) },
+  ]
+
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-semibold text-gray-900">{t('dashboard.title')}</h1>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-semibold text-gray-900">{t('dashboard.title')}</h1>
+        <div className="flex gap-1 rounded-lg border border-gray-200 bg-white p-1">
+          {DASHBOARD_RANGES.map((r) => (
+            <button
+              key={r}
+              onClick={() => setRange(r)}
+              className={`rounded-md px-3 py-1 text-sm font-medium transition-colors ${
+                range === r ? 'bg-brand-600 text-white' : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              {t(`dashboard.range${r}`)}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-        {stats.map((stat) => (
+        {periodStats.map((stat) => (
           <Card key={stat.label}>
             <p className="text-sm text-gray-500">{stat.label}</p>
             <p className="mt-2 text-2xl font-semibold text-gray-900">{stat.value}</p>
@@ -80,10 +131,23 @@ export function DashboardPage() {
         ))}
       </div>
 
+      <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {lifetimeStats.map((stat) => (
+          <Card key={stat.label} className="p-3">
+            <p className="text-xs text-gray-500">{stat.label}</p>
+            <p className="mt-1 text-lg font-semibold text-gray-700">{stat.value}</p>
+          </Card>
+        ))}
+      </div>
+
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <h2 className="mb-3 font-medium text-gray-900">Orders — last 7 days</h2>
-          {isLoading ? <p className="text-sm text-gray-500">{t('common.loading')}</p> : <OrdersChart data={summary?.ordersLast7Days ?? []} />}
+          <h2 className="mb-3 font-medium text-gray-900">{t('dashboard.revenueOverTime')}</h2>
+          {isLoading ? (
+            <p className="text-sm text-gray-500">{t('common.loading')}</p>
+          ) : (
+            <RevenueChart data={summary?.revenueOverTime ?? []} />
+          )}
         </Card>
 
         <Card className="flex flex-col items-center justify-center gap-2 text-center">
@@ -97,15 +161,19 @@ export function DashboardPage() {
 
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card>
-          <h2 className="mb-3 font-medium text-gray-900">Top products</h2>
+          <h2 className="mb-3 font-medium text-gray-900">{t('dashboard.topProducts')}</h2>
           <div className="flex flex-col divide-y divide-gray-100">
             {summary?.topProducts.map((p) => (
-              <div key={p.productId} className="flex items-center justify-between py-2 text-sm">
+              <div key={p.productId ?? p.name} className="flex items-center justify-between py-2 text-sm">
                 <span className="text-gray-700">{p.name}</span>
-                <span className="text-gray-500">{p.quantitySold} sold</span>
+                <span className="text-gray-500">
+                  {p.quantitySold} sold · {formatMoney(p.revenue, symbol, position)}
+                </span>
               </div>
             ))}
-            {summary?.topProducts.length === 0 && <p className="py-4 text-center text-sm text-gray-400">No sales yet.</p>}
+            {summary?.topProducts.length === 0 && (
+              <p className="py-4 text-center text-sm text-gray-400">{t('dashboard.noTopProducts')}</p>
+            )}
           </div>
         </Card>
 
@@ -133,8 +201,12 @@ export function DashboardPage() {
 
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <h2 className="mb-3 font-medium text-gray-900">{t('dashboard.visitsLast7Days')}</h2>
-          {isLoading ? <p className="text-sm text-gray-500">{t('common.loading')}</p> : <OrdersChart data={summary?.visitsLast7Days ?? []} />}
+          <h2 className="mb-3 font-medium text-gray-900">{t('dashboard.visitsOverTime')}</h2>
+          {isLoading ? (
+            <p className="text-sm text-gray-500">{t('common.loading')}</p>
+          ) : (
+            <VisitsChart data={summary?.visitsOverTime ?? []} />
+          )}
         </Card>
 
         <Card>
@@ -143,11 +215,31 @@ export function DashboardPage() {
             {summary?.topReferrers.map((r) => (
               <div key={r.referrer} className="flex items-center justify-between py-2 text-sm">
                 <span className="truncate text-gray-700">{r.referrer}</span>
-                <span className="text-gray-500">{r.count}</span>
+                <span className="text-gray-500">{r.sessions}</span>
               </div>
             ))}
             {summary?.topReferrers.length === 0 && (
               <p className="py-4 text-center text-sm text-gray-400">{t('dashboard.noReferrers')}</p>
+            )}
+          </div>
+        </Card>
+      </div>
+
+      <div className="mt-6">
+        <Card>
+          <h2 className="mb-3 font-medium text-gray-900">{t('dashboard.couponPerformance')}</h2>
+          <div className="flex flex-col divide-y divide-gray-100">
+            {summary?.couponPerformance.map((c) => (
+              <div key={c.code} className="flex items-center justify-between py-2 text-sm">
+                <span className="font-medium text-gray-700">{c.code}</span>
+                <span className="text-gray-500">
+                  {c.timesUsed} {t('dashboard.timesUsed').toLowerCase()} ·{' '}
+                  {formatMoney(c.discountGiven, symbol, position)} {t('dashboard.discountGiven').toLowerCase()}
+                </span>
+              </div>
+            ))}
+            {summary?.couponPerformance.length === 0 && (
+              <p className="py-4 text-center text-sm text-gray-400">{t('dashboard.noCouponUsage')}</p>
             )}
           </div>
         </Card>

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { logVisit } from '@/services/visits.service'
+import { getAnalyticsSessionId } from '@/utils/analytics-session'
 
 /**
  * Logs one pageview per distinct storefront route the shopper lands on.
@@ -16,6 +17,6 @@ export function useVisitTracking() {
   useEffect(() => {
     if (lastLogged.current === location.pathname) return
     lastLogged.current = location.pathname
-    logVisit(location.pathname, referrer.current)
+    logVisit(location.pathname, referrer.current, getAnalyticsSessionId())
   }, [location.pathname])
 }
