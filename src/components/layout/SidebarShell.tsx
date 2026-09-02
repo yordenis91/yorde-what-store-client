@@ -15,11 +15,12 @@ interface SidebarShellProps {
   brand: ReactNode
   navItems: SidebarNavItem[]
   headerLeft?: ReactNode
+  headerRight?: ReactNode
   onLogout: () => void
 }
 
 /** Shared responsive sidebar shell (desktop static sidebar / mobile slide-in drawer) used by both the tenant admin and platform (super admin) layouts. */
-export function SidebarShell({ brand, navItems, headerLeft, onLogout }: SidebarShellProps) {
+export function SidebarShell({ brand, navItems, headerLeft, headerRight, onLogout }: SidebarShellProps) {
   const { t } = useTranslation()
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -92,7 +93,10 @@ export function SidebarShell({ brand, navItems, headerLeft, onLogout }: SidebarS
             </button>
             <div className="text-sm text-gray-500">{headerLeft}</div>
           </div>
-          <LanguageSwitcher />
+          <div className="flex items-center gap-1">
+            {headerRight}
+            <LanguageSwitcher />
+          </div>
         </header>
         <main className="flex-1 p-4 sm:p-6">
           <Outlet />

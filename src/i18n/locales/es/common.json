@@ -105,6 +105,14 @@
     "variants": "Variantes",
     "addVariant": "Agregar variante"
   },
+  "notifications": {
+    "bell": "Notificaciones",
+    "title": "Órdenes nuevas",
+    "empty": "No hay órdenes nuevas.",
+    "viewAll": "Ver todas las órdenes",
+    "mute": "Silenciar sonido",
+    "unmute": "Activar sonido"
+  },
   "orders": {
     "title": "Órdenes",
     "orderNumber": "Orden",

@@ -105,6 +105,14 @@
     "variants": "Variants",
     "addVariant": "Add variant"
   },
+  "notifications": {
+    "bell": "Notifications",
+    "title": "New orders",
+    "empty": "No new orders.",
+    "viewAll": "View all orders",
+    "mute": "Mute sound",
+    "unmute": "Unmute sound"
+  },
   "orders": {
     "title": "Orders",
     "orderNumber": "Order",

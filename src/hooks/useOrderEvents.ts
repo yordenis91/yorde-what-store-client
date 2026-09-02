@@ -1,10 +1,11 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { API_URL } from '@/services/api-client'
 import { useAuthStore } from '@/store/auth.store'
 import { useOrderNotificationsStore } from '@/store/order-notifications.store'
+import { playNewOrderChime } from '@/utils/notification-sound'
 
 // Comfortably under the access token's 15-minute expiry — EventSource can't
 // be handed a fresh header on reconnect, so the connection is recreated with
@@ -31,8 +32,16 @@ export function useOrderEvents() {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
   const tenantId = useAuthStore((s) => s.activeTenant?.id)
+  const previousTenantId = useRef<string | undefined>(undefined)
 
   useEffect(() => {
+    // A count/notification list carried over from a different tenant (owners
+    // with several stores, or a different staff member logging in on the
+    // same browser) would show as "new" for a store that never had it.
+    if (previousTenantId.current !== tenantId) {
+      useOrderNotificationsStore.getState().clear()
+      previousTenantId.current = tenantId
+    }
     if (!tenantId) return
 
     let source: EventSource | null = null
@@ -49,7 +58,15 @@ export function useOrderEvents() {
 
       source.addEventListener('order.created', (e) => {
         const order = JSON.parse((e as MessageEvent).data) as OrderEventPayload
-        useOrderNotificationsStore.getState().increment()
+        useOrderNotificationsStore.getState().addOrder({
+          id: order.id,
+          orderNumber: order.orderNumber,
+          customerName: order.customerName,
+          grandTotal: order.grandTotal,
+          currency: order.currency,
+          receivedAt: Date.now(),
+        })
+        playNewOrderChime()
         void queryClient.invalidateQueries({ queryKey: ['orders'] })
         toast.info(t('orders.newOrderToast', { orderNumber: order.orderNumber }))
       })
