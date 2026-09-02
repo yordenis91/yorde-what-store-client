@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { Input } from '@/components/ui/Input'
 import { listOrders } from '@/services/orders.service'
 import { useAuthStore } from '@/store/auth.store'
+import { useOrderNotificationsStore } from '@/store/order-notifications.store'
 import { formatDate, formatMoney } from '@/utils/format'
 import type { OrderStatus } from '@/types/api'
 
@@ -28,6 +29,11 @@ export function OrdersListPage() {
   const activeTenant = useAuthStore((s) => s.activeTenant)
   const symbol = activeTenant?.currencySymbol ?? '$'
   const position = (activeTenant?.currencySymbolPosition as 'pre' | 'post') ?? 'pre'
+
+  // Opening the list is how staff "sees" whatever the live feed announced.
+  useEffect(() => {
+    useOrderNotificationsStore.getState().clear()
+  }, [])
 
   const { data, isLoading } = useQuery({
     queryKey: ['orders', search, status, dateFrom, dateTo],

@@ -45,6 +45,11 @@
     "legalConsentPrefix": "By creating an account, you agree to our",
     "legalConsentAnd": "and"
   },
+  "connectivity": {
+    "offline": "You're offline. Some actions won't work until your connection is back.",
+    "degraded": "Connection issues — retrying...",
+    "restored": "Connection restored"
+  },
   "errors": {
     "generic": "Something went wrong. Please try again.",
     "required": "This field is required",
@@ -92,7 +97,8 @@
     "status": "Status",
     "fulfillment": "Fulfillment",
     "date": "Date",
-    "viewDetail": "View detail"
+    "viewDetail": "View detail",
+    "newOrderToast": "New order #{{orderNumber}}"
   },
   "settings": {
     "title": "Store settings",

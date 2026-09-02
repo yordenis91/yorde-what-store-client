@@ -1,6 +1,7 @@
 import { Suspense, lazy } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { FullPageSpinner } from '@/components/ui/Spinner'
+import { ConnectivityBanner } from '@/components/ui/ConnectivityBanner'
 import { AuthLayout } from '@/components/layout/AuthLayout'
 import { AdminLayout } from '@/components/layout/AdminLayout'
 import { SuperAdminLayout } from '@/components/layout/SuperAdminLayout'
@@ -99,6 +100,7 @@ const storefrontRoutes = (
 function StorefrontApp() {
   return (
     <Suspense fallback={<FullPageSpinner />}>
+      <ConnectivityBanner />
       <Routes>
         <Route path="/" element={<PublicLayout />}>{storefrontRoutes}</Route>
         <Route path="*" element={<NotFoundPage />} />
@@ -117,6 +119,7 @@ export default function App() {
 
   return (
     <Suspense fallback={<FullPageSpinner />}>
+      <ConnectivityBanner />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/terms" element={<TermsOfServicePage />} />

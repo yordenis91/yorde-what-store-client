@@ -45,6 +45,11 @@
     "legalConsentPrefix": "Al crear una cuenta, aceptás nuestros",
     "legalConsentAnd": "y nuestra"
   },
+  "connectivity": {
+    "offline": "Estás sin conexión. Algunas acciones no van a funcionar hasta que vuelva la conexión.",
+    "degraded": "Problemas de conexión, reintentando...",
+    "restored": "Conexión restablecida"
+  },
   "errors": {
     "generic": "Algo salió mal. Intentá de nuevo.",
     "required": "Este campo es obligatorio",
@@ -92,7 +97,8 @@
     "status": "Estado",
     "fulfillment": "Entrega",
     "date": "Fecha",
-    "viewDetail": "Ver detalle"
+    "viewDetail": "Ver detalle",
+    "newOrderToast": "Nueva orden #{{orderNumber}}"
   },
   "settings": {
     "title": "Configuración de tienda",

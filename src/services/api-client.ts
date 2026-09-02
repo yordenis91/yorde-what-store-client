@@ -2,6 +2,7 @@ import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { runtimeValue } from '@/config/runtime'
 import { useAuthStore } from '@/store/auth.store'
 import { useCustomerStore } from '@/store/customer.store'
+import { useConnectivityStore } from '@/store/connectivity.store'
 
 /**
  * API base URL, preferring runtime config over build-time env so a single
@@ -91,8 +92,18 @@ async function refreshCustomerAccessToken(): Promise<string | null> {
 }
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    useConnectivityStore.getState().reportRecovered()
+    return response
+  },
   async (error: AxiosError) => {
+    // No `response` at all means the request never reached (or never heard
+    // back from) the server — a network-level failure, not a 4xx/5xx the
+    // backend actually answered with.
+    if (!error.response) {
+      useConnectivityStore.getState().reportFailure()
+    }
+
     const original = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined
     const status = error.response?.status
     const storefrontCall = isStorefrontUrl(original?.url)

@@ -1,26 +1,30 @@
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '@/store/auth.store'
+import { useOrderNotificationsStore } from '@/store/order-notifications.store'
+import { useOrderEvents } from '@/hooks/useOrderEvents'
 import { logout as apiLogout } from '@/services/auth.service'
-import { SidebarShell } from './SidebarShell'
-
-const navItems = [
-  { to: '/admin', label: 'nav.dashboard', end: true },
-  { to: '/admin/products', label: 'nav.products' },
-  { to: '/admin/orders', label: 'nav.orders' },
-  { to: '/admin/coupons', label: 'nav.coupons' },
-  { to: '/admin/shipping', label: 'nav.shipping' },
-  { to: '/admin/staff', label: 'nav.staff' },
-  { to: '/admin/email-templates', label: 'nav.emailTemplates' },
-  { to: '/admin/plans', label: 'nav.plans' },
-  { to: '/admin/settings', label: 'nav.settings' },
-]
+import { SidebarShell, type SidebarNavItem } from './SidebarShell'
 
 export function AdminLayout() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const activeTenant = useAuthStore((s) => s.activeTenant)
   const clear = useAuthStore((s) => s.clear)
+  const unseenOrders = useOrderNotificationsStore((s) => s.unseenCount)
+  useOrderEvents()
+
+  const navItems: SidebarNavItem[] = [
+    { to: '/admin', label: 'nav.dashboard', end: true },
+    { to: '/admin/products', label: 'nav.products' },
+    { to: '/admin/orders', label: 'nav.orders', badge: unseenOrders },
+    { to: '/admin/coupons', label: 'nav.coupons' },
+    { to: '/admin/shipping', label: 'nav.shipping' },
+    { to: '/admin/staff', label: 'nav.staff' },
+    { to: '/admin/email-templates', label: 'nav.emailTemplates' },
+    { to: '/admin/plans', label: 'nav.plans' },
+    { to: '/admin/settings', label: 'nav.settings' },
+  ]
 
   async function handleLogout() {
     try {
