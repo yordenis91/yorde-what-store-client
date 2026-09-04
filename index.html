@@ -8,12 +8,21 @@
       Fallback title only, and deliberately nothing else.
 
       React 19 appends the metadata rendered by src/components/storefront/Seo.tsx
-      rather than replacing what is already here, so a static <meta
-      name="description"> would sit ahead of the per-page one and be the copy
-      crawlers read. <title> is the exception: React does replace it.
+      rather than replacing what is already here, so a static description meta
+      tag would sit ahead of the per-page one and be the copy crawlers read.
+      The title tag is the exception: React does replace it.
 
       Note this static response is what link unfurlers (WhatsApp, Facebook,
-      Telegram) see, since they do not run JavaScript.
+      Telegram) see whenever they miss nginx's prerender proxy (00-prerender.conf,
+      written by docker-entrypoint.sh from PRERENDER_UPSTREAM) — an unmatched
+      user agent, or PRERENDER_UPSTREAM left unset, both land here.
+
+      Deliberately no angle-bracket characters anywhere in this comment's
+      prose, opening or closing: a crude regex-based "strip tags" fallback used
+      by some unfurlers matches from this comment's own opening marker to the
+      nearest closing one it can find, wherever that is — a single example
+      snippet with both once did that, and the tail of this very comment
+      became the visible link-preview description.
     -->
     <title>Yorde What Store</title>
   </head>
