@@ -1,11 +1,12 @@
 import type { ReactNode } from 'react'
 
 /**
- * Minimal line icons for the tenant admin sidebar — hand-rolled inline SVGs
- * (matching the hamburger/bell icons already in this layout) rather than an
- * icon library dependency, since it's just a handful of nav items. Each one
- * inherits its color from the NavLink's text color via `currentColor`, so it
- * switches with the active/inactive state for free.
+ * Minimal line icons for the admin sidebars (tenant admin and platform/super
+ * admin) — hand-rolled inline SVGs (matching the hamburger/bell icons already
+ * in this layout) rather than an icon library dependency, since it's just a
+ * handful of nav items. Each one inherits its color from the NavLink's text
+ * color via `currentColor`, so it switches with the active/inactive state for
+ * free.
  */
 function Icon({ children }: { children: ReactNode }) {
   return (
@@ -112,6 +113,32 @@ export function SettingsIcon() {
       <circle cx="12.5" cy="6" r="1.8" fill="white" />
       <circle cx="8.5" cy="12" r="1.8" fill="white" />
       <circle cx="15.5" cy="18" r="1.8" fill="white" />
+    </Icon>
+  )
+}
+
+export function TenantsIcon() {
+  return (
+    <Icon>
+      <rect x="3.5" y="9" width="7" height="11" rx="1" />
+      <rect x="12.5" y="4" width="8" height="16" rx="1" />
+      <path strokeLinecap="round" d="M6 12.5h1M6 15.5h1M6 18h1M15.5 7.5h1M15.5 10.5h1M15.5 13.5h1M15.5 16.5h1" />
+    </Icon>
+  )
+}
+
+export function CategoryCatalogIcon() {
+  return (
+    <Icon>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h4M4 12h4M4 18h4M10 6h10M10 12h7M10 18h10" />
+    </Icon>
+  )
+}
+
+export function UpgradeRequestsIcon() {
+  return (
+    <Icon>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5m0 0l-5 5m5-5l5 5" />
     </Icon>
   )
 }
