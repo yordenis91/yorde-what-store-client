@@ -6,6 +6,17 @@ import { useOrderNotificationsStore } from '@/store/order-notifications.store'
 import { useOrderEvents } from '@/hooks/useOrderEvents'
 import { logout as apiLogout } from '@/services/auth.service'
 import { unlockNotificationSound } from '@/utils/notification-sound'
+import {
+  CouponsIcon,
+  DashboardIcon,
+  EmailTemplatesIcon,
+  OrdersIcon,
+  PlansIcon,
+  ProductsIcon,
+  SettingsIcon,
+  ShippingIcon,
+  StaffIcon,
+} from './NavIcons'
 import { NotificationBell } from './NotificationBell'
 import { SidebarShell, type SidebarNavItem } from './SidebarShell'
 
@@ -35,15 +46,15 @@ export function AdminLayout() {
   }, [])
 
   const navItems: SidebarNavItem[] = [
-    { to: '/admin', label: 'nav.dashboard', end: true },
-    { to: '/admin/products', label: 'nav.products' },
-    { to: '/admin/orders', label: 'nav.orders', badge: unseenOrders },
-    { to: '/admin/coupons', label: 'nav.coupons' },
-    { to: '/admin/shipping', label: 'nav.shipping' },
-    { to: '/admin/staff', label: 'nav.staff' },
-    { to: '/admin/email-templates', label: 'nav.emailTemplates' },
-    { to: '/admin/plans', label: 'nav.plans' },
-    { to: '/admin/settings', label: 'nav.settings' },
+    { to: '/admin', label: 'nav.dashboard', end: true, icon: <DashboardIcon /> },
+    { to: '/admin/products', label: 'nav.products', icon: <ProductsIcon /> },
+    { to: '/admin/orders', label: 'nav.orders', badge: unseenOrders, icon: <OrdersIcon /> },
+    { to: '/admin/coupons', label: 'nav.coupons', icon: <CouponsIcon /> },
+    { to: '/admin/shipping', label: 'nav.shipping', icon: <ShippingIcon /> },
+    { to: '/admin/staff', label: 'nav.staff', icon: <StaffIcon /> },
+    { to: '/admin/email-templates', label: 'nav.emailTemplates', icon: <EmailTemplatesIcon /> },
+    { to: '/admin/plans', label: 'nav.plans', icon: <PlansIcon /> },
+    { to: '/admin/settings', label: 'nav.settings', icon: <SettingsIcon /> },
   ]
 
   async function handleLogout() {
