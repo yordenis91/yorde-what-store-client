@@ -26,6 +26,7 @@ import {
 import { uploadImage } from '@/services/uploads.service'
 import { resolveMediaUrl } from '@/services/api-client'
 import { extractErrorMessage } from '@/services/api-client'
+import { flattenCategoryTree } from '@/utils/category-tree'
 import type { CategoryTemplate } from '@/types/api'
 
 const variantSchema = z.object({
@@ -239,7 +240,12 @@ export function ProductFormPage() {
     () => new Set((categories ?? []).map((c) => c.templateId).filter((id): id is string => !!id)),
     [categories],
   )
-  const availableTemplates = (categoryTemplates ?? []).filter((t) => !pickedTemplateIds.has(t.id))
+  // Depth-first order (a parent immediately followed by its own children),
+  // not a plain sortOrder/name sort on the raw rows — every category's
+  // sortOrder restarts at 0 within its own parent, so a flat sort interleaves
+  // unrelated parents and children whenever those values happen to overlap.
+  const orderedTemplates = useMemo(() => flattenCategoryTree(categoryTemplates ?? []), [categoryTemplates])
+  const availableTemplates = orderedTemplates.filter((t) => !pickedTemplateIds.has(t.id))
 
   return (
     <div className="max-w-2xl">

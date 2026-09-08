@@ -13,36 +13,13 @@ import {
   type CategoryTemplateInput,
 } from '@/services/category-templates.service'
 import { extractErrorMessage } from '@/services/api-client'
+import { buildCategoryTree, type CategoryTreeNode } from '@/utils/category-tree'
 import type { CategoryTemplate } from '@/types/api'
 
 interface FormValues {
   name: string
   parentId: string
   sortOrder: number
-}
-
-interface TreeNode extends CategoryTemplate {
-  children: TreeNode[]
-}
-
-/** Flat list -> tree, sorted the way the catalog is meant to be browsed (sortOrder, then name). */
-function buildTree(templates: CategoryTemplate[]): TreeNode[] {
-  const nodes = new Map<string, TreeNode>(templates.map((t) => [t.id, { ...t, children: [] }]))
-  const roots: TreeNode[] = []
-  for (const node of nodes.values()) {
-    if (node.parentId && nodes.has(node.parentId)) {
-      nodes.get(node.parentId)!.children.push(node)
-    } else {
-      roots.push(node)
-    }
-  }
-  const byOrder = (a: TreeNode, b: TreeNode) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name)
-  const sortRec = (list: TreeNode[]) => {
-    list.sort(byOrder)
-    list.forEach((n) => sortRec(n.children))
-  }
-  sortRec(roots)
-  return roots
 }
 
 export function PlatformCategoryTemplatesPage() {
@@ -59,7 +36,7 @@ export function PlatformCategoryTemplatesPage() {
     defaultValues: { name: '', parentId: '', sortOrder: 0 },
   })
 
-  const tree = useMemo(() => buildTree(templates ?? []), [templates])
+  const tree = useMemo(() => buildCategoryTree(templates ?? []), [templates])
 
   const saveMutation = useMutation({
     mutationFn: (values: FormValues) => {
@@ -103,7 +80,7 @@ export function PlatformCategoryTemplatesPage() {
     setShowForm(true)
   }
 
-  function renderNode(node: TreeNode, depth: number) {
+  function renderNode(node: CategoryTreeNode, depth: number) {
     return (
       <div key={node.id}>
         <div
