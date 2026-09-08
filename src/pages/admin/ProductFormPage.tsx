@@ -247,14 +247,14 @@ export function ProductFormPage() {
 
       {isEdit && (
         <Card className="mb-4">
-          <span className="mb-3 block text-sm font-medium text-gray-700">Images</span>
+          <span className="mb-3 block text-sm font-medium text-gray-700">{t('products.images')}</span>
           <div className="flex flex-wrap gap-3">
             {existing?.images.map((img) => (
               <div key={img.id} className="group relative h-24 w-24 overflow-hidden rounded-lg border border-gray-200">
                 <img src={resolveMediaUrl(img.url)} alt="" className="h-full w-full object-cover" />
                 {img.isCover && (
                   <span className="absolute left-1 top-1 rounded bg-brand-600 px-1.5 py-0.5 text-[10px] text-white">
-                    Cover
+                    {t('products.cover')}
                   </span>
                 )}
                 <div className="absolute inset-0 hidden items-center justify-center gap-1 bg-black/50 group-hover:flex">
@@ -264,7 +264,7 @@ export function ProductFormPage() {
                       onClick={() => setCoverMutation.mutate(img.id)}
                       className="rounded bg-white px-1.5 py-0.5 text-[10px]"
                     >
-                      Set cover
+                      {t('products.setCover')}
                     </button>
                   )}
                   <button
@@ -290,7 +290,7 @@ export function ProductFormPage() {
                 onClick={() => fileInputRef.current?.click()}
                 className="flex h-24 w-24 flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 text-xs text-gray-500 hover:border-brand-500 hover:text-brand-600"
               >
-                + Upload
+                {t('products.upload')}
               </button>
             )}
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelected} />
@@ -300,9 +300,9 @@ export function ProductFormPage() {
 
       <form onSubmit={(e) => void handleSubmit((values) => mutation.mutate(values))(e)} className="flex flex-col gap-4">
         <Input label={t('products.name')} {...register('name')} error={errors.name?.message} />
-        <Input label="SKU" {...register('sku')} />
+        <Input label={t('products.sku')} {...register('sku')} />
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Description</label>
+          <label className="text-sm font-medium text-gray-700">{t('products.description')}</label>
           <textarea className="rounded-lg border border-gray-300 px-3 py-2 text-sm" rows={3} {...register('description')} />
         </div>
         <div className="grid grid-cols-2 gap-4">
@@ -312,7 +312,7 @@ export function ProductFormPage() {
 
         <div>
           <div className="mb-1 flex items-center justify-between gap-2">
-            <span className="block text-sm font-medium text-gray-700">Categories</span>
+            <span className="block text-sm font-medium text-gray-700">{t('products.categories')}</span>
             <div className="flex items-center gap-2">
               {availableTemplates.length > 0 && (
                 <select
@@ -323,23 +323,23 @@ export function ProductFormPage() {
                     if (e.target.value) createCategoryFromTemplateMutation.mutate(e.target.value)
                   }}
                 >
-                  <option value="">+ From catalog</option>
-                  {availableTemplates.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {templateLabelById.get(t.id) ?? t.name}
+                  <option value="">{t('products.fromCatalog')}</option>
+                  {availableTemplates.map((template) => (
+                    <option key={template.id} value={template.id}>
+                      {templateLabelById.get(template.id) ?? template.name}
                     </option>
                   ))}
                 </select>
               )}
               <button type="button" className="text-xs font-medium text-brand-700" onClick={() => setShowNewCategory((v) => !v)}>
-                + New
+                {t('products.addCategory')}
               </button>
             </div>
           </div>
           {showNewCategory && (
             <div className="mb-2 flex gap-2">
               <Input
-                placeholder="Category name"
+                placeholder={t('products.categoryNamePlaceholder')}
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
                 className="flex-1"
@@ -350,7 +350,7 @@ export function ProductFormPage() {
                 disabled={!newCategoryName || createCategoryMutation.isPending}
                 onClick={() => createCategoryMutation.mutate()}
               >
-                Add
+                {t('products.add')}
               </Button>
             </div>
           )}
@@ -365,16 +365,21 @@ export function ProductFormPage() {
 
         <div>
           <div className="mb-1 flex items-center justify-between">
-            <span className="block text-sm font-medium text-gray-700">Taxes</span>
+            <span className="block text-sm font-medium text-gray-700">{t('products.taxes')}</span>
             <button type="button" className="text-xs font-medium text-brand-700" onClick={() => setShowNewTax((v) => !v)}>
-              + New
+              {t('products.addTax')}
             </button>
           </div>
           {showNewTax && (
             <div className="mb-2 flex gap-2">
-              <Input placeholder="Tax name" value={newTaxName} onChange={(e) => setNewTaxName(e.target.value)} className="flex-1" />
               <Input
-                placeholder="Rate %"
+                placeholder={t('products.taxNamePlaceholder')}
+                value={newTaxName}
+                onChange={(e) => setNewTaxName(e.target.value)}
+                className="flex-1"
+              />
+              <Input
+                placeholder={t('products.taxRatePlaceholder')}
                 type="number"
                 value={newTaxRate}
                 onChange={(e) => setNewTaxRate(e.target.value)}
@@ -386,7 +391,7 @@ export function ProductFormPage() {
                 disabled={!newTaxName || !newTaxRate || createTaxMutation.isPending}
                 onClick={() => createTaxMutation.mutate()}
               >
-                Add
+                {t('products.add')}
               </Button>
             </div>
           )}
@@ -401,19 +406,17 @@ export function ProductFormPage() {
 
         <Card>
           <span className="mb-2 block text-sm font-medium text-gray-700">{t('products.variants')}</span>
-          <p className="mb-2 text-xs text-gray-500">
-            Generate combinations from attribute options (e.g. "S, M, L" × "Red, Blue")
-          </p>
+          <p className="mb-2 text-xs text-gray-500">{t('products.variantsHint')}</p>
           <div className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-[1fr_1fr_auto]">
-            <Input placeholder="Size: S, M, L" value={attr1} onChange={(e) => setAttr1(e.target.value)} />
-            <Input placeholder="Color: Red, Blue (optional)" value={attr2} onChange={(e) => setAttr2(e.target.value)} />
+            <Input placeholder={t('products.variantAttr1Placeholder')} value={attr1} onChange={(e) => setAttr1(e.target.value)} />
+            <Input placeholder={t('products.variantAttr2Placeholder')} value={attr2} onChange={(e) => setAttr2(e.target.value)} />
             <Button type="button" variant="secondary" onClick={generateVariants}>
-              Generate
+              {t('products.generate')}
             </Button>
           </div>
 
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-xs font-medium text-gray-500">Rows</span>
+            <span className="text-xs font-medium text-gray-500">{t('products.rows')}</span>
             <Button type="button" variant="ghost" onClick={() => append({ name: '', sku: '', price: 0, quantity: 0 })}>
               {t('products.addVariant')}
             </Button>
@@ -425,12 +428,17 @@ export function ProductFormPage() {
                 className="grid grid-cols-2 items-end gap-2 sm:grid-cols-[2fr_1fr_1fr_auto]"
               >
                 <Input
-                  placeholder="Name"
+                  placeholder={t('products.name')}
                   className="col-span-2 sm:col-auto"
                   {...register(`variants.${index}.name` as const)}
                 />
-                <Input placeholder="Price" type="number" step="0.01" {...register(`variants.${index}.price` as const)} />
-                <Input placeholder="Qty" type="number" {...register(`variants.${index}.quantity` as const)} />
+                <Input
+                  placeholder={t('products.price')}
+                  type="number"
+                  step="0.01"
+                  {...register(`variants.${index}.price` as const)}
+                />
+                <Input placeholder={t('products.qty')} type="number" {...register(`variants.${index}.quantity` as const)} />
                 <Button type="button" variant="danger" className="col-span-2 sm:col-auto" onClick={() => remove(index)}>
                   ×
                 </Button>
