@@ -84,7 +84,14 @@ export function SidebarShell({ brand, navItems, headerLeft, headerRight, onLogou
         </button>
       </aside>
 
-      <div className="flex flex-1 flex-col">
+      {/*
+        min-w-0 overrides the flex default of min-width: auto, which sizes a
+        flex item to fit its content's intrinsic width. Without it, a wide
+        child anywhere in here (an overflow-x-auto table, say) stretches this
+        whole column past the viewport instead of scrolling inside its own
+        box, taking the rest of the page's layout with it off-screen.
+      */}
+      <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
             <button
@@ -103,7 +110,7 @@ export function SidebarShell({ brand, navItems, headerLeft, headerRight, onLogou
             <LanguageSwitcher />
           </div>
         </header>
-        <main className="flex-1 p-4 sm:p-6">
+        <main className="min-w-0 flex-1 p-4 sm:p-6">
           <Outlet />
         </main>
       </div>

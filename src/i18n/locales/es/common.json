@@ -122,7 +122,25 @@
     "fulfillment": "Entrega",
     "date": "Fecha",
     "viewDetail": "Ver detalle",
-    "newOrderToast": "Nueva orden #{{orderNumber}}"
+    "newOrderToast": "Nueva orden #{{orderNumber}}",
+    "allStatuses": "Todos los estados"
+  },
+  "coupons": {
+    "title": "Cupones",
+    "new": "Nuevo cupón",
+    "code": "Código",
+    "codePlaceholder": "Código (ej. SAVE10)",
+    "name": "Nombre",
+    "namePlaceholder": "Nombre",
+    "percentage": "Porcentaje %",
+    "flatAmount": "Monto fijo",
+    "discount": "Descuento",
+    "discountValuePlaceholder": "Valor del descuento",
+    "usage": "Usos",
+    "usageLimitPlaceholder": "Límite de usos (opcional)",
+    "expires": "Vence",
+    "expiresAtPlaceholder": "Fecha de vencimiento (opcional)",
+    "status": "Estado"
   },
   "settings": {
     "title": "Configuración de tienda",

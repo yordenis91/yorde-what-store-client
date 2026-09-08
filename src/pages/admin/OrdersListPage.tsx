@@ -58,7 +58,7 @@ export function OrdersListPage() {
           value={status}
           onChange={(e) => setStatus(e.target.value as OrderStatus | '')}
         >
-          <option value="">All status</option>
+          <option value="">{t('orders.allStatuses')}</option>
           {STATUSES.map((s) => (
             <option key={s} value={s}>
               {s}

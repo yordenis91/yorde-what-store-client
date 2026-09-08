@@ -214,7 +214,13 @@ function ImageField({
     <div>
       <p className="text-sm font-medium text-gray-700">{label}</p>
       <p className="mt-0.5 text-xs text-gray-500">{hint}</p>
-      <div className="mt-2 flex items-start gap-3">
+      {/*
+        Stacked rather than side-by-side: the banner preview's own className
+        sets width: 100% (it needs to show the actual wide aspect ratio), and
+        a flex row with a 100%-wide, non-shrinking sibling pushes the upload
+        button completely off the right edge instead of wrapping it.
+      */}
+      <div className="mt-2 flex flex-col items-start gap-3">
         <div className={`shrink-0 overflow-hidden border border-gray-200 bg-gray-50 ${previewClassName}`}>
           {value && <img src={resolveMediaUrl(value)} alt="" className="h-full w-full object-cover" />}
         </div>

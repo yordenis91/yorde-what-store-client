@@ -50,8 +50,8 @@ export function CouponsPage() {
   return (
     <div className="max-w-3xl">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Coupons</h1>
-        <Button onClick={() => setShowForm((v) => !v)}>{showForm ? t('common.cancel') : 'New coupon'}</Button>
+        <h1 className="text-2xl font-semibold text-gray-900">{t('coupons.title')}</h1>
+        <Button onClick={() => setShowForm((v) => !v)}>{showForm ? t('common.cancel') : t('coupons.new')}</Button>
       </div>
 
       {showForm && (
@@ -60,15 +60,20 @@ export function CouponsPage() {
             onSubmit={(e) => void handleSubmit((values) => createMutation.mutate(values))(e)}
             className="grid grid-cols-1 gap-3 sm:grid-cols-3"
           >
-            <Input placeholder="Code (e.g. SAVE10)" {...register('code', { required: true })} />
-            <Input placeholder="Name" {...register('name', { required: true })} />
+            <Input placeholder={t('coupons.codePlaceholder')} {...register('code', { required: true })} />
+            <Input placeholder={t('coupons.namePlaceholder')} {...register('name', { required: true })} />
             <select className="rounded-lg border border-gray-300 px-3 py-2 text-sm" {...register('discountType')}>
-              <option value="PERCENTAGE">Percentage %</option>
-              <option value="FLAT">Flat amount</option>
+              <option value="PERCENTAGE">{t('coupons.percentage')}</option>
+              <option value="FLAT">{t('coupons.flatAmount')}</option>
             </select>
-            <Input placeholder="Discount value" type="number" step="0.01" {...register('discountValue', { required: true, valueAsNumber: true })} />
-            <Input placeholder="Usage limit (optional)" type="number" {...register('usageLimit', { valueAsNumber: true })} />
-            <Input placeholder="Expires at (optional)" type="date" {...register('expiresAt')} />
+            <Input
+              placeholder={t('coupons.discountValuePlaceholder')}
+              type="number"
+              step="0.01"
+              {...register('discountValue', { required: true, valueAsNumber: true })}
+            />
+            <Input placeholder={t('coupons.usageLimitPlaceholder')} type="number" {...register('usageLimit', { valueAsNumber: true })} />
+            <Input placeholder={t('coupons.expiresAtPlaceholder')} type="date" {...register('expiresAt')} />
             <Button type="submit" loading={createMutation.isPending} className="sm:col-span-3 w-fit">
               {t('common.save')}
             </Button>
@@ -83,12 +88,12 @@ export function CouponsPage() {
           <table className="w-full text-sm">
             <thead className="border-b border-gray-200 bg-gray-50 text-left text-xs uppercase text-gray-500">
               <tr>
-                <th className="px-4 py-3">Code</th>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Discount</th>
-                <th className="px-4 py-3">Usage</th>
-                <th className="px-4 py-3">Expires</th>
-                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">{t('coupons.code')}</th>
+                <th className="px-4 py-3">{t('coupons.name')}</th>
+                <th className="px-4 py-3">{t('coupons.discount')}</th>
+                <th className="px-4 py-3">{t('coupons.usage')}</th>
+                <th className="px-4 py-3">{t('coupons.expires')}</th>
+                <th className="px-4 py-3">{t('coupons.status')}</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>

@@ -122,7 +122,25 @@
     "fulfillment": "Fulfillment",
     "date": "Date",
     "viewDetail": "View detail",
-    "newOrderToast": "New order #{{orderNumber}}"
+    "newOrderToast": "New order #{{orderNumber}}",
+    "allStatuses": "All status"
+  },
+  "coupons": {
+    "title": "Coupons",
+    "new": "New coupon",
+    "code": "Code",
+    "codePlaceholder": "Code (e.g. SAVE10)",
+    "name": "Name",
+    "namePlaceholder": "Name",
+    "percentage": "Percentage %",
+    "flatAmount": "Flat amount",
+    "discount": "Discount",
+    "discountValuePlaceholder": "Discount value",
+    "usage": "Usage",
+    "usageLimitPlaceholder": "Usage limit (optional)",
+    "expires": "Expires",
+    "expiresAtPlaceholder": "Expires at (optional)",
+    "status": "Status"
   },
   "settings": {
     "title": "Store settings",
