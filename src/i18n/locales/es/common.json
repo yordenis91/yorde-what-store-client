@@ -123,7 +123,10 @@
     "date": "Fecha",
     "viewDetail": "Ver detalle",
     "newOrderToast": "Nueva orden #{{orderNumber}}",
-    "allStatuses": "Todos los estados"
+    "allStatuses": "Todos los estados",
+    "filters": "Filtros",
+    "dateFrom": "Desde",
+    "dateTo": "Hasta"
   },
   "coupons": {
     "title": "Cupones",
