@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react'
-import { Outlet, useLocation, useParams } from 'react-router-dom'
+import { Link, Outlet, useLocation, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
@@ -14,6 +14,29 @@ import { StorefrontHeader } from '@/components/storefront/StorefrontHeader'
 import { FullPageSpinner } from '@/components/ui/Spinner'
 import { NotFound } from '@/pages/NotFoundPage'
 import type { StorefrontContext } from '@/hooks/useStorefront'
+import type { PublicTenant } from '@/types/api'
+
+/** Links to whichever store policies the merchant has actually published — a blank policy shows no link. */
+function PolicyLinks({ tenant, path }: { tenant: PublicTenant; path: (subpath?: string) => string }) {
+  const { t } = useTranslation()
+  const links: [string, string][] = [
+    ...(tenant.termsOfSaleContent ? [['/terms-of-sale', t('storefront.termsOfSale')] as [string, string]] : []),
+    ...(tenant.shippingPolicyContent ? [['/shipping-policy', t('storefront.shippingPolicy')] as [string, string]] : []),
+    ...(tenant.returnPolicyContent ? [['/return-policy', t('storefront.returnPolicy')] as [string, string]] : []),
+    ...(tenant.privacyPolicyContent ? [['/privacy-policy', t('storefront.privacyPolicy')] as [string, string]] : []),
+  ]
+  if (links.length === 0) return null
+
+  return (
+    <p className="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs">
+      {links.map(([subpath, label]) => (
+        <Link key={subpath} to={path(subpath)} className="text-gray-500 hover:text-gray-700 hover:underline">
+          {label}
+        </Link>
+      ))}
+    </p>
+  )
+}
 
 export function PublicLayout() {
   const { slug: slugParam = '' } = useParams()
@@ -96,6 +119,7 @@ export function PublicLayout() {
         <p className="mt-1">
           © {new Date().getFullYear()} — {t('footer.rights')}
         </p>
+        <PolicyLinks tenant={tenant} path={path} />
         <p className="mt-2 text-xs text-gray-400">{t('footer.poweredBy')}</p>
       </footer>
     </div>
