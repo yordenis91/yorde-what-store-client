@@ -197,7 +197,17 @@
     "appearance": "Appearance",
     "inventory": "Inventory",
     "inventoryHint": "Off by default. Turn it on only if you keep product quantities up to date — with it on, an order that exceeds stock is rejected.",
-    "tracksInventory": "Track stock for this store"
+    "tracksInventory": "Track stock for this store",
+    "policies": "Store policies",
+    "policiesHint": "Published on your storefront for your own customers. These are separate from Yorde What Store's platform Terms and Privacy Policy, which cover us as the platform operator, not your obligations to your customers. Leave a field blank to keep that policy unpublished.",
+    "termsOfSale": "Terms of sale",
+    "termsOfSaleHint": "The conditions customers accept when they buy from your store.",
+    "shippingPolicy": "Shipping policy",
+    "shippingPolicyHint": "Delivery times, areas, and shipping costs.",
+    "returnPolicy": "Return / refund policy",
+    "returnPolicyHint": "How customers can return an item or request a refund.",
+    "privacyPolicy": "Privacy policy",
+    "privacyPolicyHint": "How you, as the merchant, handle your customers' personal data."
   },
   "storefront": {
     "addToCart": "Add to cart",
@@ -269,7 +279,12 @@
     "stockChanged": "Stock changed while you were shopping",
     "stockOnly": "{{name}}: only {{available}} left",
     "stockNone": "{{name}}: out of stock",
-    "fixInCart": "Adjust in the cart"
+    "fixInCart": "Adjust in the cart",
+    "termsOfSale": "Terms of sale",
+    "shippingPolicy": "Shipping policy",
+    "returnPolicy": "Return / refund policy",
+    "privacyPolicy": "Privacy policy",
+    "policyNotPublished": "{{store}} hasn't published this policy yet."
   },
   "account": {
     "signIn": "Sign in",

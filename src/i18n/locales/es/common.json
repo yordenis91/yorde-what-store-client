@@ -197,7 +197,17 @@
     "appearance": "Apariencia",
     "inventory": "Inventario",
     "inventoryHint": "Desactivado por defecto. Activalo solo si mantenés al día las cantidades de tus productos — con esto activo, un pedido que supere el stock se rechaza.",
-    "tracksInventory": "Controlar stock en esta tienda"
+    "tracksInventory": "Controlar stock en esta tienda",
+    "policies": "Políticas de la tienda",
+    "policiesHint": "Se publican en tu tienda para tus propios clientes. Son independientes de los Términos y la Política de Privacidad de Yorde What Store, que rigen la plataforma como operador, no tus obligaciones con tus clientes. Deja un campo vacío para no publicar esa política.",
+    "termsOfSale": "Términos de venta",
+    "termsOfSaleHint": "Las condiciones que aceptan tus clientes al comprar en tu tienda.",
+    "shippingPolicy": "Política de envío",
+    "shippingPolicyHint": "Tiempos de entrega, zonas de cobertura y costos de envío.",
+    "returnPolicy": "Política de devoluciones / reembolsos",
+    "returnPolicyHint": "Cómo pueden tus clientes devolver un artículo o solicitar un reembolso.",
+    "privacyPolicy": "Política de privacidad",
+    "privacyPolicyHint": "Cómo manejas, como comerciante, los datos personales de tus clientes."
   },
   "storefront": {
     "addToCart": "Agregar al carrito",
@@ -269,7 +279,12 @@
     "stockChanged": "El stock cambió mientras comprabas",
     "stockOnly": "{{name}}: quedan solo {{available}}",
     "stockNone": "{{name}}: sin stock",
-    "fixInCart": "Ajustar en el carrito"
+    "fixInCart": "Ajustar en el carrito",
+    "termsOfSale": "Términos de venta",
+    "shippingPolicy": "Política de envío",
+    "returnPolicy": "Política de devoluciones / reembolsos",
+    "privacyPolicy": "Política de privacidad",
+    "policyNotPublished": "{{store}} todavía no publicó esta política."
   },
   "account": {
     "signIn": "Iniciar sesión",

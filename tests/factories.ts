@@ -23,6 +23,10 @@ export function buildTenant(overrides: Partial<PublicTenant> = {}): PublicTenant
     socialLinks: {},
     whatsappEnabled: true,
     telegramEnabled: false,
+    termsOfSaleContent: null,
+    shippingPolicyContent: null,
+    returnPolicyContent: null,
+    privacyPolicyContent: null,
     ...overrides,
   }
 }

@@ -75,6 +75,9 @@ const StorefrontLoginPage = lazy(() =>
 const StorefrontAccountPage = lazy(() =>
   import('@/pages/storefront/StorefrontAccountPage').then((m) => ({ default: m.StorefrontAccountPage })),
 )
+const StorefrontPolicyPage = lazy(() =>
+  import('@/pages/storefront/StorefrontPolicyPage').then((m) => ({ default: m.StorefrontPolicyPage })),
+)
 
 /**
  * Storefront pages, mounted under whatever path the current host implies: the
@@ -89,6 +92,22 @@ const storefrontRoutes = (
     <Route path="order-confirmed/:id" element={<StorefrontOrderConfirmedPage />} />
     <Route path="login" element={<StorefrontLoginPage />} />
     <Route path="account" element={<StorefrontAccountPage />} />
+    <Route
+      path="terms-of-sale"
+      element={<StorefrontPolicyPage policyKey="termsOfSaleContent" titleKey="storefront.termsOfSale" />}
+    />
+    <Route
+      path="shipping-policy"
+      element={<StorefrontPolicyPage policyKey="shippingPolicyContent" titleKey="storefront.shippingPolicy" />}
+    />
+    <Route
+      path="return-policy"
+      element={<StorefrontPolicyPage policyKey="returnPolicyContent" titleKey="storefront.returnPolicy" />}
+    />
+    <Route
+      path="privacy-policy"
+      element={<StorefrontPolicyPage policyKey="privacyPolicyContent" titleKey="storefront.privacyPolicy" />}
+    />
   </>
 )
 

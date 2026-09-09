@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { useForm, type UseFormRegister } from 'react-hook-form'
+import { forwardRef, useEffect, useRef, useState } from 'react'
+import { useForm, type UseFormRegister, type UseFormRegisterReturn } from 'react-hook-form'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -30,6 +30,10 @@ type FormValues = Pick<
   | 'telegramBotToken'
   | 'telegramChatId'
   | 'orderMessageTemplate'
+  | 'termsOfSaleContent'
+  | 'shippingPolicyContent'
+  | 'returnPolicyContent'
+  | 'privacyPolicyContent'
 >
 
 export function StoreSettingsPage() {
@@ -57,6 +61,10 @@ export function StoreSettingsPage() {
         telegramBotToken: tenant.telegramBotToken,
         telegramChatId: tenant.telegramChatId,
         orderMessageTemplate: tenant.orderMessageTemplate,
+        termsOfSaleContent: tenant.termsOfSaleContent,
+        shippingPolicyContent: tenant.shippingPolicyContent,
+        returnPolicyContent: tenant.returnPolicyContent,
+        privacyPolicyContent: tenant.privacyPolicyContent,
       })
     }
   }, [tenant, reset])
@@ -167,6 +175,17 @@ export function StoreSettingsPage() {
           <textarea className="rounded-lg border border-gray-300 px-3 py-2 font-mono text-xs" rows={8} {...register('orderMessageTemplate')} />
         </Card>
 
+        <Card className="flex flex-col gap-4">
+          <div>
+            <h2 className="font-medium text-gray-900">{t('settings.policies')}</h2>
+            <p className="mt-1 text-xs text-gray-500">{t('settings.policiesHint')}</p>
+          </div>
+          <PolicyField label={t('settings.termsOfSale')} hint={t('settings.termsOfSaleHint')} {...register('termsOfSaleContent')} />
+          <PolicyField label={t('settings.shippingPolicy')} hint={t('settings.shippingPolicyHint')} {...register('shippingPolicyContent')} />
+          <PolicyField label={t('settings.returnPolicy')} hint={t('settings.returnPolicyHint')} {...register('returnPolicyContent')} />
+          <PolicyField label={t('settings.privacyPolicy')} hint={t('settings.privacyPolicyHint')} {...register('privacyPolicyContent')} />
+        </Card>
+
         <Button type="submit" loading={mutation.isPending} className="w-fit">
           {t('settings.save')}
         </Button>
@@ -239,6 +258,24 @@ function ImageField({
     </div>
   )
 }
+
+/** Labelled textarea for one merchant-authored policy. Blank means "not published" — the storefront just omits that page/link. */
+const PolicyField = forwardRef<HTMLTextAreaElement, { label: string; hint: string } & UseFormRegisterReturn>(
+  function PolicyField({ label, hint, ...field }, ref) {
+    return (
+      <div>
+        <p className="text-sm font-medium text-gray-700">{label}</p>
+        <p className="mt-0.5 text-xs text-gray-500">{hint}</p>
+        <textarea
+          ref={ref}
+          rows={6}
+          className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+          {...field}
+        />
+      </div>
+    )
+  },
+)
 
 /**
  * Colour picker for the storefront. Each swatch paints itself with the theme it

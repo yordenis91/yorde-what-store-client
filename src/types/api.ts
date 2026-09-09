@@ -33,6 +33,10 @@ export interface Tenant {
   telegramChatId: string | null
   orderMessageTemplate: string
   itemLineTemplate: string
+  termsOfSaleContent: string | null
+  shippingPolicyContent: string | null
+  returnPolicyContent: string | null
+  privacyPolicyContent: string | null
   socialLinks: Record<string, string>
   isActive: boolean
   myRole?: TenantMemberRole
@@ -55,6 +59,10 @@ export interface PublicTenant {
   socialLinks: Record<string, string>
   whatsappEnabled: boolean
   telegramEnabled: boolean
+  termsOfSaleContent: string | null
+  shippingPolicyContent: string | null
+  returnPolicyContent: string | null
+  privacyPolicyContent: string | null
 }
 
 export interface ProductCategory {
