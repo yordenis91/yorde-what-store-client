@@ -148,7 +148,9 @@
     "allStatuses": "All status",
     "filters": "Filters",
     "dateFrom": "From",
-    "dateTo": "To"
+    "dateTo": "To",
+    "downloadInvoice": "Download invoice",
+    "invoiceNotReady": "Invoice isn't ready yet — it's generated shortly after payment is confirmed"
   },
   "customers": {
     "title": "Customers",
@@ -214,6 +216,9 @@
     "social": "Social links",
     "socialHint": "Shown as icons in your storefront header. Leave blank to hide.",
     "appearance": "Appearance",
+    "billing": "Billing",
+    "invoiceLogo": "Invoice logo",
+    "invoiceLogoHint": "Printed at the top of the PDF invoice generated for card payments. Falls back to your store logo if left blank.",
     "inventory": "Inventory",
     "inventoryHint": "Off by default. Turn it on only if you keep product quantities up to date — with it on, an order that exceeds stock is rejected.",
     "tracksInventory": "Track stock for this store",

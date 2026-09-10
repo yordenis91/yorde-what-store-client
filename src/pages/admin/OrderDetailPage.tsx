@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { getOrder, updateOrderStatus } from '@/services/orders.service'
+import { downloadInvoice, getOrder, updateOrderStatus } from '@/services/orders.service'
 import { useAuthStore } from '@/store/auth.store'
 import { formatDate, formatMoney } from '@/utils/format'
 import { extractErrorMessage } from '@/services/api-client'
@@ -32,6 +32,11 @@ export function OrderDetailPage() {
     onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
   })
 
+  const invoiceMutation = useMutation({
+    mutationFn: () => downloadInvoice(id!, order!.orderNumber),
+    onError: (error) => toast.error(extractErrorMessage(error, t('orders.invoiceNotReady'))),
+  })
+
   if (isLoading || !order) return <p className="text-sm text-gray-500">{t('common.loading')}</p>
 
   return (
@@ -40,9 +45,16 @@ export function OrderDetailPage() {
         <button onClick={() => navigate('/admin/orders')} className="text-sm text-brand-700">
           ← {t('common.back')}
         </button>
-        <Button variant="secondary" onClick={() => window.print()}>
-          Print receipt
-        </Button>
+        <div className="flex gap-2">
+          {order.invoiceAvailable && (
+            <Button variant="secondary" onClick={() => invoiceMutation.mutate()} loading={invoiceMutation.isPending}>
+              {t('orders.downloadInvoice')}
+            </Button>
+          )}
+          <Button variant="secondary" onClick={() => window.print()}>
+            Print receipt
+          </Button>
+        </div>
       </div>
       <h1 className="mb-1 text-2xl font-semibold text-gray-900">{order.orderNumber}</h1>
       <p className="mb-6 text-sm text-gray-500">{formatDate(order.createdAt)}</p>

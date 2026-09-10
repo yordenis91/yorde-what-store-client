@@ -91,3 +91,19 @@ export async function updateOrderStatus(id: string, status: Order['status']) {
   const { data } = await apiClient.patch<ApiEnvelope<Order>>(`/orders/${id}/status`, { status })
   return data.data
 }
+
+/**
+ * Not a plain `<a href>` — the invoice endpoint requires the admin's bearer
+ * token (it's not a public static asset like product images), so the file
+ * has to come through apiClient as a blob and get "clicked" via a throwaway
+ * anchor instead of the browser fetching the URL on its own.
+ */
+export async function downloadInvoice(id: string, orderNumber: string) {
+  const { data } = await apiClient.get<Blob>(`/orders/${id}/invoice`, { responseType: 'blob' })
+  const url = URL.createObjectURL(data)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `invoice-${orderNumber}.pdf`
+  link.click()
+  URL.revokeObjectURL(url)
+}

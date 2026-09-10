@@ -21,6 +21,7 @@ type FormValues = Pick<
   | 'theme'
   | 'logoUrl'
   | 'bannerUrl'
+  | 'invoiceLogoUrl'
   | 'socialLinks'
   | 'tracksInventory'
   | 'currencySymbol'
@@ -52,6 +53,7 @@ export function StoreSettingsPage() {
         theme: tenant.theme,
         logoUrl: tenant.logoUrl,
         bannerUrl: tenant.bannerUrl,
+        invoiceLogoUrl: tenant.invoiceLogoUrl,
         socialLinks: tenant.socialLinks ?? {},
         tracksInventory: tenant.tracksInventory,
         currencySymbol: tenant.currencySymbol,
@@ -109,6 +111,18 @@ export function StoreSettingsPage() {
             onChange={(url) => setValue('bannerUrl', url, { shouldDirty: true })}
             previewClassName="aspect-[4/1] w-full rounded-xl"
             uploadType="banner"
+          />
+        </Card>
+
+        <Card className="flex flex-col gap-4">
+          <h2 className="font-medium text-gray-900">{t('settings.billing')}</h2>
+          <ImageField
+            label={t('settings.invoiceLogo')}
+            hint={t('settings.invoiceLogoHint')}
+            value={watch('invoiceLogoUrl')}
+            onChange={(url) => setValue('invoiceLogoUrl', url, { shouldDirty: true })}
+            previewClassName="h-20 w-20 rounded-xl"
+            uploadType="logo"
           />
         </Card>
 

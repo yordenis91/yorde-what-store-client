@@ -24,6 +24,7 @@ export interface Tenant {
   locale: string
   logoUrl: string | null
   bannerUrl: string | null
+  invoiceLogoUrl: string | null
   theme: string
   tracksInventory: boolean
   whatsappEnabled: boolean
@@ -158,6 +159,8 @@ export interface Order {
   fulfillmentMessage: string | null
   items: OrderItem[]
   createdAt: string
+  /** Only populated on GET /orders/:id. True once the async invoice-generation job has written a PDF — absent right after payment, and never set for WhatsApp/Telegram fulfillment. */
+  invoiceAvailable?: boolean
 }
 
 export interface Customer {

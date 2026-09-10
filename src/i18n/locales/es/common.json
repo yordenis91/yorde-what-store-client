@@ -148,7 +148,9 @@
     "allStatuses": "Todos los estados",
     "filters": "Filtros",
     "dateFrom": "Desde",
-    "dateTo": "Hasta"
+    "dateTo": "Hasta",
+    "downloadInvoice": "Descargar factura",
+    "invoiceNotReady": "La factura todavía no está lista — se genera poco después de confirmarse el pago"
   },
   "customers": {
     "title": "Clientes",
@@ -214,6 +216,9 @@
     "social": "Redes sociales",
     "socialHint": "Se muestran como iconos en la cabecera de tu tienda. Déjalas vacías para ocultarlas.",
     "appearance": "Apariencia",
+    "billing": "Facturación",
+    "invoiceLogo": "Logo de factura",
+    "invoiceLogoHint": "Se imprime en la parte superior de la factura PDF generada para pagos con tarjeta. Si lo dejas vacío, se usa el logo de tu tienda.",
     "inventory": "Inventario",
     "inventoryHint": "Desactivado por defecto. Activalo solo si mantenés al día las cantidades de tus productos — con esto activo, un pedido que supere el stock se rechaza.",
     "tracksInventory": "Controlar stock en esta tienda",
