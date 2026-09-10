@@ -6,6 +6,7 @@
     "dashboard": "Dashboard",
     "products": "Products",
     "orders": "Orders",
+    "customers": "Customers",
     "coupons": "Coupons",
     "shipping": "Shipping",
     "staff": "Staff",
@@ -148,6 +149,24 @@
     "filters": "Filters",
     "dateFrom": "From",
     "dateTo": "To"
+  },
+  "customers": {
+    "title": "Customers",
+    "name": "Name",
+    "contact": "Contact",
+    "totalOrders": "Orders",
+    "totalSpent": "Total spent",
+    "lastOrderAt": "Last order",
+    "segment": "Segment",
+    "allSegments": "All segments",
+    "segments": {
+      "new": "New",
+      "recurring": "Recurring",
+      "vip": "VIP"
+    },
+    "customerSince": "Customer since",
+    "stats": "Stats",
+    "orderHistory": "Order history"
   },
   "coupons": {
     "title": "Coupons",

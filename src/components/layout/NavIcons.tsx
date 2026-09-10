@@ -76,6 +76,15 @@ export function ShippingIcon() {
   )
 }
 
+export function CustomersIcon() {
+  return (
+    <Icon>
+      <circle cx="12" cy="8" r="3.2" />
+      <path strokeLinecap="round" d="M5 20a7 7 0 0114 0" />
+    </Icon>
+  )
+}
+
 export function StaffIcon() {
   return (
     <Icon>

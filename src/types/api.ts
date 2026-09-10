@@ -179,6 +179,19 @@ export interface CustomerOrderSummary {
   items: { id: string; productName: string; variantName: string | null; quantity: number; lineTotal: string }[]
 }
 
+export type CustomerSegment = 'new' | 'recurring' | 'vip'
+
+export interface CustomerListItem extends Customer {
+  totalOrders: number
+  totalSpent: number
+  lastOrderAt: string | null
+  segment: CustomerSegment
+}
+
+export interface CustomerDetail extends CustomerListItem {
+  orders: CustomerOrderSummary[]
+}
+
 export interface PaginatedResult<T> {
   items: T[]
   meta: { page: number; limit: number; total: number; totalPages: number }

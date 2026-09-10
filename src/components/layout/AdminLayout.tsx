@@ -8,6 +8,7 @@ import { logout as apiLogout } from '@/services/auth.service'
 import { unlockNotificationSound } from '@/utils/notification-sound'
 import {
   CouponsIcon,
+  CustomersIcon,
   DashboardIcon,
   EmailTemplatesIcon,
   OrdersIcon,
@@ -49,6 +50,7 @@ export function AdminLayout() {
     { to: '/admin', label: 'nav.dashboard', end: true, icon: <DashboardIcon /> },
     { to: '/admin/products', label: 'nav.products', icon: <ProductsIcon /> },
     { to: '/admin/orders', label: 'nav.orders', badge: unseenOrders, icon: <OrdersIcon /> },
+    { to: '/admin/customers', label: 'nav.customers', icon: <CustomersIcon /> },
     { to: '/admin/coupons', label: 'nav.coupons', icon: <CouponsIcon /> },
     { to: '/admin/shipping', label: 'nav.shipping', icon: <ShippingIcon /> },
     { to: '/admin/staff', label: 'nav.staff', icon: <StaffIcon /> },

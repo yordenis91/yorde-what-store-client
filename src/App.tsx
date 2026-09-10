@@ -29,6 +29,12 @@ const ProductsListPage = lazy(() => import('@/pages/admin/ProductsListPage').the
 const ProductFormPage = lazy(() => import('@/pages/admin/ProductFormPage').then((m) => ({ default: m.ProductFormPage })))
 const OrdersListPage = lazy(() => import('@/pages/admin/OrdersListPage').then((m) => ({ default: m.OrdersListPage })))
 const OrderDetailPage = lazy(() => import('@/pages/admin/OrderDetailPage').then((m) => ({ default: m.OrderDetailPage })))
+const CustomersListPage = lazy(() =>
+  import('@/pages/admin/CustomersListPage').then((m) => ({ default: m.CustomersListPage })),
+)
+const CustomerDetailPage = lazy(() =>
+  import('@/pages/admin/CustomerDetailPage').then((m) => ({ default: m.CustomerDetailPage })),
+)
 const StoreSettingsPage = lazy(() => import('@/pages/admin/StoreSettingsPage').then((m) => ({ default: m.StoreSettingsPage })))
 const StaffPage = lazy(() => import('@/pages/admin/StaffPage').then((m) => ({ default: m.StaffPage })))
 const PlansPage = lazy(() => import('@/pages/admin/PlansPage').then((m) => ({ default: m.PlansPage })))
@@ -158,6 +164,8 @@ export default function App() {
             <Route path="products/:id" element={<ProductFormPage />} />
             <Route path="orders" element={<OrdersListPage />} />
             <Route path="orders/:id" element={<OrderDetailPage />} />
+            <Route path="customers" element={<CustomersListPage />} />
+            <Route path="customers/:id" element={<CustomerDetailPage />} />
             <Route path="coupons" element={<CouponsPage />} />
             <Route path="shipping" element={<ShippingPage />} />
             <Route path="staff" element={<StaffPage />} />
