@@ -9,7 +9,7 @@ import { Card } from '@/components/ui/Card'
 import { getCurrentTenant, updateCurrentTenant, listPaymentSettings, upsertPaymentSetting } from '@/services/tenants.service'
 import { useAuthStore } from '@/store/auth.store'
 import { extractErrorMessage, resolveMediaUrl } from '@/services/api-client'
-import { uploadImage } from '@/services/uploads.service'
+import { uploadImage, type UploadImageType } from '@/services/uploads.service'
 import { SOCIAL_NETWORKS } from '@/config/social'
 import { DEFAULT_THEME, THEME_NAMES, themeSwatch } from '@/config/themes'
 import type { Tenant } from '@/types/api'
@@ -100,6 +100,7 @@ export function StoreSettingsPage() {
             value={watch('logoUrl')}
             onChange={(url) => setValue('logoUrl', url, { shouldDirty: true })}
             previewClassName="h-20 w-20 rounded-xl"
+            uploadType="logo"
           />
           <ImageField
             label={t('settings.banner')}
@@ -107,6 +108,7 @@ export function StoreSettingsPage() {
             value={watch('bannerUrl')}
             onChange={(url) => setValue('bannerUrl', url, { shouldDirty: true })}
             previewClassName="aspect-[4/1] w-full rounded-xl"
+            uploadType="banner"
           />
         </Card>
 
@@ -203,12 +205,14 @@ function ImageField({
   value,
   onChange,
   previewClassName,
+  uploadType,
 }: {
   label: string
   hint: string
   value: string | null | undefined
   onChange: (url: string | null) => void
   previewClassName: string
+  uploadType?: UploadImageType
 }) {
   const { t } = useTranslation()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -219,7 +223,7 @@ function ImageField({
     if (!file) return
     setUploading(true)
     try {
-      onChange(await uploadImage(file))
+      onChange(await uploadImage(file, uploadType))
     } catch (error) {
       toast.error(extractErrorMessage(error, t('errors.generic')))
     } finally {
