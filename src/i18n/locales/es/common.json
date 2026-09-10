@@ -6,6 +6,7 @@
     "dashboard": "Panel",
     "products": "Productos",
     "orders": "Órdenes",
+    "customers": "Clientes",
     "coupons": "Cupones",
     "shipping": "Envíos",
     "staff": "Equipo",
@@ -148,6 +149,24 @@
     "filters": "Filtros",
     "dateFrom": "Desde",
     "dateTo": "Hasta"
+  },
+  "customers": {
+    "title": "Clientes",
+    "name": "Nombre",
+    "contact": "Contacto",
+    "totalOrders": "Pedidos",
+    "totalSpent": "Total gastado",
+    "lastOrderAt": "Último pedido",
+    "segment": "Segmento",
+    "allSegments": "Todos los segmentos",
+    "segments": {
+      "new": "Nuevo",
+      "recurring": "Recurrente",
+      "vip": "VIP"
+    },
+    "customerSince": "Cliente desde",
+    "stats": "Estadísticas",
+    "orderHistory": "Historial de pedidos"
   },
   "coupons": {
     "title": "Cupones",
