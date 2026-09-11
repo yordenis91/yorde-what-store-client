@@ -185,7 +185,20 @@
     "usageLimitPlaceholder": "Usage limit (optional)",
     "expires": "Expires",
     "expiresAtPlaceholder": "Expires at (optional)",
-    "status": "Status"
+    "status": "Status",
+    "empty": "No coupons yet. Create one to offer a discount."
+  },
+  "shipping": {
+    "title": "Shipping",
+    "tabLocations": "Locations",
+    "tabShipping": "Shipping",
+    "locationNamePlaceholder": "Location name (e.g. Downtown)",
+    "add": "Add",
+    "noLocations": "No locations yet.",
+    "methodNamePlaceholder": "Method name",
+    "costPlaceholder": "Cost",
+    "anyLocation": "Any location",
+    "noMethods": "No shipping methods yet."
   },
   "settings": {
     "title": "Store settings",
