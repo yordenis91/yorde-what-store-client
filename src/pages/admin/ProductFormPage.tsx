@@ -317,12 +317,12 @@ export function ProductFormPage() {
         </div>
 
         <div>
-          <div className="mb-1 flex items-center justify-between gap-2">
+          <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
             <span className="block text-sm font-medium text-gray-700">{t('products.categories')}</span>
-            <div className="flex items-center gap-2">
+            <div className="flex max-w-full flex-wrap items-center gap-2">
               {availableTemplates.length > 0 && (
                 <select
-                  className="rounded-lg border border-gray-300 px-2 py-1 text-xs text-gray-700"
+                  className="max-w-full min-w-0 rounded-lg border border-gray-300 px-2 py-1 text-xs text-gray-700"
                   value=""
                   disabled={createCategoryFromTemplateMutation.isPending}
                   onChange={(e) => {

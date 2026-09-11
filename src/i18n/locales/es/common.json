@@ -185,7 +185,20 @@
     "usageLimitPlaceholder": "Límite de usos (opcional)",
     "expires": "Vence",
     "expiresAtPlaceholder": "Fecha de vencimiento (opcional)",
-    "status": "Estado"
+    "status": "Estado",
+    "empty": "Todavía no hay cupones. Creá uno para ofrecer un descuento."
+  },
+  "shipping": {
+    "title": "Envíos",
+    "tabLocations": "Ubicaciones",
+    "tabShipping": "Envíos",
+    "locationNamePlaceholder": "Nombre de la ubicación (ej. Centro)",
+    "add": "Agregar",
+    "noLocations": "Todavía no hay ubicaciones.",
+    "methodNamePlaceholder": "Nombre del método",
+    "costPlaceholder": "Costo",
+    "anyLocation": "Cualquier ubicación",
+    "noMethods": "Todavía no hay métodos de envío."
   },
   "settings": {
     "title": "Configuración de tienda",

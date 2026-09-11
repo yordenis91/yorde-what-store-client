@@ -98,6 +98,13 @@ export function CouponsPage() {
               </tr>
             </thead>
             <tbody>
+              {data?.items.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="px-4 py-8 text-center text-sm text-gray-500">
+                    {t('coupons.empty')}
+                  </td>
+                </tr>
+              )}
               {data?.items.map((c) => (
                 <tr key={c.id} className="border-b border-gray-100 last:border-0">
                   <td className="px-4 py-3 font-mono font-medium text-gray-900">{c.code}</td>
