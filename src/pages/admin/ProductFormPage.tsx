@@ -249,7 +249,7 @@ export function ProductFormPage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="mb-6 text-2xl font-semibold text-gray-900">{t('products.new')}</h1>
+      <h1 className="mb-6 text-2xl font-semibold text-gray-900">{isEdit ? t('products.edit') : t('products.new')}</h1>
 
       {isEdit && (
         <Card className="mb-4">

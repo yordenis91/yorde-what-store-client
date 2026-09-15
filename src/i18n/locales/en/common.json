@@ -95,6 +95,7 @@
   "products": {
     "title": "Products",
     "new": "New product",
+    "edit": "Edit product",
     "name": "Name",
     "sku": "SKU",
     "description": "Description",
@@ -150,7 +151,8 @@
     "dateFrom": "From",
     "dateTo": "To",
     "downloadInvoice": "Download invoice",
-    "invoiceNotReady": "Invoice isn't ready yet — it's generated shortly after payment is confirmed"
+    "invoiceNotReady": "Invoice isn't ready yet — it's generated shortly after payment is confirmed",
+    "exportCsv": "Export CSV"
   },
   "customers": {
     "title": "Customers",
@@ -199,6 +201,9 @@
     "costPlaceholder": "Cost",
     "anyLocation": "Any location",
     "noMethods": "No shipping methods yet."
+  },
+  "staff": {
+    "invite": "Invite a team member"
   },
   "settings": {
     "title": "Store settings",
@@ -253,6 +258,7 @@
     "checkoutWhatsapp": "Order via WhatsApp",
     "checkoutTelegram": "Order via Telegram",
     "checkoutCard": "Pay with card",
+    "checkoutMercadoPago": "Pay with MercadoPago",
     "subtotal": "Subtotal",
     "tax": "Tax",
     "shipping": "Shipping",
@@ -311,6 +317,7 @@
     "checkoutWhatsappHint": "Your order opens as a WhatsApp message to the store.",
     "checkoutTelegramHint": "The store is notified on Telegram.",
     "checkoutCardHint": "Pay securely by card.",
+    "checkoutMercadoPagoHint": "Pay securely with MercadoPago.",
     "couponApplied": "Coupon {{code}} applied",
     "free": "Free",
     "stockChanged": "Stock changed while you were shopping",

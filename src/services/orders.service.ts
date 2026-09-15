@@ -17,6 +17,7 @@ export type CreateOrderResult =
   | { order: Order; fulfillment: { type: 'WHATSAPP'; redirectUrl: string } }
   | { order: Order; fulfillment: { type: 'TELEGRAM'; queued: true } }
   | { order: Order; fulfillment: { type: 'STRIPE' } }
+  | { order: Order; fulfillment: { type: 'MERCADOPAGO' } }
 
 export async function createOrder(slug: string, payload: CreateOrderPayload) {
   const { data } = await apiClient.post<ApiEnvelope<CreateOrderResult>>('/storefront/orders', payload, {
@@ -80,6 +81,17 @@ export interface OrderListParams {
 export async function listOrders(params: OrderListParams) {
   const { data } = await apiClient.get<ApiEnvelope<PaginatedResult<Order>>>('/orders', { params })
   return data.data
+}
+
+/** Same filters as the list, ignoring its pagination — exports every matching order, not one page. */
+export async function exportOrdersCsv(params: Pick<OrderListParams, 'search' | 'status' | 'dateFrom' | 'dateTo'>) {
+  const { data } = await apiClient.get<Blob>('/orders/export', { params, responseType: 'blob' })
+  const url = URL.createObjectURL(data)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `orders-${new Date().toISOString().slice(0, 10)}.csv`
+  link.click()
+  URL.revokeObjectURL(url)
 }
 
 export async function getOrder(id: string) {

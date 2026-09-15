@@ -12,3 +12,15 @@ export async function createStripeCheckout(
   )
   return data.data
 }
+
+export async function createMercadoPagoCheckout(
+  slug: string,
+  payload: { orderId: string; successUrl: string; cancelUrl: string },
+) {
+  const { data } = await apiClient.post<ApiEnvelope<{ checkoutUrl: string; providerReference: string }>>(
+    '/storefront/payments/mercadopago/checkout',
+    payload,
+    { headers: { 'X-Tenant-ID': slug } },
+  )
+  return data.data
+}
