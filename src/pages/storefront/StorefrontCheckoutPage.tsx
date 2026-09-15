@@ -10,7 +10,7 @@ import { useStorefront } from '@/hooks/useStorefront'
 import { useCartStore } from '@/store/cart.store'
 import { useCustomerStore } from '@/store/customer.store'
 import { createOrder, quoteOrder } from '@/services/orders.service'
-import { createStripeCheckout } from '@/services/payments.service'
+import { createStripeCheckout, createMercadoPagoCheckout } from '@/services/payments.service'
 import { registerCustomer } from '@/services/customers.service'
 import { listPublicShippings } from '@/services/shipping.service'
 import { formatMoney } from '@/utils/format'
@@ -40,7 +40,7 @@ const schema = z
       postalCode: z.string(),
       notes: z.string(),
     }),
-    fulfillmentMethod: z.enum(['WHATSAPP', 'TELEGRAM', 'STRIPE']),
+    fulfillmentMethod: z.enum(['WHATSAPP', 'TELEGRAM', 'STRIPE', 'MERCADOPAGO']),
   })
   // An address is only meaningful when something is being delivered; picking up
   // in store must not demand one.
@@ -210,11 +210,14 @@ export function StorefrontCheckoutPage() {
         return
       }
 
-      const checkout = await createStripeCheckout(slug, {
-        orderId: result.order.id,
+      const checkoutUrls = {
         successUrl: `${window.location.origin}${path(`/order-confirmed/${result.order.id}`)}`,
         cancelUrl: `${window.location.origin}${path('/checkout')}`,
-      })
+      }
+      const checkout =
+        result.fulfillment.type === 'MERCADOPAGO'
+          ? await createMercadoPagoCheckout(slug, { orderId: result.order.id, ...checkoutUrls })
+          : await createStripeCheckout(slug, { orderId: result.order.id, ...checkoutUrls })
       clearCart()
       window.location.href = checkout.checkoutUrl
     } catch (error) {
@@ -238,6 +241,12 @@ export function StorefrontCheckoutPage() {
       enabled: tenant.telegramEnabled,
     },
     { value: 'STRIPE', label: t('storefront.checkoutCard'), hint: t('storefront.checkoutCardHint'), enabled: true },
+    {
+      value: 'MERCADOPAGO',
+      label: t('storefront.checkoutMercadoPago'),
+      hint: t('storefront.checkoutMercadoPagoHint'),
+      enabled: true,
+    },
   ]
 
   return (

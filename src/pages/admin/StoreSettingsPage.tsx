@@ -349,16 +349,24 @@ interface StripeFormValues {
   isEnabled: boolean
 }
 
+interface MercadoPagoFormValues {
+  accessToken: string
+  isEnabled: boolean
+}
+
 function PaymentSettingsSection() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const { data: settings } = useQuery({ queryKey: ['payment-settings'], queryFn: listPaymentSettings })
   const { register, handleSubmit, reset } = useForm<StripeFormValues>()
+  const mercadoPagoForm = useForm<MercadoPagoFormValues>()
 
   useEffect(() => {
     const stripe = settings?.find((s) => s.provider === 'STRIPE')
     reset({ publishableKey: '', secretKey: '', isEnabled: stripe?.isEnabled ?? false })
-  }, [settings, reset])
+    const mercadoPago = settings?.find((s) => s.provider === 'MERCADOPAGO')
+    mercadoPagoForm.reset({ accessToken: '', isEnabled: mercadoPago?.isEnabled ?? false })
+  }, [settings, reset, mercadoPagoForm])
 
   const mutation = useMutation({
     mutationFn: (values: StripeFormValues) =>
@@ -374,26 +382,72 @@ function PaymentSettingsSection() {
     onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
   })
 
+  const mercadoPagoMutation = useMutation({
+    mutationFn: (values: MercadoPagoFormValues) =>
+      upsertPaymentSetting({
+        provider: 'MERCADOPAGO',
+        credentials: { accessToken: values.accessToken },
+        isEnabled: values.isEnabled,
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['payment-settings'] })
+      toast.success(t('settings.saved'))
+    },
+    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
+  })
+
   const stripeConfigured = settings?.some((s) => s.provider === 'STRIPE' && s.isEnabled)
+  const mercadoPagoConfigured = settings?.some((s) => s.provider === 'MERCADOPAGO' && s.isEnabled)
 
   return (
-    <Card className="mt-6 flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h2 className="font-medium text-gray-900">{t('settings.payments')}</h2>
-        {stripeConfigured && (
-          <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">Stripe enabled</span>
-        )}
+    <Card className="mt-6 flex flex-col gap-6">
+      <div>
+        <div className="flex items-center justify-between">
+          <h2 className="font-medium text-gray-900">{t('settings.payments')}</h2>
+          {stripeConfigured && (
+            <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">Stripe enabled</span>
+          )}
+        </div>
+        <form
+          onSubmit={(e) => void handleSubmit((values) => mutation.mutate(values))(e)}
+          className="mt-3 flex flex-col gap-3"
+        >
+          <label className="flex items-center gap-2 text-sm text-gray-700">
+            <input type="checkbox" {...register('isEnabled')} /> Enable Stripe checkout
+          </label>
+          <Input label="Publishable key" placeholder="pk_test_..." {...register('publishableKey')} />
+          <Input label="Secret key" type="password" placeholder="sk_test_..." {...register('secretKey')} />
+          <Button type="submit" loading={mutation.isPending} className="w-fit">
+            {t('settings.save')}
+          </Button>
+        </form>
       </div>
-      <form onSubmit={(e) => void handleSubmit((values) => mutation.mutate(values))(e)} className="flex flex-col gap-3">
-        <label className="flex items-center gap-2 text-sm text-gray-700">
-          <input type="checkbox" {...register('isEnabled')} /> Enable Stripe checkout
-        </label>
-        <Input label="Publishable key" placeholder="pk_test_..." {...register('publishableKey')} />
-        <Input label="Secret key" type="password" placeholder="sk_test_..." {...register('secretKey')} />
-        <Button type="submit" loading={mutation.isPending} className="w-fit">
-          {t('settings.save')}
-        </Button>
-      </form>
+
+      <div className="border-t border-gray-100 pt-6">
+        <div className="flex items-center justify-between">
+          <h2 className="font-medium text-gray-900">MercadoPago</h2>
+          {mercadoPagoConfigured && (
+            <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">MercadoPago enabled</span>
+          )}
+        </div>
+        <form
+          onSubmit={(e) => void mercadoPagoForm.handleSubmit((values) => mercadoPagoMutation.mutate(values))(e)}
+          className="mt-3 flex flex-col gap-3"
+        >
+          <label className="flex items-center gap-2 text-sm text-gray-700">
+            <input type="checkbox" {...mercadoPagoForm.register('isEnabled')} /> Enable MercadoPago checkout
+          </label>
+          <Input
+            label="Access token"
+            type="password"
+            placeholder="APP_USR-..."
+            {...mercadoPagoForm.register('accessToken')}
+          />
+          <Button type="submit" loading={mercadoPagoMutation.isPending} className="w-fit">
+            {t('settings.save')}
+          </Button>
+        </form>
+      </div>
     </Card>
   )
 }

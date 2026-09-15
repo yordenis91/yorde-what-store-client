@@ -124,7 +124,7 @@ export interface Product {
   createdAt: string
 }
 
-export type FulfillmentMethod = 'WHATSAPP' | 'TELEGRAM' | 'STRIPE'
+export type FulfillmentMethod = 'WHATSAPP' | 'TELEGRAM' | 'STRIPE' | 'MERCADOPAGO'
 export type OrderStatus = 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED' | 'REFUNDED'
 export type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED'
 

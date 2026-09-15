@@ -17,6 +17,7 @@ export type CreateOrderResult =
   | { order: Order; fulfillment: { type: 'WHATSAPP'; redirectUrl: string } }
   | { order: Order; fulfillment: { type: 'TELEGRAM'; queued: true } }
   | { order: Order; fulfillment: { type: 'STRIPE' } }
+  | { order: Order; fulfillment: { type: 'MERCADOPAGO' } }
 
 export async function createOrder(slug: string, payload: CreateOrderPayload) {
   const { data } = await apiClient.post<ApiEnvelope<CreateOrderResult>>('/storefront/orders', payload, {
