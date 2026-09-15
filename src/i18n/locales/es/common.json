@@ -126,7 +126,12 @@
     "variantAttr2Placeholder": "Color: Rojo, Azul (opcional)",
     "generate": "Generar",
     "rows": "Filas",
-    "qty": "Cant."
+    "qty": "Cant.",
+    "isActive": "Producto activo",
+    "isActiveHint": "Un producto inactivo queda guardado pero no se muestra en la tienda.",
+    "activate": "Activar",
+    "deactivate": "Desactivar",
+    "imagesAfterSaveHint": "Vas a poder subir fotos apenas guardes el producto por primera vez."
   },
   "notifications": {
     "bell": "Notificaciones",

@@ -251,6 +251,13 @@ export function ProductFormPage() {
     <div className="max-w-2xl">
       <h1 className="mb-6 text-2xl font-semibold text-gray-900">{isEdit ? t('products.edit') : t('products.new')}</h1>
 
+      {!isEdit && (
+        <Card className="mb-4">
+          <span className="mb-2 block text-sm font-medium text-gray-700">{t('products.images')}</span>
+          <p className="text-xs text-gray-500">{t('products.imagesAfterSaveHint')}</p>
+        </Card>
+      )}
+
       {isEdit && (
         <Card className="mb-4">
           <span className="mb-3 block text-sm font-medium text-gray-700">{t('products.images')}</span>
@@ -314,6 +321,14 @@ export function ProductFormPage() {
         <div className="grid grid-cols-2 gap-4">
           <Input label={t('products.price')} type="number" step="0.01" {...register('price')} error={errors.price?.message} />
           <Input label={t('products.stock')} type="number" {...register('quantity')} />
+        </div>
+
+        <div className="flex items-start gap-2">
+          <input type="checkbox" id="isActive" className="mt-1" {...register('isActive')} />
+          <label htmlFor="isActive" className="text-sm text-gray-700">
+            <span className="block font-medium">{t('products.isActive')}</span>
+            <span className="block text-xs text-gray-500">{t('products.isActiveHint')}</span>
+          </label>
         </div>
 
         <div>
