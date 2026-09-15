@@ -126,7 +126,12 @@
     "variantAttr2Placeholder": "Color: Red, Blue (optional)",
     "generate": "Generate",
     "rows": "Rows",
-    "qty": "Qty"
+    "qty": "Qty",
+    "isActive": "Product active",
+    "isActiveHint": "An inactive product stays saved but won't show in the store.",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "imagesAfterSaveHint": "You'll be able to upload photos as soon as you save the product for the first time."
   },
   "notifications": {
     "bell": "Notifications",

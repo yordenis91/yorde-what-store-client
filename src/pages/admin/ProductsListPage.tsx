@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card } from '@/components/ui/Card'
-import { deleteProduct, listCategories, listProducts } from '@/services/products.service'
+import { deleteProduct, listCategories, listProducts, updateProduct } from '@/services/products.service'
 import { useAuthStore } from '@/store/auth.store'
 import { formatMoney } from '@/utils/format'
 import { extractErrorMessage } from '@/services/api-client'
@@ -40,6 +40,12 @@ export function ProductsListPage() {
       void queryClient.invalidateQueries({ queryKey: ['products'] })
       toast.success(t('common.delete'))
     },
+    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
+  })
+
+  const toggleActiveMutation = useMutation({
+    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) => updateProduct(id, { isActive }),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['products'] }),
     onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
   })
 
@@ -100,15 +106,19 @@ export function ProductsListPage() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {data?.items.map((product) => (
             <Card key={product.id} className="flex flex-col gap-2">
-              <div className="flex items-start justify-between">
+              <div className="flex items-start justify-between gap-2">
                 <span className="font-medium text-gray-900">{product.name}</span>
-                <span
-                  className={`rounded-full px-2 py-0.5 text-xs ${
+                <button
+                  type="button"
+                  title={product.isActive ? t('products.deactivate') : t('products.activate')}
+                  disabled={toggleActiveMutation.isPending && toggleActiveMutation.variables?.id === product.id}
+                  onClick={() => toggleActiveMutation.mutate({ id: product.id, isActive: !product.isActive })}
+                  className={`shrink-0 rounded-full px-2 py-0.5 text-xs transition-opacity hover:opacity-75 disabled:opacity-50 ${
                     product.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
                   }`}
                 >
                   {product.isActive ? t('products.active') : t('products.inactive')}
-                </span>
+                </button>
               </div>
               <p className="text-lg font-semibold text-gray-900">{formatMoney(product.price, symbol, position)}</p>
               <p className="text-sm text-gray-500">
