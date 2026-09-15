@@ -82,6 +82,17 @@ export async function listOrders(params: OrderListParams) {
   return data.data
 }
 
+/** Same filters as the list, ignoring its pagination — exports every matching order, not one page. */
+export async function exportOrdersCsv(params: Pick<OrderListParams, 'search' | 'status' | 'dateFrom' | 'dateTo'>) {
+  const { data } = await apiClient.get<Blob>('/orders/export', { params, responseType: 'blob' })
+  const url = URL.createObjectURL(data)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `orders-${new Date().toISOString().slice(0, 10)}.csv`
+  link.click()
+  URL.revokeObjectURL(url)
+}
+
 export async function getOrder(id: string) {
   const { data } = await apiClient.get<ApiEnvelope<Order>>(`/orders/${id}`)
   return data.data

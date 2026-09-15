@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
+import { toast } from 'sonner'
 import { Input } from '@/components/ui/Input'
-import { listOrders } from '@/services/orders.service'
+import { Button } from '@/components/ui/Button'
+import { exportOrdersCsv, listOrders } from '@/services/orders.service'
 import { useAuthStore } from '@/store/auth.store'
 import { useOrderNotificationsStore } from '@/store/order-notifications.store'
+import { extractErrorMessage } from '@/services/api-client'
 import { formatDate, formatMoney } from '@/utils/format'
 import type { OrderStatus } from '@/types/api'
 
@@ -27,6 +30,7 @@ export function OrdersListPage() {
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [exporting, setExporting] = useState(false)
   const activeFilterCount = [status, dateFrom, dateTo].filter(Boolean).length
   const activeTenant = useAuthStore((s) => s.activeTenant)
   const symbol = activeTenant?.currencySymbol ?? '$'
@@ -50,9 +54,30 @@ export function OrdersListPage() {
       }),
   })
 
+  async function handleExport() {
+    setExporting(true)
+    try {
+      await exportOrdersCsv({
+        search: search || undefined,
+        status: status || undefined,
+        dateFrom: dateFrom || undefined,
+        dateTo: dateTo || undefined,
+      })
+    } catch (error) {
+      toast.error(extractErrorMessage(error, t('errors.generic')))
+    } finally {
+      setExporting(false)
+    }
+  }
+
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-semibold text-gray-900">{t('orders.title')}</h1>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-semibold text-gray-900">{t('orders.title')}</h1>
+        <Button variant="secondary" onClick={() => void handleExport()} loading={exporting}>
+          {t('orders.exportCsv')}
+        </Button>
+      </div>
 
       <div className="mb-4 flex flex-col gap-3">
         <div className="flex items-center gap-3">

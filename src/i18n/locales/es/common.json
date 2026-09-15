@@ -150,7 +150,8 @@
     "dateFrom": "Desde",
     "dateTo": "Hasta",
     "downloadInvoice": "Descargar factura",
-    "invoiceNotReady": "La factura todavía no está lista — se genera poco después de confirmarse el pago"
+    "invoiceNotReady": "La factura todavía no está lista — se genera poco después de confirmarse el pago",
+    "exportCsv": "Exportar CSV"
   },
   "customers": {
     "title": "Clientes",

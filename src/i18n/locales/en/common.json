@@ -150,7 +150,8 @@
     "dateFrom": "From",
     "dateTo": "To",
     "downloadInvoice": "Download invoice",
-    "invoiceNotReady": "Invoice isn't ready yet — it's generated shortly after payment is confirmed"
+    "invoiceNotReady": "Invoice isn't ready yet — it's generated shortly after payment is confirmed",
+    "exportCsv": "Export CSV"
   },
   "customers": {
     "title": "Customers",
