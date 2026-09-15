@@ -95,6 +95,7 @@
   "products": {
     "title": "Products",
     "new": "New product",
+    "edit": "Edit product",
     "name": "Name",
     "sku": "SKU",
     "description": "Description",
@@ -200,6 +201,9 @@
     "costPlaceholder": "Cost",
     "anyLocation": "Any location",
     "noMethods": "No shipping methods yet."
+  },
+  "staff": {
+    "invite": "Invite a team member"
   },
   "settings": {
     "title": "Store settings",

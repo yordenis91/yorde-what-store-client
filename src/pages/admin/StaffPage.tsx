@@ -40,7 +40,7 @@ export function StaffPage() {
       <h1 className="mb-6 text-2xl font-semibold text-gray-900">{t('nav.staff')}</h1>
 
       <Card className="mb-6">
-        <h2 className="mb-3 font-medium text-gray-900">{t('products.new')}</h2>
+        <h2 className="mb-3 font-medium text-gray-900">{t('staff.invite')}</h2>
         <form
           onSubmit={(e) => void handleSubmit((values) => inviteMutation.mutate(values))(e)}
           className="grid grid-cols-1 gap-3 sm:grid-cols-3"
