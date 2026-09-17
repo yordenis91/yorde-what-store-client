@@ -6,6 +6,10 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { DndContext, PointerSensor, TouchSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core'
+import type { DragEndEvent } from '@dnd-kit/core'
+import { SortableContext, arrayMove, rectSortingStrategy, useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card } from '@/components/ui/Card'
@@ -20,6 +24,7 @@ import {
   listCategoryTemplates,
   listTaxes,
   removeProductImage,
+  reorderProductImages,
   setCoverImage,
   updateProduct,
 } from '@/services/products.service'
@@ -27,7 +32,7 @@ import { uploadImage } from '@/services/uploads.service'
 import { resolveMediaUrl } from '@/services/api-client'
 import { extractErrorMessage } from '@/services/api-client'
 import { flattenCategoryTree } from '@/utils/category-tree'
-import type { CategoryTemplate } from '@/types/api'
+import type { CategoryTemplate, ProductImage } from '@/types/api'
 
 const variantSchema = z.object({
   name: z.string().min(1),
@@ -72,6 +77,84 @@ function cartesian(groups: string[][]): string[] {
   )
 }
 
+/**
+ * Action buttons are always visible (not a hover-reveal overlay): a
+ * hover-only affordance never appears on touch devices, which is how most
+ * store owners actually manage their catalog.
+ */
+function SortableImageThumb({
+  image,
+  coverLabel,
+  setCoverLabel,
+  removeLabel,
+  dragLabel,
+  onSetCover,
+  onRemove,
+  disabled,
+}: {
+  image: ProductImage
+  coverLabel: string
+  setCoverLabel: string
+  removeLabel: string
+  dragLabel: string
+  onSetCover: () => void
+  onRemove: () => void
+  disabled?: boolean
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: image.id })
+  const style = { transform: CSS.Transform.toString(transform), transition }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`relative h-24 w-24 overflow-hidden rounded-lg border border-gray-200 ${isDragging ? 'z-10 opacity-70 shadow-lg' : ''}`}
+    >
+      <img src={resolveMediaUrl(image.url)} alt="" className="h-full w-full object-cover" />
+      {image.isCover && (
+        <span className="absolute left-1 top-1 rounded bg-brand-600 px-1.5 py-0.5 text-[10px] text-white">{coverLabel}</span>
+      )}
+      <button
+        type="button"
+        aria-label={dragLabel}
+        {...attributes}
+        {...listeners}
+        className="absolute right-1 top-1 flex h-6 w-6 touch-none items-center justify-center rounded bg-black/50 text-white"
+      >
+        <svg viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3">
+          <circle cx="6" cy="4" r="1.5" />
+          <circle cx="14" cy="4" r="1.5" />
+          <circle cx="6" cy="10" r="1.5" />
+          <circle cx="14" cy="10" r="1.5" />
+          <circle cx="6" cy="16" r="1.5" />
+          <circle cx="14" cy="16" r="1.5" />
+        </svg>
+      </button>
+      <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1 bg-black/50 py-1">
+        {!image.isCover && (
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={onSetCover}
+            className="rounded bg-white px-1.5 py-0.5 text-[10px] disabled:opacity-50"
+          >
+            {setCoverLabel}
+          </button>
+        )}
+        <button
+          type="button"
+          aria-label={removeLabel}
+          disabled={disabled}
+          onClick={onRemove}
+          className="rounded bg-red-600 px-1.5 py-0.5 text-[10px] text-white disabled:opacity-50"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export function ProductFormPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -88,6 +171,11 @@ export function ProductFormPage() {
   const [attr2, setAttr2] = useState('')
   const [pendingPreview, setPendingPreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [localImages, setLocalImages] = useState<ProductImage[] | null>(null)
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
+  )
 
   // In case the upload is still in flight when this page unmounts (e.g. the
   // user navigates away) — otherwise the object URL never gets released.
@@ -105,6 +193,13 @@ export function ProductFormPage() {
     queryFn: () => getProduct(id!),
     enabled: isEdit,
   })
+
+  // Local copy so a drag can reorder instantly; resynced whenever the
+  // server's own order changes (after a successful reorder, or on load).
+  useEffect(() => {
+    setLocalImages(existing?.images ?? null)
+  }, [existing?.images])
+  const images = localImages ?? existing?.images ?? []
 
   const {
     register,
@@ -214,6 +309,27 @@ export function ProductFormPage() {
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['product', id] }),
   })
 
+  const reorderMutation = useMutation({
+    mutationFn: (imageIds: string[]) => reorderProductImages(id!, imageIds),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['product', id] }),
+    onError: (error) => {
+      toast.error(extractErrorMessage(error, t('errors.generic')))
+      setLocalImages(existing?.images ?? null)
+    },
+  })
+
+  function handleImageDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const current = localImages ?? existing?.images ?? []
+    const oldIndex = current.findIndex((img) => img.id === active.id)
+    const newIndex = current.findIndex((img) => img.id === over.id)
+    if (oldIndex === -1 || newIndex === -1) return
+    const next = arrayMove(current, oldIndex, newIndex)
+    setLocalImages(next)
+    reorderMutation.mutate(next.map((img) => img.id))
+  }
+
   function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
@@ -261,53 +377,44 @@ export function ProductFormPage() {
       {isEdit && (
         <Card className="mb-4">
           <span className="mb-3 block text-sm font-medium text-gray-700">{t('products.images')}</span>
-          <div className="flex flex-wrap gap-3">
-            {existing?.images.map((img) => (
-              <div key={img.id} className="group relative h-24 w-24 overflow-hidden rounded-lg border border-gray-200">
-                <img src={resolveMediaUrl(img.url)} alt="" className="h-full w-full object-cover" />
-                {img.isCover && (
-                  <span className="absolute left-1 top-1 rounded bg-brand-600 px-1.5 py-0.5 text-[10px] text-white">
-                    {t('products.cover')}
-                  </span>
-                )}
-                <div className="absolute inset-0 hidden items-center justify-center gap-1 bg-black/50 group-hover:flex">
-                  {!img.isCover && (
-                    <button
-                      type="button"
-                      onClick={() => setCoverMutation.mutate(img.id)}
-                      className="rounded bg-white px-1.5 py-0.5 text-[10px]"
-                    >
-                      {t('products.setCover')}
-                    </button>
-                  )}
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleImageDragEnd}>
+            <SortableContext items={images.map((img) => img.id)} strategy={rectSortingStrategy}>
+              <div className="flex flex-wrap gap-3">
+                {images.map((img) => (
+                  <SortableImageThumb
+                    key={img.id}
+                    image={img}
+                    coverLabel={t('products.cover')}
+                    setCoverLabel={t('products.setCover')}
+                    removeLabel={t('products.removeImage')}
+                    dragLabel={t('products.dragToReorder')}
+                    disabled={removeImageMutation.isPending || setCoverMutation.isPending}
+                    onSetCover={() => setCoverMutation.mutate(img.id)}
+                    onRemove={() => {
+                      if (confirm(t('products.removeImageConfirm'))) removeImageMutation.mutate(img.id)
+                    }}
+                  />
+                ))}
+                {pendingPreview ? (
+                  <div className="relative h-24 w-24 overflow-hidden rounded-lg border border-gray-200">
+                    <img src={pendingPreview} alt="" className="h-full w-full object-cover" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-white">
+                      <span className="h-6 w-6 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    </div>
+                  </div>
+                ) : (
                   <button
                     type="button"
-                    onClick={() => removeImageMutation.mutate(img.id)}
-                    className="rounded bg-red-600 px-1.5 py-0.5 text-[10px] text-white"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex h-24 w-24 flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 text-xs text-gray-500 hover:border-brand-500 hover:text-brand-600"
                   >
-                    ×
+                    {t('products.upload')}
                   </button>
-                </div>
+                )}
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelected} />
               </div>
-            ))}
-            {pendingPreview ? (
-              <div className="relative h-24 w-24 overflow-hidden rounded-lg border border-gray-200">
-                <img src={pendingPreview} alt="" className="h-full w-full object-cover" />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-white">
-                  <span className="h-6 w-6 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                </div>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="flex h-24 w-24 flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 text-xs text-gray-500 hover:border-brand-500 hover:text-brand-600"
-              >
-                {t('products.upload')}
-              </button>
-            )}
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelected} />
-          </div>
+            </SortableContext>
+          </DndContext>
         </Card>
       )}
 

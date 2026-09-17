@@ -131,7 +131,10 @@
     "isActiveHint": "An inactive product stays saved but won't show in the store.",
     "activate": "Activate",
     "deactivate": "Deactivate",
-    "imagesAfterSaveHint": "You'll be able to upload photos as soon as you save the product for the first time."
+    "imagesAfterSaveHint": "You'll be able to upload photos as soon as you save the product for the first time.",
+    "removeImage": "Remove photo",
+    "removeImageConfirm": "Remove this photo?",
+    "dragToReorder": "Drag to reorder"
   },
   "notifications": {
     "bell": "Notifications",

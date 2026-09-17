@@ -88,6 +88,11 @@ export async function setCoverImage(id: string, imageId: string) {
   return data.data
 }
 
+export async function reorderProductImages(id: string, imageIds: string[]) {
+  const { data } = await apiClient.patch<ApiEnvelope<unknown>>(`${adminBase}/${id}/images/reorder`, { imageIds })
+  return data.data
+}
+
 export async function listCategories() {
   const { data } = await apiClient.get<ApiEnvelope<ProductCategory[]>>(`${adminBase}/categories`)
   return data.data

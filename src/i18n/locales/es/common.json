@@ -131,7 +131,10 @@
     "isActiveHint": "Un producto inactivo queda guardado pero no se muestra en la tienda.",
     "activate": "Activar",
     "deactivate": "Desactivar",
-    "imagesAfterSaveHint": "Vas a poder subir fotos apenas guardes el producto por primera vez."
+    "imagesAfterSaveHint": "Vas a poder subir fotos apenas guardes el producto por primera vez.",
+    "removeImage": "Eliminar foto",
+    "removeImageConfirm": "¿Eliminar esta foto?",
+    "dragToReorder": "Arrastrar para reordenar"
   },
   "notifications": {
     "bell": "Notificaciones",
