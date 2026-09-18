@@ -59,6 +59,7 @@ function LocationsTab() {
   const removeMutation = useMutation({
     mutationFn: deleteLocation,
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['locations'] }),
+    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
   })
 
   return (
