@@ -208,6 +208,7 @@ export function StoreSettingsPage() {
       </form>
 
       <PaymentSettingsSection />
+      <SmtpSettingsSection tenant={tenant} />
     </div>
   )
 }
@@ -448,6 +449,94 @@ function PaymentSettingsSection() {
           </Button>
         </form>
       </div>
+    </Card>
+  )
+}
+
+interface SmtpFormValues {
+  smtpEnabled: boolean
+  smtpHost: string
+  smtpPort: string
+  smtpUser: string
+  smtpPassword: string
+  smtpFrom: string
+}
+
+/**
+ * The password field always loads blank (write-only, per Tenant.smtpPassword)
+ * — leaving it blank on save keeps whatever password is already stored,
+ * mirroring how the Stripe/MercadoPago secret fields above never round-trip
+ * a previously saved secret back into the browser.
+ */
+function SmtpSettingsSection({ tenant }: { tenant: Tenant }) {
+  const { t } = useTranslation()
+  const queryClient = useQueryClient()
+  const { register, handleSubmit, reset, watch } = useForm<SmtpFormValues>()
+
+  useEffect(() => {
+    reset({
+      smtpEnabled: tenant.smtpEnabled,
+      smtpHost: tenant.smtpHost ?? '',
+      smtpPort: tenant.smtpPort ? String(tenant.smtpPort) : '',
+      smtpUser: tenant.smtpUser ?? '',
+      smtpPassword: '',
+      smtpFrom: tenant.smtpFrom ?? '',
+    })
+  }, [tenant, reset])
+
+  const mutation = useMutation({
+    mutationFn: (values: SmtpFormValues) => {
+      const payload: Partial<Tenant> = {
+        smtpEnabled: values.smtpEnabled,
+        smtpHost: values.smtpHost || null,
+        smtpPort: values.smtpPort ? Number(values.smtpPort) : null,
+        smtpUser: values.smtpUser || null,
+        smtpFrom: values.smtpFrom || null,
+      }
+      if (values.smtpPassword) payload.smtpPassword = values.smtpPassword
+      return updateCurrentTenant(payload)
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['current-tenant'] })
+      toast.success(t('settings.saved'))
+    },
+    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
+  })
+
+  return (
+    <Card className="mt-6 flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="font-medium text-gray-900">{t('settings.smtp')}</h2>
+          <p className="mt-1 text-xs text-gray-500">{t('settings.smtpHint')}</p>
+        </div>
+        {tenant.smtpEnabled && tenant.smtpPasswordSet && (
+          <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">{t('settings.smtpConfigured')}</span>
+        )}
+      </div>
+      <form onSubmit={(e) => void handleSubmit((values) => mutation.mutate(values))(e)} className="flex flex-col gap-3">
+        <label className="flex items-center gap-2 text-sm text-gray-700">
+          <input type="checkbox" {...register('smtpEnabled')} /> {t('settings.smtpEnabled')}
+        </label>
+        {watch('smtpEnabled') && (
+          <>
+            <Input label={t('settings.smtpHost')} placeholder="smtp.example.com" {...register('smtpHost')} />
+            <Input label={t('settings.smtpPort')} type="number" placeholder="587" {...register('smtpPort')} className="max-w-[120px]" />
+            <Input label={t('settings.smtpUser')} {...register('smtpUser')} />
+            <Input
+              label={t('settings.smtpPassword')}
+              type="password"
+              placeholder={tenant.smtpPasswordSet ? '••••••••' : ''}
+              {...register('smtpPassword')}
+            />
+            <p className="-mt-2 text-xs text-gray-500">{t('settings.smtpPasswordHint')}</p>
+            <Input label={t('settings.smtpFrom')} placeholder="orders@yourstore.com" {...register('smtpFrom')} />
+          </>
+        )}
+        <Button type="submit" loading={mutation.isPending} className="w-fit">
+          {t('settings.save')}
+        </Button>
+      </form>
     </Card>
   )
 }
