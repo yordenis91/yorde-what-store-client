@@ -84,14 +84,14 @@ export function PlatformCategoryTemplatesPage() {
     return (
       <div key={node.id}>
         <div
-          className="flex items-center justify-between gap-3 border-b border-gray-100 py-2 last:border-0"
-          style={{ paddingLeft: depth * 20 }}
+          className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-gray-100 py-2 last:border-0"
+          style={{ paddingLeft: Math.min(depth, 4) * 16 }}
         >
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
             <span className={`text-sm ${node.isActive ? 'text-gray-900' : 'text-gray-400 line-through'}`}>{node.name}</span>
             <span className="text-xs text-gray-400">{node.slug}</span>
           </div>
-          <div className="flex shrink-0 gap-1">
+          <div className="flex flex-wrap gap-x-3 gap-y-1">
             <button type="button" className="text-xs font-medium text-brand-700" onClick={() => startCreate(node.id)}>
               + Subcategory
             </button>
