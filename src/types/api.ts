@@ -111,6 +111,21 @@ export interface PlatformTenantMember {
   user: { id: string; name: string; email: string; isActive: boolean }
 }
 
+export interface AuditLogEntry {
+  id: string
+  actorId: string | null
+  actorEmail: string | null
+  actorRole: string | null
+  action: string
+  entityType: string
+  entityId: string | null
+  tenantId: string | null
+  metadata: Record<string, unknown>
+  ipAddress: string | null
+  userAgent: string | null
+  createdAt: string
+}
+
 export interface PublicTenant {
   id: string
   name: string

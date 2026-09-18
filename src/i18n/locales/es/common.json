@@ -16,6 +16,7 @@
     "categoryTemplates": "Catálogo de categorías",
     "tenants": "Tiendas",
     "upgradeRequests": "Solicitudes de upgrade",
+    "auditLog": "Auditoría",
     "logout": "Cerrar sesión",
     "login": "Iniciar sesión",
     "register": "Crear tienda",
@@ -447,6 +448,25 @@
     "commissionRate": "Comisión personalizada (%)",
     "commissionRateHint": "Dejalo en blanco para usar el valor por defecto de la plataforma.",
     "backToList": "Volver a tiendas"
+  },
+  "auditLog": {
+    "title": "Auditoría",
+    "searchLabel": "Buscar",
+    "searchPlaceholder": "Email del actor o ID de entidad",
+    "actionLabel": "Acción",
+    "allActions": "Todas las acciones",
+    "tenantIdLabel": "ID de tienda",
+    "tenantIdPlaceholder": "Filtrar por tienda",
+    "fromLabel": "Desde",
+    "toLabel": "Hasta",
+    "clearFilters": "Limpiar filtros",
+    "columnWhen": "Cuándo",
+    "columnActor": "Actor",
+    "columnAction": "Acción",
+    "columnEntity": "Entidad",
+    "columnIp": "IP",
+    "columnDetails": "Detalles",
+    "empty": "No se encontraron registros de auditoría."
   },
   "common": {
     "loading": "Cargando...",

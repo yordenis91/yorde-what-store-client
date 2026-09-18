@@ -16,6 +16,7 @@
     "categoryTemplates": "Category catalog",
     "tenants": "Tenants",
     "upgradeRequests": "Upgrade requests",
+    "auditLog": "Audit log",
     "logout": "Log out",
     "login": "Log in",
     "register": "Create store",
@@ -447,6 +448,25 @@
     "commissionRate": "Commission rate override (%)",
     "commissionRateHint": "Leave blank to use the platform default.",
     "backToList": "Back to tenants"
+  },
+  "auditLog": {
+    "title": "Audit log",
+    "searchLabel": "Search",
+    "searchPlaceholder": "Actor email or entity ID",
+    "actionLabel": "Action",
+    "allActions": "All actions",
+    "tenantIdLabel": "Tenant ID",
+    "tenantIdPlaceholder": "Filter by tenant",
+    "fromLabel": "From",
+    "toLabel": "To",
+    "clearFilters": "Clear filters",
+    "columnWhen": "When",
+    "columnActor": "Actor",
+    "columnAction": "Action",
+    "columnEntity": "Entity",
+    "columnIp": "IP",
+    "columnDetails": "Details",
+    "empty": "No audit entries found."
   },
   "common": {
     "loading": "Loading...",

@@ -151,3 +151,12 @@ export function UpgradeRequestsIcon() {
     </Icon>
   )
 }
+
+export function AuditLogIcon() {
+  return (
+    <Icon>
+      <circle cx="12" cy="12" r="8.5" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5V12l3 2" />
+    </Icon>
+  )
+}

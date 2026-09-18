@@ -1,7 +1,14 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/auth.store'
 import { logout as apiLogout } from '@/services/auth.service'
-import { CategoryCatalogIcon, DashboardIcon, PlansIcon, TenantsIcon, UpgradeRequestsIcon } from './NavIcons'
+import {
+  AuditLogIcon,
+  CategoryCatalogIcon,
+  DashboardIcon,
+  PlansIcon,
+  TenantsIcon,
+  UpgradeRequestsIcon,
+} from './NavIcons'
 import { SidebarShell } from './SidebarShell'
 
 const navItems = [
@@ -10,6 +17,7 @@ const navItems = [
   { to: '/platform/plans', label: 'nav.plans', icon: <PlansIcon /> },
   { to: '/platform/category-templates', label: 'nav.categoryTemplates', icon: <CategoryCatalogIcon /> },
   { to: '/platform/upgrade-requests', label: 'nav.upgradeRequests', icon: <UpgradeRequestsIcon /> },
+  { to: '/platform/audit-log', label: 'nav.auditLog', icon: <AuditLogIcon /> },
 ]
 
 export function SuperAdminLayout() {

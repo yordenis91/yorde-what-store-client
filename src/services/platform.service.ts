@@ -1,6 +1,7 @@
 import { apiClient } from './api-client'
 import type {
   ApiEnvelope,
+  AuditLogEntry,
   PaginatedResult,
   PlatformTenantDetail,
   PlatformTenantListItem,
@@ -138,5 +139,27 @@ export async function listTenantNotes(id: string, params: { page?: number; limit
 
 export async function addTenantNote(id: string, body: string) {
   const { data } = await apiClient.post<ApiEnvelope<TenantNote>>(`/platform/tenants/${id}/notes`, { body })
+  return data.data
+}
+
+export interface ListAuditLogsParams {
+  page?: number
+  limit?: number
+  search?: string
+  action?: string
+  entityType?: string
+  tenantId?: string
+  actorId?: string
+  dateFrom?: string
+  dateTo?: string
+}
+
+export async function listAuditLogs(params: ListAuditLogsParams) {
+  const { data } = await apiClient.get<ApiEnvelope<PaginatedResult<AuditLogEntry>>>('/platform/audit-logs', { params })
+  return data.data
+}
+
+export async function listAuditActions() {
+  const { data } = await apiClient.get<ApiEnvelope<string[]>>('/platform/audit-logs/actions')
   return data.data
 }
