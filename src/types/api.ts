@@ -10,6 +10,8 @@ export interface User {
 
 export type TenantMemberRole = 'OWNER' | 'STAFF'
 
+export type TenantStatus = 'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'BANNED' | 'TRIAL_EXPIRED'
+
 export interface Tenant {
   id: string
   ownerId: string
@@ -49,7 +51,79 @@ export interface Tenant {
   privacyPolicyContent: string | null
   socialLinks: Record<string, string>
   isActive: boolean
+  /** Platform-admin lifecycle — see PlatformTenantsService. `isActive` above stays in sync with it. */
+  status: TenantStatus
+  commissionRate: string | null
+  limitsOverride: Record<string, number> | null
+  deletedAt: string | null
+  createdAt: string
   myRole?: TenantMemberRole
+}
+
+/** One row of GET /platform/tenants — a lighter projection than the full Tenant. */
+export interface PlatformTenantListItem {
+  id: string
+  name: string
+  slug: string
+  status: TenantStatus
+  isActive: boolean
+  commissionRate: string | null
+  createdAt: string
+  owner: { id: string; email: string; name: string }
+  subscriptions: { plan: { id: string; name: string } }[]
+  _count: { products: number; orders: number }
+}
+
+export interface PlatformTenantStats {
+  productCount: number
+  orderCount: number
+  memberCount: number
+  gmv: number
+}
+
+export interface PlatformTenantDetail extends Tenant {
+  owner: { id: string; email: string; name: string }
+  subscriptions: { plan: { id: string; name: string; price: string; duration: string } }[]
+  stats: PlatformTenantStats
+}
+
+export interface TenantStatusHistoryEntry {
+  id: string
+  fromStatus: TenantStatus
+  toStatus: TenantStatus
+  reason: string
+  createdAt: string
+  changedBy: { id: string; name: string; email: string }
+}
+
+export interface TenantNote {
+  id: string
+  body: string
+  createdAt: string
+  author: { id: string; name: string; email: string }
+}
+
+export interface PlatformTenantMember {
+  id: string
+  role: TenantMemberRole
+  isActive: boolean
+  createdAt: string
+  user: { id: string; name: string; email: string; isActive: boolean }
+}
+
+export interface AuditLogEntry {
+  id: string
+  actorId: string | null
+  actorEmail: string | null
+  actorRole: string | null
+  action: string
+  entityType: string
+  entityId: string | null
+  tenantId: string | null
+  metadata: Record<string, unknown>
+  ipAddress: string | null
+  userAgent: string | null
+  createdAt: string
 }
 
 export interface PublicTenant {

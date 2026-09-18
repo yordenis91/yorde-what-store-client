@@ -50,11 +50,17 @@ const PlatformDashboardPage = lazy(() =>
 const PlatformTenantsPage = lazy(() =>
   import('@/pages/platform/PlatformTenantsPage').then((m) => ({ default: m.PlatformTenantsPage })),
 )
+const PlatformTenantDetailPage = lazy(() =>
+  import('@/pages/platform/PlatformTenantDetailPage').then((m) => ({ default: m.PlatformTenantDetailPage })),
+)
 const PlatformPlansPage = lazy(() =>
   import('@/pages/platform/PlatformPlansPage').then((m) => ({ default: m.PlatformPlansPage })),
 )
 const PlatformUpgradeRequestsPage = lazy(() =>
   import('@/pages/platform/PlatformUpgradeRequestsPage').then((m) => ({ default: m.PlatformUpgradeRequestsPage })),
+)
+const PlatformAuditLogPage = lazy(() =>
+  import('@/pages/platform/PlatformAuditLogPage').then((m) => ({ default: m.PlatformAuditLogPage })),
 )
 const PlatformCategoryTemplatesPage = lazy(() =>
   import('@/pages/platform/PlatformCategoryTemplatesPage').then((m) => ({ default: m.PlatformCategoryTemplatesPage })),
@@ -179,9 +185,11 @@ export default function App() {
           <Route path="/platform" element={<SuperAdminLayout />}>
             <Route index element={<PlatformDashboardPage />} />
             <Route path="tenants" element={<PlatformTenantsPage />} />
+            <Route path="tenants/:id" element={<PlatformTenantDetailPage />} />
             <Route path="plans" element={<PlatformPlansPage />} />
             <Route path="category-templates" element={<PlatformCategoryTemplatesPage />} />
             <Route path="upgrade-requests" element={<PlatformUpgradeRequestsPage />} />
+            <Route path="audit-log" element={<PlatformAuditLogPage />} />
           </Route>
         </Route>
 

@@ -18,6 +18,7 @@ import {
   ShippingIcon,
   StaffIcon,
 } from './NavIcons'
+import { ImpersonationBanner } from './ImpersonationBanner'
 import { NotificationBell } from './NotificationBell'
 import { SidebarShell, type SidebarNavItem } from './SidebarShell'
 
@@ -69,12 +70,15 @@ export function AdminLayout() {
   }
 
   return (
-    <SidebarShell
-      brand={activeTenant?.name ?? t('app.name')}
-      navItems={navItems}
-      headerLeft={activeTenant?.slug}
-      headerRight={<NotificationBell />}
-      onLogout={() => void handleLogout()}
-    />
+    <>
+      <ImpersonationBanner />
+      <SidebarShell
+        brand={activeTenant?.name ?? t('app.name')}
+        navItems={navItems}
+        headerLeft={activeTenant?.slug}
+        headerRight={<NotificationBell />}
+        onLogout={() => void handleLogout()}
+      />
+    </>
   )
 }
