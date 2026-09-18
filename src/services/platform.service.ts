@@ -10,13 +10,21 @@ import type {
   TenantStatus,
   TenantStatusHistoryEntry,
 } from '@/types/api'
+import type { DashboardRange } from './dashboard.service'
 
 export interface PlatformSummary {
   totalTenants: number
   activeTenants: number
   totalUsers: number
+  range: DashboardRange
   totalOrders: number
   totalRevenue: number
+  periodOrders: number
+  periodRevenue: number
+  gmvOverTime: { date: string; orders: number; gmv: number }[]
+  topTenantsByRevenue: { tenantId: string; name: string; slug: string; revenue: number }[]
+  commissionsTotal: number
+  defaultCommissionRate: number
   mrr: number
   activeSubscriptions: number
   planBreakdown: { planId: string; name: string; activeSubscriptions: number; mrr: number }[]
@@ -30,8 +38,8 @@ export interface PlatformSummary {
   }[]
 }
 
-export async function getPlatformSummary() {
-  const { data } = await apiClient.get<ApiEnvelope<PlatformSummary>>('/platform/summary')
+export async function getPlatformSummary(range: DashboardRange = '7d') {
+  const { data } = await apiClient.get<ApiEnvelope<PlatformSummary>>('/platform/summary', { params: { range } })
   return data.data
 }
 
