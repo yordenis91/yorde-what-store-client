@@ -96,6 +96,20 @@ export interface TenantStatusHistoryEntry {
   changedBy: { id: string; name: string; email: string }
 }
 
+/** One row of GET /platform/products — cross-tenant moderation view, not the full catalog record. */
+export interface PlatformProductListItem {
+  id: string
+  tenantId: string
+  name: string
+  sku: string | null
+  price: string
+  quantity: number
+  isActive: boolean
+  isPublished: boolean
+  createdAt: string
+  tenant: { id: string; name: string; slug: string }
+}
+
 export interface TenantNote {
   id: string
   body: string
