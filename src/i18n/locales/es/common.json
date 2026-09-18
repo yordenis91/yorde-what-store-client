@@ -257,7 +257,17 @@
     "returnPolicy": "Política de devoluciones / reembolsos",
     "returnPolicyHint": "Cómo pueden tus clientes devolver un artículo o solicitar un reembolso.",
     "privacyPolicy": "Política de privacidad",
-    "privacyPolicyHint": "Cómo manejas, como comerciante, los datos personales de tus clientes."
+    "privacyPolicyHint": "Cómo manejas, como comerciante, los datos personales de tus clientes.",
+    "smtp": "Envío de emails (SMTP)",
+    "smtpHint": "Enviá confirmaciones de pedido, restablecimientos de contraseña e invitaciones de personal desde tu propio servidor de correo en vez del que usa la plataforma por defecto.",
+    "smtpConfigured": "Configurado",
+    "smtpEnabled": "Usar mi propio servidor SMTP",
+    "smtpHost": "Host SMTP",
+    "smtpPort": "Puerto",
+    "smtpUser": "Usuario",
+    "smtpPassword": "Contraseña",
+    "smtpPasswordHint": "Dejalo en blanco para mantener la contraseña actual.",
+    "smtpFrom": "Dirección de remitente"
   },
   "storefront": {
     "addToCart": "Agregar al carrito",

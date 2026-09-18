@@ -257,7 +257,17 @@
     "returnPolicy": "Return / refund policy",
     "returnPolicyHint": "How customers can return an item or request a refund.",
     "privacyPolicy": "Privacy policy",
-    "privacyPolicyHint": "How you, as the merchant, handle your customers' personal data."
+    "privacyPolicyHint": "How you, as the merchant, handle your customers' personal data.",
+    "smtp": "Email delivery (SMTP)",
+    "smtpHint": "Send order confirmations, password resets, and staff invites from your own mail server instead of the platform's default one.",
+    "smtpConfigured": "Configured",
+    "smtpEnabled": "Use my own SMTP server",
+    "smtpHost": "SMTP host",
+    "smtpPort": "Port",
+    "smtpUser": "Username",
+    "smtpPassword": "Password",
+    "smtpPasswordHint": "Leave blank to keep the current password.",
+    "smtpFrom": "From address"
   },
   "storefront": {
     "addToCart": "Add to cart",

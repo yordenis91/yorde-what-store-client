@@ -32,6 +32,15 @@ export interface Tenant {
   telegramEnabled: boolean
   telegramBotToken: string | null
   telegramChatId: string | null
+  smtpEnabled: boolean
+  smtpHost: string | null
+  smtpPort: number | null
+  smtpUser: string | null
+  smtpFrom: string | null
+  /** Whether a password is currently stored — the password itself is never returned by the API. */
+  smtpPasswordSet: boolean
+  /** Write-only: send a new password to change it, or omit to leave it unchanged. Never present in a GET response. */
+  smtpPassword?: string
   orderMessageTemplate: string
   itemLineTemplate: string
   termsOfSaleContent: string | null
