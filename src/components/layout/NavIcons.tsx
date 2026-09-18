@@ -152,6 +152,20 @@ export function UpgradeRequestsIcon() {
   )
 }
 
+export function GlobalProductsIcon() {
+  return (
+    <Icon>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3.75 9.5l8.25-4.5 8.25 4.5-8.25 4.5-8.25-4.5zM3.75 9.5v5.5l8.25 4.5m0-10v10m8.25-10v5.5l-8.25 4.5"
+      />
+      <circle cx="19" cy="6" r="3" fill="white" stroke="currentColor" />
+      <path strokeLinecap="round" d="M17.6 6h2.8M19 4.6v2.8" />
+    </Icon>
+  )
+}
+
 export function AuditLogIcon() {
   return (
     <Icon>

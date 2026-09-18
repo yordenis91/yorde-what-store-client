@@ -3,6 +3,7 @@ import type {
   ApiEnvelope,
   AuditLogEntry,
   PaginatedResult,
+  PlatformProductListItem,
   PlatformTenantDetail,
   PlatformTenantListItem,
   PlatformTenantMember,
@@ -169,5 +170,62 @@ export async function listAuditLogs(params: ListAuditLogsParams) {
 
 export async function listAuditActions() {
   const { data } = await apiClient.get<ApiEnvelope<string[]>>('/platform/audit-logs/actions')
+  return data.data
+}
+
+export interface PlatformSettings {
+  id: string
+  defaultCommissionRate: number
+  smtpEnabled: boolean
+  smtpHost: string | null
+  smtpPort: number | null
+  smtpUser: string | null
+  smtpFrom: string | null
+  smtpPasswordSet: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export async function getPlatformSettings() {
+  const { data } = await apiClient.get<ApiEnvelope<PlatformSettings>>('/platform/settings')
+  return data.data
+}
+
+export interface UpdatePlatformSettingsPayload {
+  defaultCommissionRate?: number
+  smtpEnabled?: boolean
+  smtpHost?: string | null
+  smtpPort?: number | null
+  smtpUser?: string | null
+  smtpPassword?: string
+  smtpFrom?: string | null
+}
+
+export async function updatePlatformSettings(payload: UpdatePlatformSettingsPayload) {
+  const { data } = await apiClient.patch<ApiEnvelope<PlatformSettings>>('/platform/settings', payload)
+  return data.data
+}
+
+export interface ListPlatformProductsParams {
+  page?: number
+  limit?: number
+  search?: string
+  tenantId?: string
+  isActive?: boolean
+  isPublished?: boolean
+}
+
+export async function listPlatformProducts(params: ListPlatformProductsParams) {
+  const { data } = await apiClient.get<ApiEnvelope<PaginatedResult<PlatformProductListItem>>>('/platform/products', {
+    params,
+  })
+  return data.data
+}
+
+export async function moderateProduct(id: string, isActive: boolean, reason?: string) {
+  const { data } = await apiClient.patch<ApiEnvelope<PlatformProductListItem>>(`/platform/products/${id}/moderate`, {
+    isActive,
+    reason,
+  })
   return data.data
 }
