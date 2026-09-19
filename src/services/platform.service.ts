@@ -95,6 +95,15 @@ export async function deletePlatformTenant(id: string) {
   await apiClient.delete(`/platform/tenants/${id}`)
 }
 
+/** Irreversible — `confirmSlug` must equal the tenant's own slug or the API rejects it. */
+export async function purgePlatformTenant(id: string, confirmSlug: string) {
+  const { data } = await apiClient.post<ApiEnvelope<{ purged: boolean; tenantId: string; slug: string }>>(
+    `/platform/tenants/${id}/purge`,
+    { confirmSlug },
+  )
+  return data.data
+}
+
 export async function suspendTenant(id: string, reason: string) {
   const { data } = await apiClient.post<ApiEnvelope<PlatformTenantDetail>>(`/platform/tenants/${id}/suspend`, {
     reason,
