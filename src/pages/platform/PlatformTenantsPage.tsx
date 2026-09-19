@@ -14,6 +14,7 @@ import {
   createPlatformTenant,
   impersonateTenant,
   listPlatformTenants,
+  purgePlatformTenant,
   suspendTenant,
   type CreatePlatformTenantPayload,
 } from '@/services/platform.service'
@@ -147,6 +148,72 @@ function ImpersonateModal({
   )
 }
 
+interface PurgeFormValues {
+  confirmSlug: string
+}
+
+/**
+ * Irreversible — unlike suspend/activate/soft-delete, there is no undo.
+ * Requires typing the tenant's own slug to confirm (the same pattern
+ * GitHub/Shopify use before a destructive delete), so a misclick on the
+ * wrong row can't destroy the wrong store. The API re-validates this
+ * server-side regardless — the modal is a UX safeguard, not the boundary.
+ */
+function PurgeTenantModal({
+  tenant,
+  onClose,
+  onDone,
+}: {
+  tenant: PlatformTenantListItem
+  onClose: () => void
+  onDone: () => void
+}) {
+  const { t } = useTranslation()
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<PurgeFormValues>({ defaultValues: { confirmSlug: '' } })
+
+  async function onSubmit(values: PurgeFormValues) {
+    try {
+      await purgePlatformTenant(tenant.id, values.confirmSlug)
+      toast.success(t('platformTenants.purgeSuccess'))
+      onDone()
+    } catch (error) {
+      toast.error(extractErrorMessage(error, t('errors.generic')))
+    }
+  }
+
+  const confirmSlug = watch('confirmSlug')
+
+  return (
+    <Modal title={t('platformTenants.purgeTitle', { name: tenant.name })} onClose={onClose}>
+      <form onSubmit={(e) => void handleSubmit(onSubmit)(e)} className="flex flex-col gap-3">
+        <p className="rounded-lg bg-red-50 p-3 text-sm text-red-800">{t('platformTenants.purgeWarning')}</p>
+        <p className="text-sm text-gray-700">
+          {t('platformTenants.purgeConfirmLabel')} <span className="font-mono font-semibold">{tenant.slug}</span>
+        </p>
+        <Input
+          {...register('confirmSlug', { required: true, validate: (v) => v === tenant.slug })}
+          placeholder={tenant.slug}
+          autoComplete="off"
+          error={errors.confirmSlug ? t('platformTenants.purgeConfirmMismatch') : undefined}
+        />
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={onClose}>
+            {t('common.cancel')}
+          </Button>
+          <Button type="submit" variant="danger" loading={isSubmitting} disabled={confirmSlug !== tenant.slug}>
+            {t('platformTenants.purgeConfirm')}
+          </Button>
+        </div>
+      </form>
+    </Modal>
+  )
+}
+
 const createTenantSchema = z.object({
   name: z.string().min(2).max(120),
   slug: z
@@ -213,7 +280,8 @@ function CreateTenantModal({ onClose, onCreated }: { onClose: () => void; onCrea
 
 type StatusAction = { kind: 'status'; toStatus: 'SUSPENDED' | 'ACTIVE'; targets: string[] }
 type ImpersonateAction = { kind: 'impersonate'; tenant: PlatformTenantListItem }
-type ModalState = StatusAction | ImpersonateAction | { kind: 'create' } | null
+type PurgeAction = { kind: 'purge'; tenant: PlatformTenantListItem }
+type ModalState = StatusAction | ImpersonateAction | PurgeAction | { kind: 'create' } | null
 
 export function PlatformTenantsPage() {
   const { t } = useTranslation()
@@ -400,6 +468,9 @@ export function PlatformTenantsPage() {
                       <Button variant="ghost" onClick={() => setModal({ kind: 'impersonate', tenant })}>
                         {t('platformTenants.impersonate')}
                       </Button>
+                      <Button variant="danger" onClick={() => setModal({ kind: 'purge', tenant })}>
+                        {t('platformTenants.purge')}
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -446,6 +517,9 @@ export function PlatformTenantsPage() {
         />
       )}
       {modal?.kind === 'create' && <CreateTenantModal onClose={() => setModal(null)} onCreated={closeModalAndRefresh} />}
+      {modal?.kind === 'purge' && (
+        <PurgeTenantModal tenant={modal.tenant} onClose={() => setModal(null)} onDone={closeModalAndRefresh} />
+      )}
     </div>
   )
 }
