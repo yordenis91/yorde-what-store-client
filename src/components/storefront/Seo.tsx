@@ -44,7 +44,12 @@ export function Seo({ title, description, image, type = 'website', siteName, jso
       {image && <meta name="twitter:image" content={image} />}
 
       {jsonLd && (
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <script
+          type="application/ld+json"
+          // JSON.stringify never escapes `</`, so a product/tenant name containing the literal
+          // text "</script>" would close this tag early and let injected markup execute.
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+        />
       )}
     </>
   )
