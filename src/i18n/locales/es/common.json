@@ -31,6 +31,13 @@
     "terms": "Términos de servicio",
     "privacy": "Política de privacidad"
   },
+  "plans": {
+    "currentPlan": "Plan actual",
+    "pendingApproval": "Aprobación pendiente",
+    "subscribe": "Suscribirse",
+    "requestUpgrade": "Solicitar mejora",
+    "upgradeRequested": "Mejora solicitada — pendiente de aprobación"
+  },
   "auth": {
     "loginTitle": "Iniciar sesión en tu tienda",
     "registerTitle": "Crea tu tienda",
@@ -94,7 +101,11 @@
     "discountGiven": "Descuento otorgado",
     "range7d": "7 días",
     "range30d": "30 días",
-    "range90d": "90 días"
+    "range90d": "90 días",
+    "storeLink": "Enlace de tu tienda",
+    "copyLink": "Copiar enlace",
+    "copied": "¡Copiado!",
+    "linkCopied": "Enlace copiado"
   },
   "products": {
     "title": "Productos",

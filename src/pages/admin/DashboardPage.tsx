@@ -77,7 +77,7 @@ export function DashboardPage() {
   function copyLink() {
     void navigator.clipboard.writeText(storefrontLink).then(() => {
       setCopied(true)
-      toast.success('Link copied')
+      toast.success(t('dashboard.linkCopied'))
       setTimeout(() => setCopied(false), 2000)
     })
   }
@@ -151,10 +151,10 @@ export function DashboardPage() {
         </Card>
 
         <Card className="flex flex-col items-center justify-center gap-2 text-center">
-          <h2 className="font-medium text-gray-900">Your store link</h2>
+          <h2 className="font-medium text-gray-900">{t('dashboard.storeLink')}</h2>
           <canvas ref={canvasRef} className="rounded" />
           <button onClick={copyLink} className="text-xs font-medium text-brand-700 hover:underline">
-            {copied ? 'Copied!' : 'Copy link'}
+            {copied ? t('dashboard.copied') : t('dashboard.copyLink')}
           </button>
         </Card>
       </div>

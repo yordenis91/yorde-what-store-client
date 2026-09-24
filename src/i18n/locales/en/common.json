@@ -31,6 +31,13 @@
     "terms": "Terms of Service",
     "privacy": "Privacy Policy"
   },
+  "plans": {
+    "currentPlan": "Current plan",
+    "pendingApproval": "Pending approval",
+    "subscribe": "Subscribe",
+    "requestUpgrade": "Request upgrade",
+    "upgradeRequested": "Upgrade requested — pending approval"
+  },
   "auth": {
     "loginTitle": "Log in to your store",
     "registerTitle": "Create your store",
@@ -94,7 +101,11 @@
     "discountGiven": "Discount given",
     "range7d": "7 days",
     "range30d": "30 days",
-    "range90d": "90 days"
+    "range90d": "90 days",
+    "storeLink": "Your store link",
+    "copyLink": "Copy link",
+    "copied": "Copied!",
+    "linkCopied": "Link copied"
   },
   "products": {
     "title": "Products",
