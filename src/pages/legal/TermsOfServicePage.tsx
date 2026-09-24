@@ -3,7 +3,7 @@ import { LegalLayout } from './LegalLayout'
 
 export function TermsOfServicePage() {
   return (
-    <LegalLayout title="Terms of Service" lastUpdated="September 1, 2026">
+    <LegalLayout title="Terms of Service" lastUpdated="September 24, 2026">
       <p>
         These Terms of Service ("Terms") govern access to and use of the Yorde What Store platform, including the
         merchant dashboard, storefront hosting, and related services (collectively, the "Service"), provided by
@@ -22,7 +22,10 @@ export function TermsOfServicePage() {
         <ul>
           <li>Create and manage product listings, categories, taxes, coupons, and shipping options;</li>
           <li>Receive and manage customer orders;</li>
-          <li>Accept online payments through supported third-party payment processors (currently Stripe);</li>
+          <li>
+            Accept online payments through supported third-party payment processors (currently Stripe and
+            MercadoPago);
+          </li>
           <li>
             Receive order notifications and fulfill orders through supported messaging channels (currently WhatsApp
             and Telegram) or by email;
@@ -127,10 +130,11 @@ export function TermsOfServicePage() {
             takes effect constitutes acceptance of the new fee.
           </li>
           <li>
-            Payments you accept from your Customers are processed by our third-party payment processor (currently
-            Stripe). Processor fees, payout timing, chargebacks, and disputes are governed by that processor's own
-            terms, which you must separately accept in order to enable online payments. Yorde What Store is not a
-            party to the payment relationship between you and your Customer and does not hold or control your funds.
+            Payments you accept from your Customers are processed by a third-party payment processor (currently
+            Stripe and/or MercadoPago, depending on your Store's configuration). Processor fees, payout timing,
+            chargebacks, and disputes are governed by that processor's own terms, which you must separately accept
+            in order to enable online payments. Yorde What Store is not a party to the payment relationship between
+            you and your Customer and does not hold or control your funds.
           </li>
         </ul>
       </section>
@@ -138,8 +142,9 @@ export function TermsOfServicePage() {
       <section>
         <h2>6. Third-Party Services</h2>
         <p>
-          The Service integrates with third-party providers, including but not limited to Stripe (payments), WhatsApp
-          and Telegram (order fulfillment messaging), and email delivery providers (transactional email). Your use of
+          The Service integrates with third-party providers, including but not limited to Stripe and MercadoPago
+          (payments), WhatsApp and Telegram (order fulfillment messaging), and email delivery providers (transactional
+          email). Your use of
           these integrations is subject to the respective third party's terms and privacy practices, which we
           encourage you to review. We are not responsible for the acts, omissions, availability, or policies of these
           third parties.
@@ -255,11 +260,9 @@ export function TermsOfServicePage() {
       <section>
         <h2>14. Governing Law and Disputes</h2>
         <p>
-          These Terms are governed by the laws of the United States and the State of{' '}
-          <span className="rounded bg-amber-100 px-1 font-medium text-amber-800">[state to be confirmed]</span>,
-          without regard to its conflict-of-laws principles. Any dispute arising from these Terms or the Service will
-          be resolved in the state or federal courts located in that state, and you consent to personal jurisdiction
-          there.
+          These Terms are governed by the laws of the United States and the State of Florida, without regard to its
+          conflict-of-laws principles. Any dispute arising from these Terms or the Service will be resolved in the
+          state or federal courts located in Florida, and you consent to personal jurisdiction there.
         </p>
       </section>
 

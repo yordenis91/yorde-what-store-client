@@ -18,6 +18,7 @@
     "globalProducts": "Productos global",
     "upgradeRequests": "Solicitudes de upgrade",
     "auditLog": "Auditoría",
+    "backups": "Backups",
     "platformSettings": "Configuración global",
     "logout": "Cerrar sesión",
     "login": "Iniciar sesión",
@@ -29,6 +30,13 @@
     "poweredBy": "Impulsado por www.yordeniscorreoso.com",
     "terms": "Términos de servicio",
     "privacy": "Política de privacidad"
+  },
+  "plans": {
+    "currentPlan": "Plan actual",
+    "pendingApproval": "Aprobación pendiente",
+    "subscribe": "Suscribirse",
+    "requestUpgrade": "Solicitar mejora",
+    "upgradeRequested": "Mejora solicitada — pendiente de aprobación"
   },
   "auth": {
     "loginTitle": "Iniciar sesión en tu tienda",
@@ -93,7 +101,11 @@
     "discountGiven": "Descuento otorgado",
     "range7d": "7 días",
     "range30d": "30 días",
-    "range90d": "90 días"
+    "range90d": "90 días",
+    "storeLink": "Enlace de tu tienda",
+    "copyLink": "Copiar enlace",
+    "copied": "¡Copiado!",
+    "linkCopied": "Enlace copiado"
   },
   "products": {
     "title": "Productos",
@@ -163,7 +175,9 @@
     "dateTo": "Hasta",
     "downloadInvoice": "Descargar factura",
     "invoiceNotReady": "La factura todavía no está lista — se genera poco después de confirmarse el pago",
-    "exportCsv": "Exportar CSV"
+    "exportCsv": "Exportar CSV",
+    "statusLocked": "Esta orden está {{status}} y no puede pasar a otro estado",
+    "empty": "Ninguna orden coincide con estos filtros."
   },
   "customers": {
     "title": "Clientes",
@@ -181,7 +195,8 @@
     },
     "customerSince": "Cliente desde",
     "stats": "Estadísticas",
-    "orderHistory": "Historial de pedidos"
+    "orderHistory": "Historial de pedidos",
+    "empty": "Ningún cliente coincide con estos filtros."
   },
   "coupons": {
     "title": "Cupones",
@@ -477,6 +492,18 @@
     "columnDetails": "Detalles",
     "empty": "No se encontraron registros de auditoría."
   },
+  "backups": {
+    "title": "Backups",
+    "subtitle": "Backups externos de Postgres — confirma que realmente están corriendo, no solo que el código dice que deberían.",
+    "runNow": "Ejecutar backup ahora",
+    "started": "Backup iniciado",
+    "lastBackup": "Último backup",
+    "key": "Archivo",
+    "size": "Tamaño",
+    "date": "Fecha",
+    "empty": "Todavía no hay backups — esto también se ve así si los backups no están configurados en este entorno.",
+    "loadError": "No se pudo cargar la lista de backups."
+  },
   "platformDashboard": {
     "title": "Panel de plataforma",
     "totalTenants": "Tiendas totales",
@@ -499,6 +526,52 @@
     "noTenantsYet": "Todavía no hay tiendas.",
     "active": "Activa",
     "inactive": "Inactiva"
+  },
+  "platformPlans": {
+    "title": "Planes",
+    "newPlan": "Nuevo plan",
+    "namePlaceholder": "Nombre",
+    "pricePlaceholder": "Precio",
+    "durationLabel": "Periodo de facturación",
+    "monthly": "Mensual",
+    "yearly": "Anual",
+    "lifetime": "De por vida",
+    "maxStoresPlaceholder": "Máx. tiendas (-1 = ilimitado)",
+    "maxProductsPlaceholder": "Máx. productos (-1 = ilimitado)",
+    "featuresPlaceholder": "Características (separadas por coma)",
+    "save": "Guardar",
+    "saved": "Guardado",
+    "inactive": "Inactivo",
+    "unlimitedStores": "Tiendas ilimitadas",
+    "storesCount": "{{count}} tienda",
+    "storesCount_other": "{{count}} tiendas",
+    "unlimitedProducts": "Productos ilimitados",
+    "productsCount": "{{count}} producto",
+    "productsCount_other": "{{count}} productos",
+    "edit": "Editar",
+    "deactivate": "Desactivar"
+  },
+  "upgradeRequests": {
+    "title": "Solicitudes de upgrade",
+    "requested": "Solicitado el {{date}}",
+    "approve": "Aprobar",
+    "approved": "Upgrade aprobado",
+    "empty": "No hay solicitudes de upgrade pendientes."
+  },
+  "platformCategoryTemplates": {
+    "title": "Catálogo de categorías",
+    "subtitle": "La lista estándar de categorías que las tiendas pueden elegir en vez de escribir nombres libres.",
+    "newCategory": "Nueva categoría",
+    "subcategory": "Subcategoría",
+    "deactivate": "Desactivar",
+    "activate": "Activar",
+    "namePlaceholder": "Nombre",
+    "sortOrderPlaceholder": "Orden",
+    "parentLabel": "Categoría padre",
+    "noParent": "Sin padre (nivel superior)",
+    "save": "Guardar",
+    "saved": "Guardado",
+    "empty": "Todavía no hay categorías."
   },
   "platformSettings": {
     "title": "Configuración global",
@@ -546,6 +619,8 @@
     "delete": "Eliminar",
     "edit": "Editar",
     "search": "Buscar",
-    "back": "Volver"
+    "back": "Volver",
+    "loadError": "No se pudo cargar esto. Intenta de nuevo.",
+    "retry": "Reintentar"
   }
 }

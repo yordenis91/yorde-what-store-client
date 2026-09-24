@@ -1,9 +1,18 @@
 User-agent: *
 Allow: /
 
+Sitemap: /sitemap.xml
+
 # One file serves every store, so only paths that are private on all of them
 # are disallowed. Carts and checkouts hold a single visitor's session; the
 # admin and platform panels are behind authentication.
+#
+# The Sitemap line above is relative on purpose — this same static file is
+# served from every store's own subdomain, and crawlers resolve a relative
+# Sitemap URL against the host they fetched robots.txt from, so it always
+# points at that store's own catalog (see nginx.conf's /sitemap.xml proxy
+# and the API's storefront/sitemap.xml route). Only covers subdomain-mode
+# stores; a store reachable solely at /store/:slug has no sitemap yet.
 Disallow: /admin
 Disallow: /platform
 Disallow: /login

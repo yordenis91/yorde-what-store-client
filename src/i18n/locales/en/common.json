@@ -18,6 +18,7 @@
     "globalProducts": "Global products",
     "upgradeRequests": "Upgrade requests",
     "auditLog": "Audit log",
+    "backups": "Backups",
     "platformSettings": "Platform settings",
     "logout": "Log out",
     "login": "Log in",
@@ -29,6 +30,13 @@
     "poweredBy": "Powered by Yorde What Store",
     "terms": "Terms of Service",
     "privacy": "Privacy Policy"
+  },
+  "plans": {
+    "currentPlan": "Current plan",
+    "pendingApproval": "Pending approval",
+    "subscribe": "Subscribe",
+    "requestUpgrade": "Request upgrade",
+    "upgradeRequested": "Upgrade requested — pending approval"
   },
   "auth": {
     "loginTitle": "Log in to your store",
@@ -93,7 +101,11 @@
     "discountGiven": "Discount given",
     "range7d": "7 days",
     "range30d": "30 days",
-    "range90d": "90 days"
+    "range90d": "90 days",
+    "storeLink": "Your store link",
+    "copyLink": "Copy link",
+    "copied": "Copied!",
+    "linkCopied": "Link copied"
   },
   "products": {
     "title": "Products",
@@ -163,7 +175,9 @@
     "dateTo": "To",
     "downloadInvoice": "Download invoice",
     "invoiceNotReady": "Invoice isn't ready yet — it's generated shortly after payment is confirmed",
-    "exportCsv": "Export CSV"
+    "exportCsv": "Export CSV",
+    "statusLocked": "This order is {{status}} and can't be moved to another status",
+    "empty": "No orders match these filters."
   },
   "customers": {
     "title": "Customers",
@@ -181,7 +195,8 @@
     },
     "customerSince": "Customer since",
     "stats": "Stats",
-    "orderHistory": "Order history"
+    "orderHistory": "Order history",
+    "empty": "No customers match these filters."
   },
   "coupons": {
     "title": "Coupons",
@@ -477,6 +492,18 @@
     "columnDetails": "Details",
     "empty": "No audit entries found."
   },
+  "backups": {
+    "title": "Backups",
+    "subtitle": "Off-box Postgres backups — confirms they're actually running, not just that the code says they should be.",
+    "runNow": "Run backup now",
+    "started": "Backup started",
+    "lastBackup": "Last backup",
+    "key": "File",
+    "size": "Size",
+    "date": "Date",
+    "empty": "No backups found yet — this also shows empty if backups aren't configured for this environment.",
+    "loadError": "Couldn't load the backup list."
+  },
   "platformDashboard": {
     "title": "Platform dashboard",
     "totalTenants": "Total tenants",
@@ -499,6 +526,52 @@
     "noTenantsYet": "No tenants yet.",
     "active": "Active",
     "inactive": "Inactive"
+  },
+  "platformPlans": {
+    "title": "Plans",
+    "newPlan": "New plan",
+    "namePlaceholder": "Name",
+    "pricePlaceholder": "Price",
+    "durationLabel": "Billing period",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "lifetime": "Lifetime",
+    "maxStoresPlaceholder": "Max stores (-1 = unlimited)",
+    "maxProductsPlaceholder": "Max products (-1 = unlimited)",
+    "featuresPlaceholder": "Features (comma separated)",
+    "save": "Save",
+    "saved": "Saved",
+    "inactive": "Inactive",
+    "unlimitedStores": "Unlimited stores",
+    "storesCount": "{{count}} store",
+    "storesCount_other": "{{count}} stores",
+    "unlimitedProducts": "Unlimited products",
+    "productsCount": "{{count}} product",
+    "productsCount_other": "{{count}} products",
+    "edit": "Edit",
+    "deactivate": "Deactivate"
+  },
+  "upgradeRequests": {
+    "title": "Upgrade requests",
+    "requested": "Requested {{date}}",
+    "approve": "Approve",
+    "approved": "Upgrade approved",
+    "empty": "No pending upgrade requests."
+  },
+  "platformCategoryTemplates": {
+    "title": "Category catalog",
+    "subtitle": "The standard category list stores can pick from instead of typing free-text names.",
+    "newCategory": "New category",
+    "subcategory": "Subcategory",
+    "deactivate": "Deactivate",
+    "activate": "Activate",
+    "namePlaceholder": "Name",
+    "sortOrderPlaceholder": "Sort order",
+    "parentLabel": "Parent category",
+    "noParent": "No parent (top-level)",
+    "save": "Save",
+    "saved": "Saved",
+    "empty": "No categories yet."
   },
   "platformSettings": {
     "title": "Platform settings",
@@ -546,6 +619,8 @@
     "delete": "Delete",
     "edit": "Edit",
     "search": "Search",
-    "back": "Back"
+    "back": "Back",
+    "loadError": "Couldn't load this. Please try again.",
+    "retry": "Retry"
   }
 }

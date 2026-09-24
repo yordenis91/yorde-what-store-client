@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Card } from '@/components/ui/Card'
+import { Textarea } from '@/components/ui/Textarea'
 import { Button } from '@/components/ui/Button'
 import {
   listEmailTemplates,
@@ -104,14 +105,12 @@ function TemplateCard({ template }: { template: ResolvedEmailTemplate }) {
             {...register('subject', { required: true })}
           />
         </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">{t('emailTemplates.body')}</label>
-          <textarea
-            className="rounded-lg border border-gray-300 px-3 py-2 font-mono text-xs"
-            rows={6}
-            {...register('body', { required: true })}
-          />
-        </div>
+        <Textarea
+          label={t('emailTemplates.body')}
+          className="font-mono text-xs"
+          rows={6}
+          {...register('body', { required: true })}
+        />
         <p className="text-xs text-gray-500">
           {t('emailTemplates.placeholders')}: {PLACEHOLDERS[template.key]}
         </p>

@@ -5,6 +5,13 @@ import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { getCurrentSubscription, listActivePlans, requestPlanUpgrade, subscribeToPlan } from '@/services/plans.service'
 import { extractErrorMessage } from '@/services/api-client'
+import type { Plan } from '@/types/api'
+
+const DURATION_KEYS: Record<Plan['duration'], string> = {
+  MONTHLY: 'platformPlans.monthly',
+  YEARLY: 'platformPlans.yearly',
+  LIFETIME: 'platformPlans.lifetime',
+}
 
 export function PlansPage() {
   const { t } = useTranslation()
@@ -25,7 +32,7 @@ export function PlansPage() {
     mutationFn: requestPlanUpgrade,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['subscription'] })
-      toast.success('Upgrade requested — pending approval')
+      toast.success(t('plans.upgradeRequested'))
     },
     onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
   })
@@ -46,7 +53,8 @@ export function PlansPage() {
             <Card key={plan.id} className={isCurrent ? 'ring-2 ring-brand-600' : ''}>
               <h2 className="text-lg font-semibold text-gray-900">{plan.name}</h2>
               <p className="mt-1 text-2xl font-bold text-gray-900">
-                ${plan.price} <span className="text-sm font-normal text-gray-500">/{plan.duration.toLowerCase()}</span>
+                ${plan.price}{' '}
+                <span className="text-sm font-normal text-gray-500">/{t(DURATION_KEYS[plan.duration]).toLowerCase()}</span>
               </p>
               <ul className="mt-3 flex flex-col gap-1 text-sm text-gray-600">
                 {plan.features.map((f) => (
@@ -61,7 +69,13 @@ export function PlansPage() {
                   isFree ? subscribeMutation.mutate(plan.id) : requestUpgradeMutation.mutate(plan.id)
                 }
               >
-                {isCurrent ? 'Current plan' : isPending ? 'Pending approval' : isFree ? 'Subscribe' : 'Request upgrade'}
+                {isCurrent
+                  ? t('plans.currentPlan')
+                  : isPending
+                    ? t('plans.pendingApproval')
+                    : isFree
+                      ? t('plans.subscribe')
+                      : t('plans.requestUpgrade')}
               </Button>
             </Card>
           )

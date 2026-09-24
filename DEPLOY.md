@@ -218,6 +218,7 @@ emite y renueva el certificado Let's Encrypt.
 VITE_API_URL=/api/v1
 VITE_STOREFRONT_ROOT_DOMAIN=tudominio.com
 UPLOADS_UPSTREAM=yws_api:3000
+SITEMAP_UPSTREAM=yws_api:3000
 ```
 
 `VITE_API_URL` es una ruta relativa a propósito: el navegador la resuelve contra
@@ -235,6 +236,12 @@ este documento. Si ya configuraste `PRERENDER_UPSTREAM` (sección 7, para las
 vistas previas de WhatsApp) con la misma dirección, puedes omitir esta
 variable: cae a ese valor por defecto. Sin ninguna de las dos, `/uploads/`
 responde `502` en vez de servir HTML disfrazado de imagen.
+
+`SITEMAP_UPSTREAM` es la misma idea para `/sitemap.xml` — cada tienda con
+subdominio propio expone su catálogo ahí (la API decide de cuál tienda se
+trata por el header `Host` de la petición reenviada, igual que cualquier otra
+ruta `/storefront/*`). También cae a `PRERENDER_UPSTREAM` si no se define
+aparte.
 
 ### Cómo funciona la configuración en runtime
 

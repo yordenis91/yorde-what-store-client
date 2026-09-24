@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Input } from '@/components/ui/Input'
+import { Textarea } from '@/components/ui/Textarea'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
 import {
@@ -81,16 +82,13 @@ function StatusChangeModal({
   return (
     <Modal title={t(toStatus === 'SUSPENDED' ? 'platformTenants.suspendTitle' : 'platformTenants.activateTitle')} onClose={onClose}>
       <form onSubmit={(e) => void handleSubmit(onSubmit)(e)} className="flex flex-col gap-3">
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">{t('platformTenants.reasonLabel')}</label>
-          <textarea
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-            rows={3}
-            placeholder={t('platformTenants.reasonPlaceholder')}
-            {...register('reason')}
-          />
-          {errors.reason && <span className="text-xs text-red-600">{t('platformTenants.reasonRequired')}</span>}
-        </div>
+        <Textarea
+          label={t('platformTenants.reasonLabel')}
+          rows={3}
+          placeholder={t('platformTenants.reasonPlaceholder')}
+          error={errors.reason ? t('platformTenants.reasonRequired') : undefined}
+          {...register('reason')}
+        />
         <div className="flex justify-end gap-2">
           <Button type="button" variant="secondary" onClick={onClose}>
             {t('common.cancel')}
@@ -361,6 +359,7 @@ export function PlatformTenantsPage() {
           className="max-w-sm"
         />
         <select
+          aria-label={t('orders.status')}
           value={status}
           onChange={(e) => {
             setStatus(e.target.value as TenantStatus | '')

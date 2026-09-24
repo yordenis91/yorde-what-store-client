@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
+import { QueryErrorState } from '@/components/ui/QueryErrorState'
 import { exportOrdersCsv, listOrders } from '@/services/orders.service'
 import { useAuthStore } from '@/store/auth.store'
 import { useOrderNotificationsStore } from '@/store/order-notifications.store'
@@ -41,7 +43,12 @@ export function OrdersListPage() {
     useOrderNotificationsStore.getState().clear()
   }, [])
 
-  const { data, isLoading } = useQuery({
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ['orders', search, status, dateFrom, dateTo],
     queryFn: () =>
       listOrders({
@@ -155,6 +162,10 @@ export function OrdersListPage() {
 
       {isLoading ? (
         <p className="text-sm text-gray-500">{t('common.loading')}</p>
+      ) : isError ? (
+        <QueryErrorState onRetry={() => void refetch()} />
+      ) : data && data.items.length === 0 ? (
+        <Card className="text-center text-sm text-gray-400">{t('orders.empty')}</Card>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
           <table className="w-full text-sm">

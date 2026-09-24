@@ -174,3 +174,13 @@ export function AuditLogIcon() {
     </Icon>
   )
 }
+
+export function BackupsIcon() {
+  return (
+    <Icon>
+      <ellipse cx="12" cy="6" rx="7" ry="2.5" />
+      <path strokeLinecap="round" d="M5 6v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6" />
+      <path strokeLinecap="round" d="M5 12v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6" />
+    </Icon>
+  )
+}

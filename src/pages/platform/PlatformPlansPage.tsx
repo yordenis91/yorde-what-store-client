@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
@@ -8,6 +9,12 @@ import { Card } from '@/components/ui/Card'
 import { createPlan, deactivatePlan, listAllPlans, updatePlan, type PlanInput } from '@/services/plans.service'
 import { extractErrorMessage } from '@/services/api-client'
 import type { Plan } from '@/types/api'
+
+const DURATION_KEYS: Record<Plan['duration'], string> = {
+  MONTHLY: 'platformPlans.monthly',
+  YEARLY: 'platformPlans.yearly',
+  LIFETIME: 'platformPlans.lifetime',
+}
 
 interface FormValues {
   name: string
@@ -19,6 +26,7 @@ interface FormValues {
 }
 
 export function PlatformPlansPage() {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -48,9 +56,9 @@ export function PlatformPlansPage() {
       reset()
       setShowForm(false)
       setEditingId(null)
-      toast.success('Saved')
+      toast.success(t('platformPlans.saved'))
     },
-    onError: (error) => toast.error(extractErrorMessage(error, 'Error')),
+    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
   })
 
   const deactivateMutation = useMutation({
@@ -80,8 +88,10 @@ export function PlatformPlansPage() {
   return (
     <div className="max-w-4xl">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Plans</h1>
-        <Button onClick={() => (showForm ? setShowForm(false) : startCreate())}>{showForm ? 'Cancel' : 'New plan'}</Button>
+        <h1 className="text-2xl font-semibold text-gray-900">{t('platformPlans.title')}</h1>
+        <Button onClick={() => (showForm ? setShowForm(false) : startCreate())}>
+          {showForm ? t('common.cancel') : t('platformPlans.newPlan')}
+        </Button>
       </div>
 
       {showForm && (
@@ -90,39 +100,66 @@ export function PlatformPlansPage() {
             onSubmit={(e) => void handleSubmit((values) => saveMutation.mutate(values))(e)}
             className="grid grid-cols-1 gap-3 sm:grid-cols-3"
           >
-            <Input placeholder="Name" {...register('name', { required: true })} />
-            <Input placeholder="Price" type="number" step="0.01" {...register('price', { required: true, valueAsNumber: true })} />
-            <select className="rounded-lg border border-gray-300 px-3 py-2 text-sm" {...register('duration')}>
-              <option value="MONTHLY">Monthly</option>
-              <option value="YEARLY">Yearly</option>
-              <option value="LIFETIME">Lifetime</option>
+            <Input placeholder={t('platformPlans.namePlaceholder')} {...register('name', { required: true })} />
+            <Input
+              placeholder={t('platformPlans.pricePlaceholder')}
+              type="number"
+              step="0.01"
+              {...register('price', { required: true, valueAsNumber: true })}
+            />
+            <select
+              aria-label={t('platformPlans.durationLabel')}
+              className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              {...register('duration')}
+            >
+              <option value="MONTHLY">{t('platformPlans.monthly')}</option>
+              <option value="YEARLY">{t('platformPlans.yearly')}</option>
+              <option value="LIFETIME">{t('platformPlans.lifetime')}</option>
             </select>
-            <Input placeholder="Max stores (-1 = unlimited)" type="number" {...register('maxStores', { required: true, valueAsNumber: true })} />
-            <Input placeholder="Max products (-1 = unlimited)" type="number" {...register('maxProducts', { required: true, valueAsNumber: true })} />
-            <Input placeholder="Features (comma separated)" {...register('features')} className="sm:col-span-3" />
+            <Input
+              placeholder={t('platformPlans.maxStoresPlaceholder')}
+              type="number"
+              {...register('maxStores', { required: true, valueAsNumber: true })}
+            />
+            <Input
+              placeholder={t('platformPlans.maxProductsPlaceholder')}
+              type="number"
+              {...register('maxProducts', { required: true, valueAsNumber: true })}
+            />
+            <Input
+              placeholder={t('platformPlans.featuresPlaceholder')}
+              {...register('features')}
+              className="sm:col-span-3"
+            />
             <Button type="submit" loading={saveMutation.isPending} className="sm:col-span-3 w-fit">
-              Save
+              {t('platformPlans.save')}
             </Button>
           </form>
         </Card>
       )}
 
       {isLoading ? (
-        <p className="text-sm text-gray-500">Loading...</p>
+        <p className="text-sm text-gray-500">{t('common.loading')}</p>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {plans?.map((plan) => (
             <Card key={plan.id} className={!plan.isActive ? 'opacity-50' : ''}>
               <div className="mb-1 flex items-center justify-between">
                 <h2 className="font-semibold text-gray-900">{plan.name}</h2>
-                {!plan.isActive && <span className="text-xs text-gray-400">Inactive</span>}
+                {!plan.isActive && <span className="text-xs text-gray-400">{t('platformPlans.inactive')}</span>}
               </div>
               <p className="text-xl font-bold text-gray-900">
-                ${plan.price} <span className="text-sm font-normal text-gray-500">/{plan.duration.toLowerCase()}</span>
+                ${plan.price}{' '}
+                <span className="text-sm font-normal text-gray-500">/{t(DURATION_KEYS[plan.duration]).toLowerCase()}</span>
               </p>
               <p className="mt-1 text-xs text-gray-500">
-                {plan.maxStores === -1 ? 'Unlimited stores' : `${plan.maxStores} store(s)`} ·{' '}
-                {plan.maxProducts === -1 ? 'Unlimited products' : `${plan.maxProducts} products`}
+                {plan.maxStores === -1
+                  ? t('platformPlans.unlimitedStores')
+                  : t('platformPlans.storesCount', { count: plan.maxStores })}{' '}
+                ·{' '}
+                {plan.maxProducts === -1
+                  ? t('platformPlans.unlimitedProducts')
+                  : t('platformPlans.productsCount', { count: plan.maxProducts })}
               </p>
               <ul className="mt-2 flex flex-col gap-0.5 text-xs text-gray-600">
                 {plan.features.map((f) => (
@@ -131,11 +168,11 @@ export function PlatformPlansPage() {
               </ul>
               <div className="mt-3 flex gap-2">
                 <Button variant="secondary" onClick={() => startEdit(plan)} className="flex-1">
-                  Edit
+                  {t('platformPlans.edit')}
                 </Button>
                 {plan.isActive && (
                   <Button variant="danger" onClick={() => deactivateMutation.mutate(plan.id)}>
-                    Deactivate
+                    {t('platformPlans.deactivate')}
                   </Button>
                 )}
               </div>

@@ -12,6 +12,7 @@ import { SortableContext, arrayMove, rectSortingStrategy, useSortable } from '@d
 import { CSS } from '@dnd-kit/utilities'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { Textarea } from '@/components/ui/Textarea'
 import { Card } from '@/components/ui/Card'
 import {
   addProductImage,
@@ -421,10 +422,7 @@ export function ProductFormPage() {
       <form onSubmit={(e) => void handleSubmit((values) => mutation.mutate(values))(e)} className="flex flex-col gap-4">
         <Input label={t('products.name')} {...register('name')} error={errors.name?.message} />
         <Input label={t('products.sku')} {...register('sku')} />
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">{t('products.description')}</label>
-          <textarea className="rounded-lg border border-gray-300 px-3 py-2 text-sm" rows={3} {...register('description')} />
-        </div>
+        <Textarea label={t('products.description')} rows={3} {...register('description')} />
         <div className="grid grid-cols-2 gap-4">
           <Input label={t('products.price')} type="number" step="0.01" {...register('price')} error={errors.price?.message} />
           <Input label={t('products.stock')} type="number" {...register('quantity')} />
