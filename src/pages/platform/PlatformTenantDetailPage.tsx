@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
+import { Textarea } from '@/components/ui/Textarea'
 import { Button } from '@/components/ui/Button'
 import {
   addTenantNote,
@@ -202,8 +203,9 @@ function TenantNotesTab({ tenantId }: { tenantId: string }) {
   return (
     <Card className="flex flex-col gap-4">
       <div className="flex gap-2">
-        <textarea
-          className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+        <Textarea
+          containerClassName="flex-1"
+          aria-label={t('platformTenants.notePlaceholder')}
           rows={2}
           placeholder={t('platformTenants.notePlaceholder')}
           value={body}

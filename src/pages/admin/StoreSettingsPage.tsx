@@ -184,11 +184,18 @@ export function StoreSettingsPage() {
         </Card>
 
         <Card className="flex flex-col gap-2">
-          <h2 className="font-medium text-gray-900">Order message template</h2>
+          <h2 id="order-message-template-label" className="font-medium text-gray-900">
+            Order message template
+          </h2>
           <p className="text-xs text-gray-500">
             Placeholders: {'{store_name} {order_no} {item_variable} {sub_total} {discount_amount} {shipping_amount} {item_tax} {item_total}'}
           </p>
-          <textarea className="rounded-lg border border-gray-300 px-3 py-2 font-mono text-xs" rows={8} {...register('orderMessageTemplate')} />
+          <textarea
+            aria-labelledby="order-message-template-label"
+            className="rounded-lg border border-gray-300 px-3 py-2 font-mono text-xs"
+            rows={8}
+            {...register('orderMessageTemplate')}
+          />
         </Card>
 
         <Card className="flex flex-col gap-4">
@@ -283,9 +290,12 @@ const PolicyField = forwardRef<HTMLTextAreaElement, { label: string; hint: strin
   function PolicyField({ label, hint, ...field }, ref) {
     return (
       <div>
-        <p className="text-sm font-medium text-gray-700">{label}</p>
+        <label htmlFor={field.name} className="text-sm font-medium text-gray-700">
+          {label}
+        </label>
         <p className="mt-0.5 text-xs text-gray-500">{hint}</p>
         <textarea
+          id={field.name}
           ref={ref}
           rows={6}
           className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"

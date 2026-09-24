@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Input } from '@/components/ui/Input'
+import { Textarea } from '@/components/ui/Textarea'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
 import { listPlatformProducts, moderateProduct } from '@/services/platform.service'
@@ -44,15 +45,12 @@ function ModerateModal({
         <p className="text-sm text-gray-600">
           {t('platformProducts.deactivateBody', { tenant: product.tenant.name })}
         </p>
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">{t('platformProducts.reasonLabel')}</label>
-          <textarea
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-            rows={3}
-            placeholder={t('platformProducts.reasonPlaceholder')}
-            {...register('reason')}
-          />
-        </div>
+        <Textarea
+          label={t('platformProducts.reasonLabel')}
+          rows={3}
+          placeholder={t('platformProducts.reasonPlaceholder')}
+          {...register('reason')}
+        />
         <div className="flex justify-end gap-2">
           <Button type="button" variant="secondary" onClick={onClose}>
             {t('common.cancel')}
@@ -114,6 +112,7 @@ export function PlatformProductsPage() {
           className="max-w-sm"
         />
         <select
+          aria-label={t('orders.status')}
           value={isActive}
           onChange={(e) => {
             setIsActive(e.target.value as '' | 'true' | 'false')

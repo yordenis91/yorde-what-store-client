@@ -72,6 +72,7 @@ export function ProductsListPage() {
           className="max-w-xs"
         />
         <select
+          aria-label={t('products.categories')}
           className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
           value={categoryId}
           onChange={(e) => {
@@ -87,6 +88,7 @@ export function ProductsListPage() {
           ))}
         </select>
         <select
+          aria-label={t('products.status')}
           className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
           value={statusFilter}
           onChange={(e) => {
