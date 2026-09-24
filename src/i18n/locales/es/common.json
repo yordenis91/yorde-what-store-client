@@ -163,7 +163,8 @@
     "dateTo": "Hasta",
     "downloadInvoice": "Descargar factura",
     "invoiceNotReady": "La factura todavía no está lista — se genera poco después de confirmarse el pago",
-    "exportCsv": "Exportar CSV"
+    "exportCsv": "Exportar CSV",
+    "statusLocked": "Esta orden está {{status}} y no puede pasar a otro estado"
   },
   "customers": {
     "title": "Clientes",

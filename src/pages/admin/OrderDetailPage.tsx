@@ -12,6 +12,9 @@ import type { OrderStatus } from '@/types/api'
 
 const STATUSES: OrderStatus[] = ['PENDING', 'CONFIRMED', 'PROCESSING', 'COMPLETED', 'CANCELLED', 'REFUNDED']
 
+/** Mirrors the backend's terminal-status guard (OrdersService.updateStatus) so the UI doesn't offer a change the API will reject with a 409. */
+const TERMINAL_STATUSES: OrderStatus[] = ['CANCELLED', 'REFUNDED']
+
 export function OrderDetailPage() {
   const { t } = useTranslation()
   const { id } = useParams()
@@ -117,16 +120,21 @@ export function OrderDetailPage() {
       <Card className="print:hidden">
         <h2 className="mb-2 font-medium text-gray-900">{t('orders.status')}</h2>
         <div className="flex flex-wrap gap-2">
-          {STATUSES.map((status) => (
-            <Button
-              key={status}
-              variant={status === order.status ? 'primary' : 'secondary'}
-              onClick={() => statusMutation.mutate(status)}
-              disabled={statusMutation.isPending}
-            >
-              {status}
-            </Button>
-          ))}
+          {STATUSES.map((status) => {
+            const isCurrent = status === order.status
+            const locked = TERMINAL_STATUSES.includes(order.status) && !isCurrent
+            return (
+              <Button
+                key={status}
+                variant={isCurrent ? 'primary' : 'secondary'}
+                onClick={() => statusMutation.mutate(status)}
+                disabled={statusMutation.isPending || locked}
+                title={locked ? t('orders.statusLocked', { status: order.status }) : undefined}
+              >
+                {status}
+              </Button>
+            )
+          })}
         </div>
       </Card>
     </div>

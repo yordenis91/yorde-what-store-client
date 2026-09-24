@@ -163,7 +163,8 @@
     "dateTo": "To",
     "downloadInvoice": "Download invoice",
     "invoiceNotReady": "Invoice isn't ready yet — it's generated shortly after payment is confirmed",
-    "exportCsv": "Export CSV"
+    "exportCsv": "Export CSV",
+    "statusLocked": "This order is {{status}} and can't be moved to another status"
   },
   "customers": {
     "title": "Customers",

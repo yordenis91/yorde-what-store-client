@@ -2,7 +2,7 @@ import { LegalLayout } from './LegalLayout'
 
 export function PrivacyPolicyPage() {
   return (
-    <LegalLayout title="Privacy Policy" lastUpdated="September 1, 2026">
+    <LegalLayout title="Privacy Policy" lastUpdated="September 24, 2026">
       <p>
         This Privacy Policy explains how Yorde What Store ("we," "us," or "our") collects, uses, shares, and protects
         personal data in connection with our multi-tenant e-commerce platform (the "Service").
@@ -39,8 +39,8 @@ export function PrivacyPolicyPage() {
             timezone, tax and shipping configuration;
           </li>
           <li>
-            Payment processor credentials you connect (e.g., Stripe keys) and messaging bot credentials (e.g.,
-            Telegram bot token), which are encrypted at rest;
+            Payment processor credentials you connect (e.g., Stripe or MercadoPago keys) and messaging bot
+            credentials (e.g., Telegram bot token), which are encrypted at rest;
           </li>
           <li>Billing information for your own subscription to the Service, processed by our payment processor;</li>
           <li>Two-factor authentication (TOTP) secrets, if you enable 2FA;</li>
@@ -79,8 +79,9 @@ export function PrivacyPolicyPage() {
             isolation between Merchants;
           </li>
           <li>
-            Process and fulfill orders, including passing necessary order and payment details to our payment
-            processor (Stripe) to complete a transaction;
+            Process and fulfill orders, including passing necessary order and payment details to the applicable
+            payment processor (Stripe and/or MercadoPago, depending on the Store's configuration) to complete a
+            transaction;
           </li>
           <li>
             Send transactional communications: order confirmations, password resets, account notifications, and —
@@ -100,8 +101,9 @@ export function PrivacyPolicyPage() {
         <p>We share personal data only as necessary to provide the Service, with:</p>
         <ul>
           <li>
-            <strong>Payment processors</strong> (currently Stripe) — to process payments and payouts. Stripe's own
-            privacy policy governs its handling of payment data.
+            <strong>Payment processors</strong> (currently Stripe and/or MercadoPago, depending on the Store's
+            configuration) — to process payments and payouts. Each processor's own privacy policy governs its
+            handling of payment data.
           </li>
           <li>
             <strong>Messaging and email providers</strong> (WhatsApp Business / Telegram Bot API, and our
