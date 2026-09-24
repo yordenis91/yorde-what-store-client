@@ -238,3 +238,20 @@ export async function moderateProduct(id: string, isActive: boolean, reason?: st
   })
   return data.data
 }
+
+export interface BackupSummary {
+  key: string
+  sizeBytes: number
+  lastModified: string
+}
+
+/** Empty array either means "no backups yet" or "backups aren't configured" — the page can't tell those apart from this alone. */
+export async function listBackups() {
+  const { data } = await apiClient.get<ApiEnvelope<BackupSummary[]>>('/platform/backups')
+  return data.data
+}
+
+export async function runBackupNow() {
+  const { data } = await apiClient.post<ApiEnvelope<BackupSummary>>('/platform/backups/run')
+  return data.data
+}

@@ -3,6 +3,7 @@ import { useAuthStore } from '@/store/auth.store'
 import { logout as apiLogout } from '@/services/auth.service'
 import {
   AuditLogIcon,
+  BackupsIcon,
   CategoryCatalogIcon,
   DashboardIcon,
   GlobalProductsIcon,
@@ -21,6 +22,7 @@ const navItems = [
   { to: '/platform/category-templates', label: 'nav.categoryTemplates', icon: <CategoryCatalogIcon /> },
   { to: '/platform/upgrade-requests', label: 'nav.upgradeRequests', icon: <UpgradeRequestsIcon /> },
   { to: '/platform/audit-log', label: 'nav.auditLog', icon: <AuditLogIcon /> },
+  { to: '/platform/backups', label: 'nav.backups', icon: <BackupsIcon /> },
   { to: '/platform/settings', label: 'nav.platformSettings', icon: <SettingsIcon /> },
 ]
 

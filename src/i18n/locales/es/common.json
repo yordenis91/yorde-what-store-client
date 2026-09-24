@@ -18,6 +18,7 @@
     "globalProducts": "Productos global",
     "upgradeRequests": "Solicitudes de upgrade",
     "auditLog": "Auditoría",
+    "backups": "Backups",
     "platformSettings": "Configuración global",
     "logout": "Cerrar sesión",
     "login": "Iniciar sesión",
@@ -477,6 +478,18 @@
     "columnIp": "IP",
     "columnDetails": "Detalles",
     "empty": "No se encontraron registros de auditoría."
+  },
+  "backups": {
+    "title": "Backups",
+    "subtitle": "Backups externos de Postgres — confirma que realmente están corriendo, no solo que el código dice que deberían.",
+    "runNow": "Ejecutar backup ahora",
+    "started": "Backup iniciado",
+    "lastBackup": "Último backup",
+    "key": "Archivo",
+    "size": "Tamaño",
+    "date": "Fecha",
+    "empty": "Todavía no hay backups — esto también se ve así si los backups no están configurados en este entorno.",
+    "loadError": "No se pudo cargar la lista de backups."
   },
   "platformDashboard": {
     "title": "Panel de plataforma",

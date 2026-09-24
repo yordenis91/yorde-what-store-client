@@ -18,6 +18,7 @@
     "globalProducts": "Global products",
     "upgradeRequests": "Upgrade requests",
     "auditLog": "Audit log",
+    "backups": "Backups",
     "platformSettings": "Platform settings",
     "logout": "Log out",
     "login": "Log in",
@@ -477,6 +478,18 @@
     "columnIp": "IP",
     "columnDetails": "Details",
     "empty": "No audit entries found."
+  },
+  "backups": {
+    "title": "Backups",
+    "subtitle": "Off-box Postgres backups — confirms they're actually running, not just that the code says they should be.",
+    "runNow": "Run backup now",
+    "started": "Backup started",
+    "lastBackup": "Last backup",
+    "key": "File",
+    "size": "Size",
+    "date": "Date",
+    "empty": "No backups found yet — this also shows empty if backups aren't configured for this environment.",
+    "loadError": "Couldn't load the backup list."
   },
   "platformDashboard": {
     "title": "Platform dashboard",
