@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
@@ -23,6 +24,7 @@ interface FormValues {
 }
 
 export function PlatformCategoryTemplatesPage() {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -52,15 +54,15 @@ export function PlatformCategoryTemplatesPage() {
       reset({ name: '', parentId: '', sortOrder: 0 })
       setShowForm(false)
       setEditingId(null)
-      toast.success('Saved')
+      toast.success(t('platformCategoryTemplates.saved'))
     },
-    onError: (error) => toast.error(extractErrorMessage(error, 'Error')),
+    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
   })
 
   const deleteMutation = useMutation({
     mutationFn: deleteCategoryTemplate,
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['platform-category-templates'] }),
-    onError: (error) => toast.error(extractErrorMessage(error, 'Error')),
+    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
   })
 
   const toggleActiveMutation = useMutation({
@@ -93,20 +95,20 @@ export function PlatformCategoryTemplatesPage() {
           </div>
           <div className="flex flex-wrap gap-x-3 gap-y-1">
             <button type="button" className="text-xs font-medium text-brand-700" onClick={() => startCreate(node.id)}>
-              + Subcategory
+              + {t('platformCategoryTemplates.subcategory')}
             </button>
             <button type="button" className="text-xs font-medium text-gray-500" onClick={() => startEdit(node)}>
-              Edit
+              {t('common.edit')}
             </button>
             <button
               type="button"
               className="text-xs font-medium text-gray-500"
               onClick={() => toggleActiveMutation.mutate({ id: node.id, isActive: !node.isActive })}
             >
-              {node.isActive ? 'Deactivate' : 'Activate'}
+              {node.isActive ? t('platformCategoryTemplates.deactivate') : t('platformCategoryTemplates.activate')}
             </button>
             <button type="button" className="text-xs font-medium text-red-600" onClick={() => deleteMutation.mutate(node.id)}>
-              Delete
+              {t('common.delete')}
             </button>
           </div>
         </div>
@@ -119,12 +121,12 @@ export function PlatformCategoryTemplatesPage() {
     <div className="max-w-3xl">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Category catalog</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            The standard category list stores can pick from instead of typing free-text names.
-          </p>
+          <h1 className="text-2xl font-semibold text-gray-900">{t('platformCategoryTemplates.title')}</h1>
+          <p className="mt-1 text-sm text-gray-500">{t('platformCategoryTemplates.subtitle')}</p>
         </div>
-        <Button onClick={() => (showForm ? setShowForm(false) : startCreate())}>{showForm ? 'Cancel' : 'New category'}</Button>
+        <Button onClick={() => (showForm ? setShowForm(false) : startCreate())}>
+          {showForm ? t('common.cancel') : t('platformCategoryTemplates.newCategory')}
+        </Button>
       </div>
 
       {showForm && (
@@ -133,18 +135,30 @@ export function PlatformCategoryTemplatesPage() {
             onSubmit={(e) => void handleSubmit((values) => saveMutation.mutate(values))(e)}
             className="grid grid-cols-1 gap-3 sm:grid-cols-3"
           >
-            <Input placeholder="Name" className="sm:col-span-2" {...register('name', { required: true })} />
-            <Input placeholder="Sort order" type="number" {...register('sortOrder', { valueAsNumber: true })} />
-            <select className="rounded-lg border border-gray-300 px-3 py-2 text-sm sm:col-span-3" {...register('parentId')}>
-              <option value="">No parent (top-level)</option>
-              {templates?.map((t) => (
-                <option key={t.id} value={t.id} disabled={t.id === editingId}>
-                  {t.name}
+            <Input
+              placeholder={t('platformCategoryTemplates.namePlaceholder')}
+              className="sm:col-span-2"
+              {...register('name', { required: true })}
+            />
+            <Input
+              placeholder={t('platformCategoryTemplates.sortOrderPlaceholder')}
+              type="number"
+              {...register('sortOrder', { valueAsNumber: true })}
+            />
+            <select
+              aria-label={t('platformCategoryTemplates.parentLabel')}
+              className="rounded-lg border border-gray-300 px-3 py-2 text-sm sm:col-span-3"
+              {...register('parentId')}
+            >
+              <option value="">{t('platformCategoryTemplates.noParent')}</option>
+              {templates?.map((template) => (
+                <option key={template.id} value={template.id} disabled={template.id === editingId}>
+                  {template.name}
                 </option>
               ))}
             </select>
             <Button type="submit" loading={saveMutation.isPending} className="w-fit sm:col-span-3">
-              Save
+              {t('platformCategoryTemplates.save')}
             </Button>
           </form>
         </Card>
@@ -152,9 +166,9 @@ export function PlatformCategoryTemplatesPage() {
 
       <Card>
         {isLoading ? (
-          <p className="text-sm text-gray-500">Loading...</p>
+          <p className="text-sm text-gray-500">{t('common.loading')}</p>
         ) : tree.length === 0 ? (
-          <p className="text-sm text-gray-500">No categories yet.</p>
+          <p className="text-sm text-gray-500">{t('platformCategoryTemplates.empty')}</p>
         ) : (
           <div className="flex flex-col">{tree.map((node) => renderNode(node, 0))}</div>
         )}
