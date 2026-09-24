@@ -55,6 +55,17 @@ DNS_RESOLVER="${DNS_RESOLVER:-127.0.0.11}"
 # ---------------------------------------------------------------------------
 UPLOADS_UPSTREAM="${UPLOADS_UPSTREAM:-$PRERENDER_UPSTREAM}"
 
+# ---------------------------------------------------------------------------
+# Storefront sitemap (/sitemap.xml).
+#
+# Same reasoning and same default as UPLOADS_UPSTREAM above — the API
+# resolves which tenant's sitemap to serve from the Host header on the
+# proxied request, so this only ever needs to reach the API, never a
+# specific tenant. Left unset, /sitemap.xml 502s loudly instead of quietly
+# serving the SPA's index.html as if it were XML.
+# ---------------------------------------------------------------------------
+SITEMAP_UPSTREAM="${SITEMAP_UPSTREAM:-$PRERENDER_UPSTREAM}"
+
 {
   # Resolved per request rather than at startup, so nginx boots even when the
   # API container isn't up yet.
@@ -76,7 +87,12 @@ UPLOADS_UPSTREAM="${UPLOADS_UPSTREAM:-$PRERENDER_UPSTREAM}"
   echo 'map "" $uploads_upstream {'
   echo "    default \"${UPLOADS_UPSTREAM}\";"
   echo '}'
+  echo ''
+  echo 'map "" $sitemap_upstream {'
+  echo "    default \"${SITEMAP_UPSTREAM}\";"
+  echo '}'
 } > /etc/nginx/conf.d/00-prerender.conf
 
 echo "[entrypoint] link-preview prerender: ${PRERENDER_UPSTREAM:-disabled}"
 echo "[entrypoint] uploads proxy: ${UPLOADS_UPSTREAM:-disabled (will 502)}"
+echo "[entrypoint] sitemap proxy: ${SITEMAP_UPSTREAM:-disabled (will 502)}"
