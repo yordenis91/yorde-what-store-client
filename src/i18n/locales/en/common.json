@@ -165,7 +165,8 @@
     "downloadInvoice": "Download invoice",
     "invoiceNotReady": "Invoice isn't ready yet — it's generated shortly after payment is confirmed",
     "exportCsv": "Export CSV",
-    "statusLocked": "This order is {{status}} and can't be moved to another status"
+    "statusLocked": "This order is {{status}} and can't be moved to another status",
+    "empty": "No orders match these filters."
   },
   "customers": {
     "title": "Customers",
@@ -183,7 +184,8 @@
     },
     "customerSince": "Customer since",
     "stats": "Stats",
-    "orderHistory": "Order history"
+    "orderHistory": "Order history",
+    "empty": "No customers match these filters."
   },
   "coupons": {
     "title": "Coupons",
@@ -606,6 +608,8 @@
     "delete": "Delete",
     "edit": "Edit",
     "search": "Search",
-    "back": "Back"
+    "back": "Back",
+    "loadError": "Couldn't load this. Please try again.",
+    "retry": "Retry"
   }
 }

@@ -3,6 +3,8 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { Input } from '@/components/ui/Input'
+import { Card } from '@/components/ui/Card'
+import { QueryErrorState } from '@/components/ui/QueryErrorState'
 import { listCustomers } from '@/services/customers-admin.service'
 import { useAuthStore } from '@/store/auth.store'
 import { formatDate, formatMoney } from '@/utils/format'
@@ -24,7 +26,12 @@ export function CustomersListPage() {
   const symbol = activeTenant?.currencySymbol ?? '$'
   const position = (activeTenant?.currencySymbolPosition as 'pre' | 'post') ?? 'pre'
 
-  const { data, isLoading } = useQuery({
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ['customers', search, segment],
     queryFn: () =>
       listCustomers({
@@ -65,6 +72,10 @@ export function CustomersListPage() {
 
       {isLoading ? (
         <p className="text-sm text-gray-500">{t('common.loading')}</p>
+      ) : isError ? (
+        <QueryErrorState onRetry={() => void refetch()} />
+      ) : data && data.items.length === 0 ? (
+        <Card className="text-center text-sm text-gray-400">{t('customers.empty')}</Card>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
           <table className="w-full text-sm">

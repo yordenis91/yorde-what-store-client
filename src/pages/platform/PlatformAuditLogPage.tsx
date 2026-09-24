@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { QueryErrorState } from '@/components/ui/QueryErrorState'
 import { listAuditActions, listAuditLogs } from '@/services/platform.service'
 import { formatDateTime } from '@/utils/format'
 
@@ -19,7 +20,12 @@ export function PlatformAuditLogPage() {
 
   const { data: actions } = useQuery({ queryKey: ['audit-actions'], queryFn: listAuditActions })
 
-  const { data, isLoading } = useQuery({
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ['audit-logs', page, search, action, tenantId, dateFrom, dateTo],
     queryFn: () =>
       listAuditLogs({
@@ -102,6 +108,8 @@ export function PlatformAuditLogPage() {
 
       {isLoading ? (
         <p className="text-sm text-gray-500">{t('common.loading')}</p>
+      ) : isError ? (
+        <QueryErrorState onRetry={() => void refetch()} />
       ) : (
         <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
           <table className="w-full text-sm">

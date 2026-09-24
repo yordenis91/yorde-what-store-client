@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { QueryErrorState } from '@/components/ui/QueryErrorState'
 import { approveUpgrade, listUpgradeRequests } from '@/services/plans.service'
 import { formatDate } from '@/utils/format'
 import { extractErrorMessage } from '@/services/api-client'
@@ -10,7 +11,12 @@ import { extractErrorMessage } from '@/services/api-client'
 export function PlatformUpgradeRequestsPage() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
-  const { data: requests, isLoading } = useQuery({ queryKey: ['upgrade-requests'], queryFn: listUpgradeRequests })
+  const {
+    data: requests,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({ queryKey: ['upgrade-requests'], queryFn: listUpgradeRequests })
 
   const approveMutation = useMutation({
     mutationFn: approveUpgrade,
@@ -27,6 +33,8 @@ export function PlatformUpgradeRequestsPage() {
 
       {isLoading ? (
         <p className="text-sm text-gray-500">{t('common.loading')}</p>
+      ) : isError ? (
+        <QueryErrorState onRetry={() => void refetch()} />
       ) : (
         <div className="flex flex-col gap-3">
           {requests?.map((req) => (

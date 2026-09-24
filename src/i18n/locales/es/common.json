@@ -165,7 +165,8 @@
     "downloadInvoice": "Descargar factura",
     "invoiceNotReady": "La factura todavía no está lista — se genera poco después de confirmarse el pago",
     "exportCsv": "Exportar CSV",
-    "statusLocked": "Esta orden está {{status}} y no puede pasar a otro estado"
+    "statusLocked": "Esta orden está {{status}} y no puede pasar a otro estado",
+    "empty": "Ninguna orden coincide con estos filtros."
   },
   "customers": {
     "title": "Clientes",
@@ -183,7 +184,8 @@
     },
     "customerSince": "Cliente desde",
     "stats": "Estadísticas",
-    "orderHistory": "Historial de pedidos"
+    "orderHistory": "Historial de pedidos",
+    "empty": "Ningún cliente coincide con estos filtros."
   },
   "coupons": {
     "title": "Cupones",
@@ -606,6 +608,8 @@
     "delete": "Eliminar",
     "edit": "Editar",
     "search": "Buscar",
-    "back": "Volver"
+    "back": "Volver",
+    "loadError": "No se pudo cargar esto. Intenta de nuevo.",
+    "retry": "Reintentar"
   }
 }
