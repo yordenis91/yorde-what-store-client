@@ -132,6 +132,11 @@ export async function impersonateTenant(id: string, reason?: string) {
   return data.data
 }
 
+export async function sendTenantOwnerPasswordReset(id: string) {
+  const { data } = await apiClient.post<ApiEnvelope<{ sent: boolean }>>(`/platform/tenants/${id}/send-password-reset`)
+  return data.data
+}
+
 export async function listTenantMembers(id: string, params: { page?: number; limit?: number }) {
   const { data } = await apiClient.get<ApiEnvelope<PaginatedResult<PlatformTenantMember>>>(
     `/platform/tenants/${id}/members`,

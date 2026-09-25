@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { inviteStaff, listMembers, removeMember } from '@/services/users.service'
+import { inviteStaff, listMembers, removeMember, resetMemberPassword } from '@/services/users.service'
 import { extractErrorMessage } from '@/services/api-client'
 
 interface FormValues {
@@ -35,6 +35,12 @@ export function StaffPage() {
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['members'] }),
   })
 
+  const resetPasswordMutation = useMutation({
+    mutationFn: resetMemberPassword,
+    onSuccess: () => toast.success(t('staff.resetPasswordSent')),
+    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
+  })
+
   return (
     <div className="max-w-2xl">
       <h1 className="mb-6 text-2xl font-semibold text-gray-900">{t('nav.staff')}</h1>
@@ -47,7 +53,11 @@ export function StaffPage() {
         >
           <Input placeholder={t('auth.name')} {...register('name', { required: true })} />
           <Input placeholder={t('auth.email')} type="email" {...register('email', { required: true })} />
-          <Input placeholder={t('auth.password')} {...register('temporaryPassword', { required: true, minLength: 8 })} />
+          <Input
+            type="password"
+            placeholder={t('auth.password')}
+            {...register('temporaryPassword', { required: true, minLength: 8 })}
+          />
           <Button type="submit" loading={inviteMutation.isPending} className="sm:col-span-3 w-fit">
             {t('common.save')}
           </Button>
@@ -67,9 +77,18 @@ export function StaffPage() {
                 </p>
               </div>
               {member.role !== 'OWNER' && (
-                <Button variant="danger" onClick={() => removeMutation.mutate(member.id)}>
-                  {t('common.delete')}
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="secondary"
+                    loading={resetPasswordMutation.isPending && resetPasswordMutation.variables === member.id}
+                    onClick={() => resetPasswordMutation.mutate(member.id)}
+                  >
+                    {t('staff.resetPassword')}
+                  </Button>
+                  <Button variant="danger" onClick={() => removeMutation.mutate(member.id)}>
+                    {t('common.delete')}
+                  </Button>
+                </div>
               )}
             </div>
           ))}

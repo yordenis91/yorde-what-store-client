@@ -14,3 +14,8 @@ export async function inviteStaff(payload: { email: string; name: string; tempor
 export async function removeMember(id: string) {
   await apiClient.delete(`/users/${id}`)
 }
+
+export async function resetMemberPassword(id: string) {
+  const { data } = await apiClient.post<ApiEnvelope<{ sent: boolean }>>(`/users/${id}/reset-password`)
+  return data.data
+}
