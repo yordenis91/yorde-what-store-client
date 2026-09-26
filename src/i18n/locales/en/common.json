@@ -55,7 +55,14 @@
     "twoFactorSubmit": "Verify",
     "invalidCredentials": "Invalid email or password",
     "legalConsentPrefix": "By creating an account, you agree to our",
-    "legalConsentAnd": "and"
+    "legalConsentAnd": "and",
+    "forgotPassword": "Forgot your password?",
+    "forgotPasswordSent": "If that email is registered, a reset link is on its way.",
+    "sendResetLink": "Send reset link",
+    "resetPassword": "Reset password",
+    "resetPasswordDone": "Your password has been reset. You can now log in with it.",
+    "newPassword": "New password",
+    "passwordTooShort": "Password must be at least 8 characters"
   },
   "connectivity": {
     "offline": "You're offline. Some actions won't work until your connection is back.",
@@ -229,7 +236,9 @@
     "noMethods": "No shipping methods yet."
   },
   "staff": {
-    "invite": "Invite a team member"
+    "invite": "Invite a team member",
+    "resetPassword": "Reset password",
+    "resetPasswordSent": "A password reset link has been sent to this team member."
   },
   "settings": {
     "title": "Store settings",
@@ -467,6 +476,8 @@
     "notesEmpty": "No internal notes yet.",
     "addNote": "Add note",
     "notePlaceholder": "Internal note — never shown to the store owner",
+    "sendPasswordReset": "Send password reset",
+    "passwordResetSent": "A password reset link has been sent to the store owner.",
     "historyEmpty": "No status changes yet.",
     "historyEntry": "{{from}} → {{to}}",
     "commissionRate": "Commission rate override (%)",

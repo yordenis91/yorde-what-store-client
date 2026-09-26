@@ -69,3 +69,13 @@ export async function disableTwoFactor() {
   const { data } = await apiClient.post<ApiEnvelope<{ twoFactorEnabled: boolean }>>('/auth/2fa/disable')
   return data.data
 }
+
+export async function forgotPassword(email: string) {
+  const { data } = await apiClient.post<ApiEnvelope<{ sent: boolean }>>('/auth/forgot-password', { email })
+  return data.data
+}
+
+export async function resetPassword(token: string, password: string) {
+  const { data } = await apiClient.post<ApiEnvelope<{ reset: boolean }>>('/auth/reset-password', { token, password })
+  return data.data
+}

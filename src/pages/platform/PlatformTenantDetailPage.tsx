@@ -16,6 +16,7 @@ import {
   getTenantHistory,
   listTenantMembers,
   listTenantNotes,
+  sendTenantOwnerPasswordReset,
   updatePlatformTenant,
 } from '@/services/platform.service'
 import { formatDate } from '@/utils/format'
@@ -55,6 +56,12 @@ export function PlatformTenantDetailPage() {
   useEffect(() => {
     if (tenant) reset({ name: tenant.name, commissionRate: tenant.commissionRate ?? '' })
   }, [tenant, reset])
+
+  const sendPasswordResetMutation = useMutation({
+    mutationFn: () => sendTenantOwnerPasswordReset(id!),
+    onSuccess: () => toast.success(t('platformTenants.passwordResetSent')),
+    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
+  })
 
   if (isLoading || !tenant) return <p className="text-sm text-gray-500">{t('common.loading')}</p>
 
@@ -115,6 +122,14 @@ export function PlatformTenantDetailPage() {
               <div>
                 <span className="block text-xs text-gray-500">{t('platformTenants.columnOwner')}</span>
                 {tenant.owner.name} ({tenant.owner.email})
+                <button
+                  type="button"
+                  onClick={() => sendPasswordResetMutation.mutate()}
+                  disabled={sendPasswordResetMutation.isPending}
+                  className="ml-2 text-xs font-medium text-brand-700 hover:underline disabled:opacity-50"
+                >
+                  {t('platformTenants.sendPasswordReset')}
+                </button>
               </div>
               <div>
                 <span className="block text-xs text-gray-500">{t('platformTenants.columnPlan')}</span>

@@ -55,7 +55,14 @@
     "twoFactorSubmit": "Verificar",
     "invalidCredentials": "Email o contraseña inválidos",
     "legalConsentPrefix": "Al crear una cuenta, aceptás nuestros",
-    "legalConsentAnd": "y nuestra"
+    "legalConsentAnd": "y nuestra",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "forgotPasswordSent": "Si ese email está registrado, ya te enviamos un link para restablecerla.",
+    "sendResetLink": "Enviar link de restablecimiento",
+    "resetPassword": "Restablecer contraseña",
+    "resetPasswordDone": "Tu contraseña se restableció. Ya podés iniciar sesión con ella.",
+    "newPassword": "Nueva contraseña",
+    "passwordTooShort": "La contraseña debe tener al menos 8 caracteres"
   },
   "connectivity": {
     "offline": "Estás sin conexión. Algunas acciones no van a funcionar hasta que vuelva la conexión.",
@@ -229,7 +236,9 @@
     "noMethods": "Todavía no hay métodos de envío."
   },
   "staff": {
-    "invite": "Invitar miembro del equipo"
+    "invite": "Invitar miembro del equipo",
+    "resetPassword": "Restablecer contraseña",
+    "resetPasswordSent": "Se envió un link para restablecer la contraseña a este miembro del equipo."
   },
   "settings": {
     "title": "Configuración de tienda",
@@ -467,6 +476,8 @@
     "notesEmpty": "Todavía no hay notas internas.",
     "addNote": "Agregar nota",
     "notePlaceholder": "Nota interna — nunca se muestra al dueño de la tienda",
+    "sendPasswordReset": "Enviar restablecimiento de contraseña",
+    "passwordResetSent": "Se envió un link para restablecer la contraseña al dueño de la tienda.",
     "historyEmpty": "Todavía no hay cambios de estado.",
     "historyEntry": "{{from}} → {{to}}",
     "commissionRate": "Comisión personalizada (%)",
