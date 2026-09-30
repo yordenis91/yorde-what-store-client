@@ -149,3 +149,36 @@ export function WebsiteIcon(props: IconProps) {
     </Icon>
   )
 }
+
+export function StoreIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 9.5 5.5 4h13L20 9.5M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0M4 9.5V20h16V9.5M10 20v-5h4v5" />
+    </Icon>
+  )
+}
+
+export function ShieldIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 3 4.5 6v5.5c0 4.4 3.1 8 7.5 9.5 4.4-1.5 7.5-5.1 7.5-9.5V6L12 3Z" />
+      <path d="m9 12 2.2 2.2L15 10.4" />
+    </Icon>
+  )
+}
+
+export function SendIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M21 3 10 14M21 3l-7 18-4-7-7-4 18-7Z" />
+    </Icon>
+  )
+}
+
+export function ChevronDownIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="m6 9 6 6 6-6" />
+    </Icon>
+  )
+}

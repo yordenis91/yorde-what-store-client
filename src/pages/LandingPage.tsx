@@ -1,32 +1,42 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/Button'
-import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
+import { LandingHeader } from '@/components/landing/LandingHeader'
+import { HeroSection } from '@/components/landing/HeroSection'
+import { AudienceSection } from '@/components/landing/AudienceSection'
+import { HowItWorksSection } from '@/components/landing/HowItWorksSection'
+import { SocialProofSection } from '@/components/landing/SocialProofSection'
+import { FaqSection } from '@/components/landing/FaqSection'
+import { FinalCtaSection } from '@/components/landing/FinalCtaSection'
+import type { Role } from '@/components/landing/roles'
 
 export function LandingPage() {
   const { t } = useTranslation()
+  const [openRole, setOpenRole] = useState<Role>('admin')
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gray-50 px-4 text-center">
-      <div className="absolute right-4 top-4">
-        <LanguageSwitcher />
-      </div>
-      <h1 className="text-3xl font-bold text-brand-700">{t('app.name')}</h1>
-      <p className="max-w-md text-gray-600">Multitenant ecommerce with WhatsApp & Telegram checkout.</p>
-      <div className="flex gap-3">
-        <Link to="/login">
-          <Button variant="secondary">{t('nav.login')}</Button>
-        </Link>
-        <Link to="/register">
-          <Button>{t('nav.register')}</Button>
-        </Link>
-      </div>
-      <footer className="absolute bottom-4 flex gap-4 text-xs text-gray-500">
-        <Link to="/terms" className="hover:text-gray-700">
-          {t('footer.terms')}
-        </Link>
-        <Link to="/privacy" className="hover:text-gray-700">
-          {t('footer.privacy')}
-        </Link>
+    <div className="min-h-screen bg-white">
+      <LandingHeader />
+      <main>
+        <HeroSection />
+        <AudienceSection onSelect={setOpenRole} />
+        <HowItWorksSection openRole={openRole} onOpenChange={setOpenRole} />
+        <SocialProofSection />
+        <FaqSection />
+        <FinalCtaSection />
+      </main>
+      <footer className="flex flex-col items-center gap-2 border-t border-gray-200 bg-white px-4 py-6 text-xs text-gray-500">
+        <div className="flex gap-4">
+          <Link to="/terms" className="hover:text-gray-700">
+            {t('footer.terms')}
+          </Link>
+          <Link to="/privacy" className="hover:text-gray-700">
+            {t('footer.privacy')}
+          </Link>
+        </div>
+        <p>
+          © {new Date().getFullYear()} {t('app.name')} — {t('footer.rights')}
+        </p>
       </footer>
     </div>
   )

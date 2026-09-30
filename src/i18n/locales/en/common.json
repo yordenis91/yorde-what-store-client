@@ -665,5 +665,154 @@
     "back": "Back",
     "loadError": "Couldn't load this. Please try again.",
     "retry": "Retry"
+  },
+  "landing": {
+    "nav": {
+      "howItWorks": "How it works",
+      "faq": "FAQ"
+    },
+    "hero": {
+      "eyebrow": "Ecommerce built for chat selling",
+      "title": "Your online store, with orders landing straight in your WhatsApp or Telegram",
+      "subtitle": "Build your catalog, share your link and receive orders in real time. Customers shop from their phone in a few steps; you or your platform manage everything from one panel.",
+      "ctaPrimary": "Create my store",
+      "ctaSecondary": "I already have an account",
+      "chips": [
+        "Orders via WhatsApp",
+        "Orders via Telegram",
+        "Card, MercadoPago and Zelle"
+      ]
+    },
+    "audience": {
+      "title": "How do you want to use Yorde What Store?",
+      "subtitle": "Pick your role and see what you get.",
+      "seeHow": "See how it works",
+      "roles": {
+        "admin": {
+          "label": "Store owner",
+          "benefit": "Sell through the channels where you already talk to your customers, and run products, orders and customers from your panel."
+        },
+        "superAdmin": {
+          "label": "Platform operator",
+          "benefit": "Manage many stores, plans and subscriptions from one central console, with every sensitive action on record."
+        },
+        "customer": {
+          "label": "Shopper",
+          "benefit": "Shop from your phone with no hassle: pick items, fill in your details and send your order via WhatsApp or Telegram."
+        }
+      }
+    },
+    "how": {
+      "title": "How it works",
+      "subtitle": "A clear flow for each role. Tap one to see it.",
+      "steps": {
+        "admin": [
+          {
+            "title": "Create your store",
+            "body": "Sign up with the store name and URL you want. Nothing to install."
+          },
+          {
+            "title": "Upload and customize",
+            "body": "Add products with photos, variants, categories and taxes. Set your logo, banner, social links and one of 8 colors."
+          },
+          {
+            "title": "Choose how to get paid and deliver",
+            "body": "Turn on WhatsApp, Telegram, card, MercadoPago or Zelle. Set up shipping, pickup locations and coupons."
+          },
+          {
+            "title": "Share and receive orders",
+            "body": "Share your link or QR code. Orders show up live in your panel with a sound alert, and your sales appear on the dashboard."
+          }
+        ],
+        "superAdmin": [
+          {
+            "title": "Add stores",
+            "body": "Create stores from the console or review the ones that sign up, and assign plans with their limits."
+          },
+          {
+            "title": "Manage their lifecycle",
+            "body": "Suspend or reactivate stores with a reason, and keep internal notes and a status history."
+          },
+          {
+            "title": "Oversee the business",
+            "body": "Track stores, orders, GMV and subscriptions on a global dashboard. Moderate products and approve plan upgrade requests."
+          },
+          {
+            "title": "Audit and protect",
+            "body": "Browse the audit log, act as a store owner in a traceable 30-minute session, and check your backups."
+          }
+        ],
+        "customer": [
+          {
+            "title": "Open the store",
+            "body": "Open the link you were given and browse the catalog and categories."
+          },
+          {
+            "title": "Build your cart",
+            "body": "Pick options such as size or color and adjust quantities. The server calculates the totals."
+          },
+          {
+            "title": "Fill in your details",
+            "body": "Give contact and delivery info: home delivery or store pickup. Apply a coupon if you have one."
+          },
+          {
+            "title": "Send your order",
+            "body": "Order via WhatsApp or Telegram, or pay by card, MercadoPago or Zelle if the store offers it. No account required."
+          }
+        ]
+      }
+    },
+    "proof": {
+      "title": "Built for every side of the sale",
+      "note": "Illustrative testimonials. Replace them with real reviews when you have them.",
+      "items": [
+        {
+          "quote": "My customers already messaged me on WhatsApp. Now they pick from the catalog and the order arrives ready, no more writing things down.",
+          "name": "Ana M.",
+          "role": "Store owner"
+        },
+        {
+          "quote": "I see stores, plans and upgrade requests in one place. And everything I do is in the audit log.",
+          "name": "Carlos R.",
+          "role": "Platform operator"
+        },
+        {
+          "quote": "I picked my items, entered my address and sent the order on WhatsApp. I didn't have to create an account.",
+          "name": "Lucía P.",
+          "role": "Shopper"
+        }
+      ]
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "items": [
+        {
+          "q": "Can I manage several stores?",
+          "a": "Each store has its own panel, catalog, orders, customers and team. How many stores and products you can have depends on your plan, and you can request a plan upgrade from your panel."
+        },
+        {
+          "q": "How does checkout work without a payment gateway?",
+          "a": "Your customer builds the order in the store and, on confirming, it opens as a WhatsApp message to your number, or reaches you on Telegram. You confirm and arrange payment with them. Totals are calculated by the server, not the browser. If you prefer to charge online, you can also turn on card, MercadoPago or Zelle."
+        },
+        {
+          "q": "Do my customers need an account to buy?",
+          "a": "No. They can check out as guests. If they want, they can create an account to see their order history."
+        },
+        {
+          "q": "How does Zelle payment work?",
+          "a": "You set the recipient and instructions. The customer pays via Zelle and uploads a screenshot of the confirmation, right after checkout or later. You review it and confirm or reject it in one click."
+        },
+        {
+          "q": "Can I work with a team, and how secure is my account?",
+          "a": "You can invite team members to your panel. Your account supports optional two-step verification, and each store's data is isolated from every other store's."
+        }
+      ]
+    },
+    "finalCta": {
+      "title": "Start selling today, from your phone",
+      "subtitle": "Create your store, add your first products and share your link.",
+      "primary": "Create my store",
+      "secondary": "Log in"
+    }
   }
 }
