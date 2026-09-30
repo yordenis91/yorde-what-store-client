@@ -23,7 +23,7 @@ export async function getPublicStorefront(slug: string) {
 
 export interface PaymentSetting {
   id: string
-  provider: 'STRIPE' | 'MERCADOPAGO'
+  provider: 'STRIPE' | 'MERCADOPAGO' | 'ZELLE'
   isEnabled: boolean
 }
 
@@ -33,7 +33,7 @@ export async function listPaymentSettings() {
 }
 
 export async function upsertPaymentSetting(payload: {
-  provider: 'STRIPE' | 'MERCADOPAGO'
+  provider: 'STRIPE' | 'MERCADOPAGO' | 'ZELLE'
   credentials: Record<string, string>
   isEnabled: boolean
 }) {

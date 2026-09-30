@@ -366,19 +366,36 @@ interface MercadoPagoFormValues {
   isEnabled: boolean
 }
 
+interface ZelleFormValues {
+  recipientName: string
+  recipientEmail: string
+  recipientPhone: string
+  instructions: string
+  isEnabled: boolean
+}
+
 function PaymentSettingsSection() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const { data: settings } = useQuery({ queryKey: ['payment-settings'], queryFn: listPaymentSettings })
   const { register, handleSubmit, reset } = useForm<StripeFormValues>()
   const mercadoPagoForm = useForm<MercadoPagoFormValues>()
+  const zelleForm = useForm<ZelleFormValues>()
 
   useEffect(() => {
     const stripe = settings?.find((s) => s.provider === 'STRIPE')
     reset({ publishableKey: '', secretKey: '', isEnabled: stripe?.isEnabled ?? false })
     const mercadoPago = settings?.find((s) => s.provider === 'MERCADOPAGO')
     mercadoPagoForm.reset({ accessToken: '', isEnabled: mercadoPago?.isEnabled ?? false })
-  }, [settings, reset, mercadoPagoForm])
+    const zelle = settings?.find((s) => s.provider === 'ZELLE')
+    zelleForm.reset({
+      recipientName: '',
+      recipientEmail: '',
+      recipientPhone: '',
+      instructions: '',
+      isEnabled: zelle?.isEnabled ?? false,
+    })
+  }, [settings, reset, mercadoPagoForm, zelleForm])
 
   const mutation = useMutation({
     mutationFn: (values: StripeFormValues) =>
@@ -408,8 +425,30 @@ function PaymentSettingsSection() {
     onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
   })
 
+  const zelleMutation = useMutation({
+    mutationFn: (values: ZelleFormValues) =>
+      upsertPaymentSetting({
+        provider: 'ZELLE',
+        // Unlike the Stripe/MercadoPago "credentials" above (secret keys), this is
+        // just the recipient info shown to customers at checkout — nothing secret.
+        credentials: {
+          recipientName: values.recipientName,
+          recipientEmail: values.recipientEmail,
+          recipientPhone: values.recipientPhone,
+          instructions: values.instructions,
+        },
+        isEnabled: values.isEnabled,
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['payment-settings'] })
+      toast.success(t('settings.saved'))
+    },
+    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
+  })
+
   const stripeConfigured = settings?.some((s) => s.provider === 'STRIPE' && s.isEnabled)
   const mercadoPagoConfigured = settings?.some((s) => s.provider === 'MERCADOPAGO' && s.isEnabled)
+  const zelleConfigured = settings?.some((s) => s.provider === 'ZELLE' && s.isEnabled)
 
   return (
     <Card className="mt-6 flex flex-col gap-6">
@@ -456,6 +495,42 @@ function PaymentSettingsSection() {
             {...mercadoPagoForm.register('accessToken')}
           />
           <Button type="submit" loading={mercadoPagoMutation.isPending} className="w-fit">
+            {t('settings.save')}
+          </Button>
+        </form>
+      </div>
+
+      <div className="border-t border-gray-100 pt-6">
+        <div className="flex items-center justify-between">
+          <h2 className="font-medium text-gray-900">Zelle</h2>
+          {zelleConfigured && (
+            <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">Zelle enabled</span>
+          )}
+        </div>
+        <form
+          onSubmit={(e) => void zelleForm.handleSubmit((values) => zelleMutation.mutate(values))(e)}
+          className="mt-3 flex flex-col gap-3"
+        >
+          <label className="flex items-center gap-2 text-sm text-gray-700">
+            <input type="checkbox" {...zelleForm.register('isEnabled')} /> {t('settings.zelleEnabled')}
+          </label>
+          <Input label={t('settings.zelleRecipientName')} {...zelleForm.register('recipientName')} />
+          <Input
+            label={t('settings.zelleRecipientEmail')}
+            placeholder="payments@yourstore.com"
+            {...zelleForm.register('recipientEmail')}
+          />
+          <Input label={t('settings.zelleRecipientPhone')} {...zelleForm.register('recipientPhone')} />
+          <div>
+            <span className="mb-1 block text-sm font-medium text-gray-700">{t('settings.zelleInstructions')}</span>
+            <textarea
+              rows={3}
+              placeholder={t('settings.zelleInstructionsPlaceholder')}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              {...zelleForm.register('instructions')}
+            />
+          </div>
+          <Button type="submit" loading={zelleMutation.isPending} className="w-fit">
             {t('settings.save')}
           </Button>
         </form>

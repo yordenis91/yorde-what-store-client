@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { downloadInvoice, getOrder, updateOrderStatus } from '@/services/orders.service'
+import { confirmZellePayment, downloadInvoice, getOrder, rejectZellePayment, updateOrderStatus } from '@/services/orders.service'
 import { useAuthStore } from '@/store/auth.store'
 import { formatDate, formatMoney } from '@/utils/format'
-import { extractErrorMessage } from '@/services/api-client'
+import { extractErrorMessage, resolveMediaUrl } from '@/services/api-client'
 import type { OrderStatus } from '@/types/api'
 
 const STATUSES: OrderStatus[] = ['PENDING', 'CONFIRMED', 'PROCESSING', 'COMPLETED', 'CANCELLED', 'REFUNDED']
@@ -38,6 +38,24 @@ export function OrderDetailPage() {
   const invoiceMutation = useMutation({
     mutationFn: () => downloadInvoice(id!, order!.orderNumber),
     onError: (error) => toast.error(extractErrorMessage(error, t('orders.invoiceNotReady'))),
+  })
+
+  const confirmZelleMutation = useMutation({
+    mutationFn: () => confirmZellePayment(id!),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['order', id] })
+      toast.success(t('orders.zellePaymentConfirmed'))
+    },
+    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
+  })
+
+  const rejectZelleMutation = useMutation({
+    mutationFn: () => rejectZellePayment(id!),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['order', id] })
+      toast.success(t('orders.zelleProofRejected'))
+    },
+    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
   })
 
   if (isLoading || !order) return <p className="text-sm text-gray-500">{t('common.loading')}</p>
@@ -153,6 +171,53 @@ export function OrderDetailPage() {
         <Card className="mb-4">
           <h2 className="mb-2 font-medium text-gray-900">{t('orders.messageSent')}</h2>
           <pre className="whitespace-pre-wrap text-sm text-gray-700">{order.fulfillmentMessage}</pre>
+        </Card>
+      )}
+
+      {order.fulfillmentMethod === 'ZELLE' && (
+        <Card className="mb-4">
+          <h2 className="mb-2 font-medium text-gray-900">{t('orders.zellePayment')}</h2>
+
+          {!order.paymentProofUrl && <p className="text-sm text-gray-500">{t('orders.zelleNoProof')}</p>}
+
+          {order.paymentProofUrl && (
+            <div className="flex flex-col gap-3">
+              <a href={resolveMediaUrl(order.paymentProofUrl)} target="_blank" rel="noreferrer">
+                <img
+                  src={resolveMediaUrl(order.paymentProofUrl)}
+                  alt={t('orders.zellePayment')}
+                  className="max-h-64 w-fit rounded-lg border border-gray-200"
+                />
+              </a>
+              {order.paymentReference && (
+                <p className="text-sm text-gray-700">
+                  {t('orders.zelleReference')}: <span className="font-medium">{order.paymentReference}</span>
+                </p>
+              )}
+
+              {order.paymentStatus === 'PAID' ? (
+                <p className="text-sm font-medium text-emerald-700">{t('orders.zellePaymentConfirmed')}</p>
+              ) : (
+                <div className="flex gap-2 print:hidden">
+                  <Button
+                    onClick={() => confirmZelleMutation.mutate()}
+                    loading={confirmZelleMutation.isPending}
+                    disabled={rejectZelleMutation.isPending}
+                  >
+                    {t('orders.zelleConfirmPayment')}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => rejectZelleMutation.mutate()}
+                    loading={rejectZelleMutation.isPending}
+                    disabled={confirmZelleMutation.isPending}
+                  >
+                    {t('orders.zelleRejectProof')}
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
         </Card>
       )}
 

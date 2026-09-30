@@ -18,11 +18,43 @@ export type CreateOrderResult =
   | { order: Order; fulfillment: { type: 'TELEGRAM'; queued: true } }
   | { order: Order; fulfillment: { type: 'STRIPE' } }
   | { order: Order; fulfillment: { type: 'MERCADOPAGO' } }
+  | { order: Order; fulfillment: { type: 'ZELLE' } }
 
 export async function createOrder(slug: string, payload: CreateOrderPayload) {
   const { data } = await apiClient.post<ApiEnvelope<CreateOrderResult>>('/storefront/orders', payload, {
     headers: { 'X-Tenant-ID': slug },
   })
+  return data.data
+}
+
+/** Attaches a Zelle proof already hosted somewhere (rarely used directly — see uploadPaymentProofImage below, which is what the checkout/confirmation UI calls). */
+export async function submitPaymentProof(slug: string, orderId: string, payload: { proofUrl: string; reference?: string }) {
+  const { data } = await apiClient.post<ApiEnvelope<Order>>(`/storefront/orders/${orderId}/payment-proof`, payload, {
+    headers: { 'X-Tenant-ID': slug },
+  })
+  return data.data
+}
+
+/** Uploads the customer's Zelle payment screenshot and attaches it to the order in one request — what the checkout/order-confirmation UI actually calls. Never blocks order creation: this always runs after the order already exists. */
+export async function uploadPaymentProofImage(slug: string, orderId: string, file: File, reference?: string) {
+  const form = new FormData()
+  form.append('file', file)
+  if (reference) form.append('reference', reference)
+  const { data } = await apiClient.post<ApiEnvelope<Order>>(`/storefront/orders/${orderId}/payment-proof-image`, form, {
+    headers: { 'X-Tenant-ID': slug, 'Content-Type': 'multipart/form-data' },
+  })
+  return data.data
+}
+
+/** Admin review of a submitted Zelle proof: marks the order PAID/CONFIRMED and queues its invoice, exactly like a successful Stripe/MercadoPago webhook would. */
+export async function confirmZellePayment(orderId: string) {
+  const { data } = await apiClient.post<ApiEnvelope<Order>>(`/orders/${orderId}/confirm-zelle-payment`)
+  return data.data
+}
+
+/** Clears the submitted proof (not the order) so the customer can resubmit — the order stays PENDING either way. */
+export async function rejectZellePayment(orderId: string) {
+  const { data } = await apiClient.post<ApiEnvelope<Order>>(`/orders/${orderId}/reject-zelle-payment`)
   return data.data
 }
 

@@ -40,7 +40,7 @@ const schema = z
       postalCode: z.string(),
       notes: z.string(),
     }),
-    fulfillmentMethod: z.enum(['WHATSAPP', 'TELEGRAM', 'STRIPE', 'MERCADOPAGO']),
+    fulfillmentMethod: z.enum(['WHATSAPP', 'TELEGRAM', 'STRIPE', 'MERCADOPAGO', 'ZELLE']),
   })
   // An address is only meaningful when something is being delivered; picking up
   // in store must not demand one.
@@ -204,7 +204,7 @@ export function StorefrontCheckoutPage() {
         return
       }
 
-      if (result.fulfillment.type === 'TELEGRAM') {
+      if (result.fulfillment.type === 'TELEGRAM' || result.fulfillment.type === 'ZELLE') {
         clearCart()
         navigate(path(`/order-confirmed/${result.order.id}`), { state: { order: result.order } })
         return
@@ -246,6 +246,16 @@ export function StorefrontCheckoutPage() {
       label: t('storefront.checkoutMercadoPago'),
       hint: t('storefront.checkoutMercadoPagoHint'),
       enabled: true,
+    },
+    {
+      value: 'ZELLE',
+      label: t('storefront.checkoutZelle'),
+      hint: t('storefront.checkoutZelleHint'),
+      // Unlike Stripe/MercadoPago (secret keys, never exposed — so the client can't
+      // tell whether they're configured and always offers them), zellePaymentInfo is
+      // public-safe recipient info the backend only sends once a store has actually
+      // enabled Zelle, so its presence is a reliable signal to gate the option on.
+      enabled: Boolean(tenant.zellePaymentInfo),
     },
   ]
 
@@ -386,6 +396,27 @@ export function StorefrontCheckoutPage() {
                     />
                   ))}
               </div>
+
+              {fulfillmentMethod === 'ZELLE' && tenant.zellePaymentInfo && (
+                <div className="rounded-lg border border-brand-200 bg-brand-50 p-4 text-sm">
+                  <h3 className="mb-2 font-medium text-gray-900">{t('storefront.zelleInstructionsTitle')}</h3>
+                  {tenant.zellePaymentInfo.recipientName && (
+                    <ReviewRow label={t('storefront.zelleRecipientName')} value={tenant.zellePaymentInfo.recipientName} />
+                  )}
+                  {(tenant.zellePaymentInfo.recipientEmail || tenant.zellePaymentInfo.recipientPhone) && (
+                    <ReviewRow
+                      label={t('storefront.zelleSendTo')}
+                      value={[tenant.zellePaymentInfo.recipientEmail, tenant.zellePaymentInfo.recipientPhone]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    />
+                  )}
+                  {tenant.zellePaymentInfo.instructions && (
+                    <p className="mt-2 whitespace-pre-line text-gray-700">{tenant.zellePaymentInfo.instructions}</p>
+                  )}
+                  <p className="mt-2 text-xs text-gray-500">{t('storefront.zelleUploadProofHint')}</p>
+                </div>
+              )}
 
               <div className="mt-2 rounded-lg bg-gray-50 p-4 text-sm">
                 <h3 className="mb-2 font-medium text-gray-900">{t('storefront.reviewTitle')}</h3>
