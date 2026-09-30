@@ -161,6 +161,8 @@ export interface PublicTenant {
   shippingPolicyContent: string | null
   returnPolicyContent: string | null
   privacyPolicyContent: string | null
+  /** Present only when the store has an enabled Zelle recipient configured — absent, not null, otherwise. */
+  zellePaymentInfo?: { recipientName?: string; recipientEmail?: string; recipientPhone?: string; instructions?: string } | null
 }
 
 export interface ProductCategory {
@@ -221,7 +223,7 @@ export interface Product {
   createdAt: string
 }
 
-export type FulfillmentMethod = 'WHATSAPP' | 'TELEGRAM' | 'STRIPE' | 'MERCADOPAGO'
+export type FulfillmentMethod = 'WHATSAPP' | 'TELEGRAM' | 'STRIPE' | 'MERCADOPAGO' | 'ZELLE'
 export type OrderStatus = 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED' | 'REFUNDED'
 export type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED'
 
@@ -268,6 +270,9 @@ export interface Order {
   shipping: { id: string; name: string; cost: string } | null
   /** Present only when a delivery address was collected at checkout. */
   shippingAddress: ShippingAddress | null
+  /** Zelle only: the customer-submitted proof screenshot and optional confirmation reference. Cleared (not the order) if an admin rejects it. */
+  paymentProofUrl: string | null
+  paymentReference: string | null
   items: OrderItem[]
   createdAt: string
   /** Only populated on GET /orders/:id. True once the async invoice-generation job has written a PDF — absent right after payment, and never set for WhatsApp/Telegram fulfillment. */

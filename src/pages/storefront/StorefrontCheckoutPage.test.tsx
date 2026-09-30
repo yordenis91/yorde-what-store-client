@@ -364,4 +364,55 @@ describe('payment methods', () => {
     expect(screen.queryByRole('button', { name: /order via telegram/i })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: /pay with card/i })).toBeInTheDocument()
   })
+
+  it('does not offer Zelle when the store has not configured a recipient account', async () => {
+    currentTenant = buildTenant({ zellePaymentInfo: undefined })
+    renderCheckout()
+    await screen.findByRole('heading', { name: /contact/i })
+    await fillContactAndContinue()
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
+    await screen.findByRole('heading', { name: /payment/i })
+
+    expect(screen.queryByRole('button', { name: /pay with zelle/i })).not.toBeInTheDocument()
+  })
+
+  it('offers Zelle, with the recipient instructions, once the store has configured it', async () => {
+    currentTenant = buildTenant({
+      zellePaymentInfo: {
+        recipientName: 'Vortex Beauty LLC',
+        recipientEmail: 'pay@vortex.test',
+        instructions: 'Include your order number in the memo.',
+      },
+    })
+    renderCheckout()
+    await screen.findByRole('heading', { name: /contact/i })
+    await fillContactAndContinue()
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
+    await screen.findByRole('heading', { name: /payment/i })
+
+    await userEvent.click(screen.getByRole('button', { name: /pay with zelle/i }))
+
+    expect(screen.getByText('Vortex Beauty LLC')).toBeInTheDocument()
+    expect(screen.getByText('pay@vortex.test')).toBeInTheDocument()
+    expect(screen.getByText(/include your order number in the memo/i)).toBeInTheDocument()
+  })
+
+  it('does not require a payment proof to place a Zelle order', async () => {
+    currentTenant = buildTenant({ zellePaymentInfo: { recipientEmail: 'pay@vortex.test' } })
+    createOrder.mockResolvedValue({
+      order: { id: 'order-1', orderNumber: 'ORD-1' },
+      fulfillment: { type: 'ZELLE' },
+    })
+    renderCheckout()
+    await screen.findByRole('heading', { name: /contact/i })
+    await fillContactAndContinue()
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
+    await screen.findByRole('heading', { name: /payment/i })
+    await userEvent.click(screen.getByRole('button', { name: /pay with zelle/i }))
+
+    await userEvent.click(screen.getAllByRole('button', { name: /place order/i })[0])
+
+    await waitFor(() => expect(createOrder).toHaveBeenCalledTimes(1))
+    expect(createOrder.mock.calls[0][1]).toMatchObject({ fulfillmentMethod: 'ZELLE' })
+  })
 })
