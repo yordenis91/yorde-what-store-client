@@ -184,7 +184,10 @@
     "invoiceNotReady": "La factura todavía no está lista — se genera poco después de confirmarse el pago",
     "exportCsv": "Exportar CSV",
     "statusLocked": "Esta orden está {{status}} y no puede pasar a otro estado",
-    "empty": "Ninguna orden coincide con estos filtros."
+    "empty": "Ninguna orden coincide con estos filtros.",
+    "delivery": "Entrega",
+    "deliveryMethod": "Método de entrega",
+    "messageSent": "Mensaje enviado"
   },
   "customers": {
     "title": "Clientes",
@@ -243,6 +246,8 @@
   "settings": {
     "title": "Configuración de tienda",
     "general": "General",
+    "orderMessageTemplate": "Plantilla del mensaje de pedido",
+    "orderMessageTemplatePlaceholders": "Variables disponibles",
     "theme": "Color de la tienda",
     "themeHint": "Define el color de acento que ven tus clientes en toda la tienda.",
     "themes": {

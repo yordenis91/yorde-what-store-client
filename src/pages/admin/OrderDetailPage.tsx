@@ -103,6 +103,18 @@ export function OrderDetailPage() {
             <span>{t('storefront.tax')}</span>
             <span>{formatMoney(order.taxTotal, symbol, position)}</span>
           </div>
+          {Number(order.discountTotal) > 0 && (
+            <div className="flex justify-between text-gray-500">
+              <span>{t('storefront.discount')}</span>
+              <span>-{formatMoney(order.discountTotal, symbol, position)}</span>
+            </div>
+          )}
+          {Number(order.shippingTotal) > 0 && (
+            <div className="flex justify-between text-gray-500">
+              <span>{t('storefront.shipping')}</span>
+              <span>{formatMoney(order.shippingTotal, symbol, position)}</span>
+            </div>
+          )}
           <div className="flex justify-between font-semibold text-gray-900">
             <span>{t('storefront.total')}</span>
             <span>{formatMoney(order.grandTotal, symbol, position)}</span>
@@ -110,9 +122,36 @@ export function OrderDetailPage() {
         </div>
       </Card>
 
+      {(order.shipping || order.shippingAddress) && (
+        <Card className="mb-4">
+          <h2 className="mb-2 font-medium text-gray-900">{t('orders.delivery')}</h2>
+          {order.shipping && (
+            <p className="text-sm text-gray-700">
+              {t('orders.deliveryMethod')}: <span className="font-medium">{order.shipping.name}</span>
+            </p>
+          )}
+          {order.shippingAddress && (
+            <div className="mt-1 text-sm text-gray-700">
+              {order.shippingAddress.line1 && <p>{order.shippingAddress.line1}</p>}
+              {order.shippingAddress.line2 && <p>{order.shippingAddress.line2}</p>}
+              {(order.shippingAddress.city || order.shippingAddress.state || order.shippingAddress.postalCode) && (
+                <p>
+                  {[order.shippingAddress.city, order.shippingAddress.state, order.shippingAddress.postalCode]
+                    .filter(Boolean)
+                    .join(', ')}
+                </p>
+              )}
+              {order.shippingAddress.notes && (
+                <p className="mt-1 text-xs text-gray-500">{order.shippingAddress.notes}</p>
+              )}
+            </div>
+          )}
+        </Card>
+      )}
+
       {order.fulfillmentMessage && (
         <Card className="mb-4">
-          <h2 className="mb-2 font-medium text-gray-900">{t('orders.fulfillment')}</h2>
+          <h2 className="mb-2 font-medium text-gray-900">{t('orders.messageSent')}</h2>
           <pre className="whitespace-pre-wrap text-sm text-gray-700">{order.fulfillmentMessage}</pre>
         </Card>
       )}

@@ -185,10 +185,11 @@ export function StoreSettingsPage() {
 
         <Card className="flex flex-col gap-2">
           <h2 id="order-message-template-label" className="font-medium text-gray-900">
-            Order message template
+            {t('settings.orderMessageTemplate')}
           </h2>
           <p className="text-xs text-gray-500">
-            Placeholders: {'{store_name} {order_no} {item_variable} {sub_total} {discount_amount} {shipping_amount} {item_tax} {item_total}'}
+            {t('settings.orderMessageTemplatePlaceholders')}:{' '}
+            {'{store_name} {order_no} {item_variable} {sub_total} {discount_amount} {shipping_amount} {item_tax} {item_total}'}
           </p>
           <textarea
             aria-labelledby="order-message-template-label"
