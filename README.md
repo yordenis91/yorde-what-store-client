@@ -48,6 +48,12 @@ Security), which this app consumes exclusively over its REST API.
 - Checkout can route through **WhatsApp or Telegram**, not just card
   payments (Stripe, MercadoPago) — a first-class fulfillment path, not an
   afterthought.
+- **Zelle checkout**: offered only once a store has actually configured a
+  recipient account — its public-safe account info doubles as the
+  availability signal, unlike Stripe/MercadoPago's secret keys, which the
+  client can never see. Placing the order never waits on a payment proof:
+  the customer can upload a confirmation screenshot right after checkout,
+  or come back to the same order-confirmation page later to do it.
 - Reachable either via a tenant subdomain (`store.yourdomain.com`) or a
   path fallback (`/store/:slug`) when subdomain routing isn't configured.
 - Per-tenant runtime theming — 8 color palettes applied via CSS custom
@@ -67,7 +73,10 @@ Security), which this app consumes exclusively over its REST API.
   updated orders appear without a refresh, with a sound/toast/badge count.
 - Customers, coupons, shipping methods & pickup locations, staff
   invitations, email template customization, plans/billing, and store
-  settings (branding, policies, payment credentials).
+  settings (branding, policies, payment credentials — Stripe, MercadoPago,
+  and Zelle's recipient account).
+- Order detail includes a review card for Zelle orders: the customer's
+  submitted screenshot and reference, with one-click confirm/reject.
 
 **Super Admin platform**
 - Cross-tenant dashboard, tenant lifecycle management (create, suspend,
@@ -292,7 +301,8 @@ What is covered:
 | `config/themes` | An unknown theme name must degrade to the default palette, and leaving a store must not leave the platform tinted. |
 | `store/cart.store` | Line merging, variant separation, and clearing the basket when the shopper moves between stores that share an origin. |
 | `ProductCard` | Stock state must not surface at all unless the store tracks inventory — reading the default `quantity` of 0 as stock once marked every product sold out. |
-| `StorefrontCheckoutPage` | Step gating, server-quoted totals, the delivery address, and that reaching the last step does not place the order. |
+| `StorefrontCheckoutPage` | Step gating, server-quoted totals, the delivery address, that reaching the last step does not place the order, and that Zelle is offered only once a store has configured a recipient account. |
+| `StorefrontOrderConfirmedPage` | The Zelle proof-upload step never blocks on having a screenshot ready, and an already-paid order isn't asked for one. |
 | `BackLink` | Shared links mean a product page is often the session's first page; stepping back blindly would leave the site. |
 | `useOrderEvents` | The SSE connection lifecycle for live order updates. |
 | `QuantityStepper`, `utils/*` (including `utils/seo`) | Bounds, formatting, and metadata-tag generation. |
