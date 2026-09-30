@@ -184,7 +184,10 @@
     "invoiceNotReady": "Invoice isn't ready yet — it's generated shortly after payment is confirmed",
     "exportCsv": "Export CSV",
     "statusLocked": "This order is {{status}} and can't be moved to another status",
-    "empty": "No orders match these filters."
+    "empty": "No orders match these filters.",
+    "delivery": "Delivery",
+    "deliveryMethod": "Delivery method",
+    "messageSent": "Message sent"
   },
   "customers": {
     "title": "Customers",
@@ -243,6 +246,8 @@
   "settings": {
     "title": "Store settings",
     "general": "General",
+    "orderMessageTemplate": "Order message template",
+    "orderMessageTemplatePlaceholders": "Placeholders",
     "theme": "Storefront colour",
     "themeHint": "Sets the accent colour customers see across your store.",
     "themes": {

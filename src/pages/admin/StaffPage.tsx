@@ -33,6 +33,7 @@ export function StaffPage() {
   const removeMutation = useMutation({
     mutationFn: removeMember,
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['members'] }),
+    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
   })
 
   const resetPasswordMutation = useMutation({

@@ -238,6 +238,16 @@ export interface OrderItem {
   lineTotal: string
 }
 
+/** Shape the storefront checkout actually sends — the backend column is a free-form Json?, not a typed model. */
+export interface ShippingAddress {
+  line1?: string
+  line2?: string
+  city?: string
+  state?: string
+  postalCode?: string
+  notes?: string
+}
+
 export interface Order {
   id: string
   orderNumber: string
@@ -254,6 +264,10 @@ export interface Order {
   shippingTotal: string
   grandTotal: string
   fulfillmentMessage: string | null
+  /** Present only when the order was placed for delivery with a shipping method selected — absent for pickup. */
+  shipping: { id: string; name: string; cost: string } | null
+  /** Present only when a delivery address was collected at checkout. */
+  shippingAddress: ShippingAddress | null
   items: OrderItem[]
   createdAt: string
   /** Only populated on GET /orders/:id. True once the async invoice-generation job has written a PDF — absent right after payment, and never set for WhatsApp/Telegram fulfillment. */
