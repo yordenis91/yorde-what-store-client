@@ -665,5 +665,154 @@
     "back": "Volver",
     "loadError": "No se pudo cargar esto. Intenta de nuevo.",
     "retry": "Reintentar"
+  },
+  "landing": {
+    "nav": {
+      "howItWorks": "Cómo funciona",
+      "faq": "Preguntas"
+    },
+    "hero": {
+      "eyebrow": "Ecommerce para vender por chat",
+      "title": "Tu tienda online, con pedidos que llegan directo a tu WhatsApp o Telegram",
+      "subtitle": "Crea tu catálogo, comparte tu enlace y recibe pedidos en tiempo real. Tus clientes compran desde el celular en pocos pasos; tú o tu plataforma lo gestionan todo desde un solo panel.",
+      "ctaPrimary": "Crear mi tienda",
+      "ctaSecondary": "Ya tengo cuenta",
+      "chips": [
+        "Pedidos por WhatsApp",
+        "Pedidos por Telegram",
+        "Tarjeta, MercadoPago y Zelle"
+      ]
+    },
+    "audience": {
+      "title": "¿Cómo quieres usar Yorde What Store?",
+      "subtitle": "Elige tu rol y mira qué obtienes.",
+      "seeHow": "Ver cómo funciona",
+      "roles": {
+        "admin": {
+          "label": "Dueño de tienda",
+          "benefit": "Vende por los canales donde ya hablas con tus clientes y controla productos, pedidos y clientes desde tu panel."
+        },
+        "superAdmin": {
+          "label": "Operador de la plataforma",
+          "benefit": "Gestiona muchas tiendas, planes y suscripciones desde una consola central, con cada acción sensible registrada."
+        },
+        "customer": {
+          "label": "Cliente final",
+          "benefit": "Compra desde el celular sin complicaciones: elige, completa tus datos y envía tu pedido por WhatsApp o Telegram."
+        }
+      }
+    },
+    "how": {
+      "title": "Cómo funciona",
+      "subtitle": "Un flujo claro para cada rol. Toca uno para verlo.",
+      "steps": {
+        "admin": [
+          {
+            "title": "Crea tu tienda",
+            "body": "Regístrate con el nombre y la URL que quieras para tu tienda. Sin instalar nada."
+          },
+          {
+            "title": "Sube y personaliza",
+            "body": "Carga productos con fotos, variantes, categorías e impuestos. Ponle tu logo, banner, redes y uno de 8 colores."
+          },
+          {
+            "title": "Elige cómo cobrar y entregar",
+            "body": "Activa WhatsApp, Telegram, tarjeta, MercadoPago o Zelle. Define envíos, puntos de retiro y cupones."
+          },
+          {
+            "title": "Comparte y recibe pedidos",
+            "body": "Comparte tu enlace o tu código QR. Los pedidos aparecen en vivo en tu panel, con aviso sonoro, y ves tus ventas en el dashboard."
+          }
+        ],
+        "superAdmin": [
+          {
+            "title": "Da de alta tiendas",
+            "body": "Crea tiendas desde la consola o revisa las que se registran, y asigna planes con sus límites."
+          },
+          {
+            "title": "Gestiona su ciclo de vida",
+            "body": "Suspende o reactiva tiendas indicando el motivo, y deja notas internas e historial de cambios."
+          },
+          {
+            "title": "Supervisa el negocio",
+            "body": "Sigue tiendas, pedidos, GMV y suscripciones en un panel global. Modera productos y aprueba solicitudes de mejora de plan."
+          },
+          {
+            "title": "Audita y protege",
+            "body": "Consulta el registro de auditoría, entra como el dueño de una tienda en una sesión de 30 minutos trazable, y verifica tus backups."
+          }
+        ],
+        "customer": [
+          {
+            "title": "Entra a la tienda",
+            "body": "Abre el enlace que te compartieron y recorre el catálogo y las categorías."
+          },
+          {
+            "title": "Arma tu carrito",
+            "body": "Elige opciones como talla o color y ajusta cantidades. Los totales los calcula el servidor."
+          },
+          {
+            "title": "Completa tus datos",
+            "body": "Indica contacto y entrega: envío a domicilio o retiro en tienda. Aplica un cupón si tienes uno."
+          },
+          {
+            "title": "Envía tu pedido",
+            "body": "Elige pedir por WhatsApp o Telegram, o pagar con tarjeta, MercadoPago o Zelle si la tienda lo ofrece. Comprar no exige crear cuenta."
+          }
+        ]
+      }
+    },
+    "proof": {
+      "title": "Pensado para cada lado de la venta",
+      "note": "Testimonios ilustrativos. Reemplázalos por reseñas reales cuando las tengas.",
+      "items": [
+        {
+          "quote": "Mis clientes ya me escribían por WhatsApp. Ahora eligen en el catálogo y el pedido llega armado, sin perder tiempo anotando.",
+          "name": "Ana M.",
+          "role": "Dueña de tienda"
+        },
+        {
+          "quote": "Desde un solo lugar veo las tiendas, los planes y las solicitudes de mejora. Y todo lo que hago queda en el registro de auditoría.",
+          "name": "Carlos R.",
+          "role": "Operador de plataforma"
+        },
+        {
+          "quote": "Elegí mis productos, puse mi dirección y mandé el pedido por WhatsApp. No tuve que crear una cuenta.",
+          "name": "Lucía P.",
+          "role": "Clienta"
+        }
+      ]
+    },
+    "faq": {
+      "title": "Preguntas frecuentes",
+      "items": [
+        {
+          "q": "¿Puedo gestionar varias tiendas?",
+          "a": "Cada tienda tiene su propio panel, catálogo, pedidos, clientes y equipo. Cuántas tiendas y productos puedes tener depende de tu plan, y puedes solicitar una mejora de plan desde tu panel."
+        },
+        {
+          "q": "¿Cómo funciona el checkout sin pasarela de pago?",
+          "a": "Tu cliente arma el pedido en la tienda y, al confirmar, se abre como mensaje de WhatsApp a tu número, o te llega por Telegram. Tú confirmas y acuerdas el pago con él. Los totales los calcula el servidor, no el navegador. Si prefieres cobrar en línea, también puedes activar tarjeta, MercadoPago o Zelle."
+        },
+        {
+          "q": "¿Mis clientes tienen que crear una cuenta para comprar?",
+          "a": "No. Pueden comprar como invitados. Si quieren, pueden crear una cuenta para ver su historial de pedidos."
+        },
+        {
+          "q": "¿Cómo funciona el pago con Zelle?",
+          "a": "Tú configuras el destinatario y las instrucciones. El cliente paga por Zelle y sube una captura del comprobante, al terminar o más tarde. Tú lo revisas y lo confirmas o rechazas con un clic."
+        },
+        {
+          "q": "¿Puedo trabajar con mi equipo y qué tan segura es mi cuenta?",
+          "a": "Puedes invitar a miembros del equipo a tu panel. Tu cuenta admite verificación en dos pasos opcional, y los datos de cada tienda están aislados de los de las demás."
+        }
+      ]
+    },
+    "finalCta": {
+      "title": "Empieza a vender hoy desde tu celular",
+      "subtitle": "Crea tu tienda, sube tus primeros productos y comparte tu enlace.",
+      "primary": "Crear mi tienda",
+      "secondary": "Iniciar sesión"
+    }
   }
 }
