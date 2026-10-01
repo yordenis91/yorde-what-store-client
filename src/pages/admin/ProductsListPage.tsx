@@ -9,7 +9,9 @@ import { Card } from '@/components/ui/Card'
 import { deleteProduct, listCategories, listProducts, updateProduct } from '@/services/products.service'
 import { useAuthStore } from '@/store/auth.store'
 import { formatMoney } from '@/utils/format'
-import { extractErrorMessage } from '@/services/api-client'
+import type { Product } from '@/types/api'
+import { extractErrorMessage, resolveMediaUrl } from '@/services/api-client'
+import { CartIcon } from '@/components/ui/icons'
 
 export function ProductsListPage() {
   const { t } = useTranslation()
@@ -80,7 +82,7 @@ export function ProductsListPage() {
             setPage(1)
           }}
         >
-          <option value="">All categories</option>
+          <option value="">{t('products.allCategories')}</option>
           {categories?.map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
@@ -96,7 +98,7 @@ export function ProductsListPage() {
             setPage(1)
           }}
         >
-          <option value="all">All status</option>
+          <option value="all">{t('products.allStatus')}</option>
           <option value="active">{t('products.active')}</option>
           <option value="inactive">{t('products.inactive')}</option>
         </select>
@@ -107,26 +109,31 @@ export function ProductsListPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {data?.items.map((product) => (
-            <Card key={product.id} className="flex flex-col gap-2">
-              <div className="flex items-start justify-between gap-2">
-                <span className="font-medium text-gray-900">{product.name}</span>
-                <button
-                  type="button"
-                  title={product.isActive ? t('products.deactivate') : t('products.activate')}
-                  disabled={toggleActiveMutation.isPending && toggleActiveMutation.variables?.id === product.id}
-                  onClick={() => toggleActiveMutation.mutate({ id: product.id, isActive: !product.isActive })}
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-xs transition-opacity hover:opacity-75 disabled:opacity-50 ${
-                    product.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
-                  }`}
-                >
-                  {product.isActive ? t('products.active') : t('products.inactive')}
-                </button>
+            <Card key={product.id} className="flex flex-col gap-3">
+              <div className="flex items-start gap-3">
+                <ProductThumb product={product} />
+                <div className="flex min-w-0 flex-1 flex-col gap-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="line-clamp-2 font-medium text-gray-900">{product.name}</span>
+                    <button
+                      type="button"
+                      title={product.isActive ? t('products.deactivate') : t('products.activate')}
+                      disabled={toggleActiveMutation.isPending && toggleActiveMutation.variables?.id === product.id}
+                      onClick={() => toggleActiveMutation.mutate({ id: product.id, isActive: !product.isActive })}
+                      className={`shrink-0 rounded-full px-2 py-0.5 text-xs transition-opacity hover:opacity-75 disabled:opacity-50 ${
+                        product.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                      }`}
+                    >
+                      {product.isActive ? t('products.active') : t('products.inactive')}
+                    </button>
+                  </div>
+                  <p className="text-lg font-semibold text-gray-900">{formatMoney(product.price, symbol, position)}</p>
+                  <p className="text-sm text-gray-500">
+                    {t('products.stock')}: {product.quantity}
+                  </p>
+                </div>
               </div>
-              <p className="text-lg font-semibold text-gray-900">{formatMoney(product.price, symbol, position)}</p>
-              <p className="text-sm text-gray-500">
-                {t('products.stock')}: {product.quantity}
-              </p>
-              <div className="mt-2 flex gap-2">
+              <div className="flex gap-2">
                 <Link to={`/admin/products/${product.id}`} className="flex-1">
                   <Button variant="secondary" className="w-full">
                     {t('common.edit')}
@@ -158,6 +165,23 @@ export function ProductsListPage() {
             →
           </Button>
         </div>
+      )}
+    </div>
+  )
+}
+
+/** Small cover photo so products are recognisable at a glance; a neutral placeholder when there is none. */
+function ProductThumb({ product }: { product: Product }) {
+  const cover = product.images.find((i) => i.isCover) ?? product.images[0]
+  return (
+    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+      {cover ? (
+        // The name sits right beside it, so the image itself is decorative.
+        <img src={resolveMediaUrl(cover.url)} alt="" loading="lazy" className="h-full w-full object-cover" />
+      ) : (
+        <span className="flex h-full w-full items-center justify-center text-gray-300">
+          <CartIcon className="h-7 w-7" />
+        </span>
       )}
     </div>
   )
