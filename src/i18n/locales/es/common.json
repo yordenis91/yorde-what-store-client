@@ -196,7 +196,25 @@
     "zelleConfirmPayment": "Confirmar pago",
     "zelleRejectProof": "Rechazar",
     "zellePaymentConfirmed": "Pago confirmado",
-    "zelleProofRejected": "Comprobante rechazado — el cliente puede volver a enviarlo"
+    "zelleProofRejected": "Comprobante rechazado — el cliente puede volver a enviarlo",
+    "sortBy": "Ordenar por {{column}}",
+    "actions": "Acciones",
+    "view": "Ver detalles",
+    "editOrder": "Editar orden",
+    "editOrderHint": "Corrige los datos del cliente y de entrega. Los artículos y totales no se pueden cambiar: cancela la orden y crea una nueva.",
+    "editLocked": "Una orden {{status}} no se puede editar",
+    "deleteOrder": "Eliminar orden",
+    "deleteTitle": "¿Eliminar esta orden?",
+    "deleteConfirm": "La orden {{number}} dejará de aparecer en esta lista. No se borra: los reportes de ventas y el historial del cliente la siguen contando.",
+    "deleteLocked": "Solo se pueden eliminar órdenes completadas, canceladas o reembolsadas",
+    "deleted": "Orden eliminada de la lista",
+    "updated": "Orden actualizada",
+    "changeStatusTitle": "¿Cambiar el estado a {{status}}?",
+    "cancelConfirm": "La orden se cancelará y se liberará su stock. No se puede deshacer.",
+    "refundConfirm": "La orden se marcará como reembolsada. Si se pagó con tarjeta, el pago se reembolsa a través de la pasarela. No se puede deshacer.",
+    "statusFor": "Estado de la orden {{number}}",
+    "confirm": "Confirmar",
+    "statusChanged": "Estado actualizado"
   },
   "customers": {
     "title": "Clientes",
@@ -233,7 +251,12 @@
     "expires": "Vence",
     "expiresAtPlaceholder": "Fecha de vencimiento (opcional)",
     "status": "Estado",
-    "empty": "Todavía no hay cupones. Creá uno para ofrecer un descuento."
+    "empty": "Todavía no hay cupones. Creá uno para ofrecer un descuento.",
+    "edit": "Editar cupón",
+    "type": "Tipo",
+    "active": "Activo",
+    "codeLocked": "El código no se puede cambiar después de crear el cupón.",
+    "updated": "Cupón actualizado"
   },
   "shipping": {
     "title": "Envíos",

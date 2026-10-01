@@ -196,7 +196,25 @@
     "zelleConfirmPayment": "Confirm payment",
     "zelleRejectProof": "Reject",
     "zellePaymentConfirmed": "Payment confirmed",
-    "zelleProofRejected": "Proof rejected — the customer can resubmit"
+    "zelleProofRejected": "Proof rejected — the customer can resubmit",
+    "sortBy": "Sort by {{column}}",
+    "actions": "Actions",
+    "view": "View details",
+    "editOrder": "Edit order",
+    "editOrderHint": "Correct the customer and delivery details. Items and totals can't be changed: cancel the order and create a new one instead.",
+    "editLocked": "A {{status}} order can't be edited",
+    "deleteOrder": "Delete order",
+    "deleteTitle": "Delete this order?",
+    "deleteConfirm": "Order {{number}} will disappear from this list. It is not erased: sales reports and customer history still count it.",
+    "deleteLocked": "Only completed, cancelled or refunded orders can be deleted",
+    "deleted": "Order deleted from the list",
+    "updated": "Order updated",
+    "changeStatusTitle": "Change status to {{status}}?",
+    "cancelConfirm": "The order will be cancelled and its stock released. This can't be undone.",
+    "refundConfirm": "The order will be marked refunded. If it was paid by card, the payment is refunded through the gateway. This can't be undone.",
+    "statusFor": "Status of order {{number}}",
+    "confirm": "Confirm",
+    "statusChanged": "Status updated"
   },
   "customers": {
     "title": "Customers",
@@ -233,7 +251,12 @@
     "expires": "Expires",
     "expiresAtPlaceholder": "Expires at (optional)",
     "status": "Status",
-    "empty": "No coupons yet. Create one to offer a discount."
+    "empty": "No coupons yet. Create one to offer a discount.",
+    "edit": "Edit coupon",
+    "type": "Type",
+    "active": "Active",
+    "codeLocked": "The code can't be changed after creating the coupon.",
+    "updated": "Coupon updated"
   },
   "shipping": {
     "title": "Shipping",

@@ -21,8 +21,9 @@ export interface CouponInput {
   name: string
   discountType: DiscountType
   discountValue: number
-  usageLimit?: number
-  expiresAt?: string
+  /** null removes it (update only). */
+  usageLimit?: number | null
+  expiresAt?: string | null
   isActive?: boolean
 }
 

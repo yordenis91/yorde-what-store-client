@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { EditOrderModal } from '@/components/admin/EditOrderModal'
 import { confirmZellePayment, downloadInvoice, getOrder, rejectZellePayment, updateOrderStatus } from '@/services/orders.service'
 import { useAuthStore } from '@/store/auth.store'
 import { formatDate, formatMoney } from '@/utils/format'
@@ -20,6 +22,7 @@ export function OrderDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const [editing, setEditing] = useState(false)
   const activeTenant = useAuthStore((s) => s.activeTenant)
   const symbol = activeTenant?.currencySymbol ?? '$'
   const position = (activeTenant?.currencySymbolPosition as 'pre' | 'post') ?? 'pre'
@@ -72,6 +75,14 @@ export function OrderDetailPage() {
               {t('orders.downloadInvoice')}
             </Button>
           )}
+          <Button
+            variant="secondary"
+            onClick={() => setEditing(true)}
+            disabled={TERMINAL_STATUSES.includes(order.status)}
+            title={TERMINAL_STATUSES.includes(order.status) ? t('orders.editLocked', { status: order.status }) : undefined}
+          >
+            {t('common.edit')}
+          </Button>
           <Button variant="secondary" onClick={() => window.print()}>
             Print receipt
           </Button>
@@ -241,6 +252,7 @@ export function OrderDetailPage() {
           })}
         </div>
       </Card>
+      {editing && <EditOrderModal order={order} onClose={() => setEditing(false)} />}
     </div>
   )
 }
