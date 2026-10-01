@@ -169,9 +169,14 @@ export interface OrderDetailsInput {
   customerEmail?: string | null
   customerPhone?: string | null
   shippingAddress?: { line1?: string; line2?: string; city?: string; state?: string; postalCode?: string; notes?: string }
+  /** The full desired list of lines; prices are never sent, the server decides them. */
+  items?: { productId: string; variantId?: string; quantity: number }[]
+  /** A shipping option, or null for pick-up. */
+  shippingId?: string | null
+  paymentStatus?: 'PENDING' | 'PAID'
 }
 
-/** Contact and delivery corrections only — items and totals are not editable. */
+/** Corrects an open order: customer, items, shipping and (for manual methods) payment status. Totals are recomputed by the server. */
 export async function updateOrderDetails(id: string, payload: OrderDetailsInput) {
   const { data } = await apiClient.patch<ApiEnvelope<Order>>(`/orders/${id}`, payload)
   return data.data
