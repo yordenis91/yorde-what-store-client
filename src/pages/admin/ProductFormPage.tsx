@@ -47,6 +47,11 @@ const schema = z.object({
   sku: z.string().optional(),
   description: z.string().optional(),
   price: z.coerce.number().min(0),
+  // Empty input means "no discount" — coerce.number would turn '' into 0.
+  compareAtPrice: z.preprocess(
+    (v) => (v === '' || v == null || Number.isNaN(Number(v)) ? null : Number(v)),
+    z.number().min(0).nullable(),
+  ),
   quantity: z.coerce.number().min(0).optional(),
   isActive: z.boolean().optional(),
   categoryIds: z.array(z.string()).optional(),
@@ -225,6 +230,7 @@ export function ProductFormPage() {
         sku: existing.sku ?? '',
         description: existing.description ?? '',
         price: Number(existing.price),
+        compareAtPrice: existing.compareAtPrice ? Number(existing.compareAtPrice) : null,
         quantity: existing.quantity,
         isActive: existing.isActive,
         categoryIds: existing.categories.map((c) => c.category.id),
@@ -425,6 +431,16 @@ export function ProductFormPage() {
         <Textarea label={t('products.description')} rows={3} {...register('description')} />
         <div className="grid grid-cols-2 gap-4">
           <Input label={t('products.price')} type="number" step="0.01" {...register('price')} error={errors.price?.message} />
+          <div>
+            <Input
+              label={t('products.compareAtPrice')}
+              type="number"
+              step="0.01"
+              {...register('compareAtPrice')}
+              error={errors.compareAtPrice?.message}
+            />
+            <p className="mt-1 text-xs text-gray-500">{t('products.compareAtPriceHint')}</p>
+          </div>
           <Input label={t('products.stock')} type="number" {...register('quantity')} />
         </div>
 

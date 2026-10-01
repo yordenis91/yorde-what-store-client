@@ -210,6 +210,8 @@ export interface Product {
   sku: string | null
   description: string | null
   price: string
+  /** "Before" price; a discount exists only when it is higher than `price`. */
+  compareAtPrice: string | null
   cost: string | null
   quantity: number
   hasVariants: boolean

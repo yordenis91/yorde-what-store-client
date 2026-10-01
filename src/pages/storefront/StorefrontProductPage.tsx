@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import { getPublishedProduct } from '@/services/products.service'
 import { useStorefront } from '@/hooks/useStorefront'
 import { useCartStore } from '@/store/cart.store'
-import { formatMoney } from '@/utils/format'
+import { discountPercent, formatMoney } from '@/utils/format'
 import { resolveMediaUrl } from '@/services/api-client'
 import { BackLink } from '@/components/storefront/BackLink'
 import { QuantityStepper } from '@/components/storefront/QuantityStepper'
@@ -49,6 +49,7 @@ export function StorefrontProductPage() {
   const position = tenant.currencySymbolPosition as 'pre' | 'post'
 
   const needsVariant = hasVariants && !variantId
+  const percent = hasVariants ? null : discountPercent(product.price, product.compareAtPrice)
   // Quantities are only stock when the store tracks inventory; otherwise they
   // sit at their default of 0 and would read as sold out everywhere.
   const tracksInventory = tenant.tracksInventory
@@ -134,7 +135,18 @@ export function StorefrontProductPage() {
 
         <div className="flex flex-col">
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{product.name}</h1>
-          <p className="mt-2 text-2xl font-bold text-brand-700">{formatMoney(price, symbol, position)}</p>
+          <p className="mt-2 flex flex-wrap items-baseline gap-x-3 text-2xl font-bold text-brand-700">
+            {formatMoney(price, symbol, position)}
+            {percent !== null && (
+              <>
+                <span className="text-base font-normal text-gray-500 line-through">
+                  <span className="sr-only">{t('storefront.previousPrice')}: </span>
+                  {formatMoney(product.compareAtPrice!, symbol, position)}
+                </span>
+                <span className="rounded-full bg-red-600 px-2.5 py-1 text-xs font-semibold text-white">−{percent}%</span>
+              </>
+            )}
+          </p>
 
           {tracksInventory && !needsVariant && (
             <p className="mt-2 text-sm">

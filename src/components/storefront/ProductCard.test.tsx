@@ -150,3 +150,33 @@ describe('products with variants', () => {
     expect(screen.queryByText('Sold out')).not.toBeInTheDocument()
   })
 })
+
+describe('discount and variant badges', () => {
+  it('shows the percent off and the struck-through previous price', () => {
+    renderCard(buildProduct({ price: '49.99', compareAtPrice: '59.99' }), false)
+
+    expect(screen.getByText('−17%')).toBeInTheDocument()
+    expect(screen.getByText('$59.99')).toHaveClass('line-through')
+  })
+
+  it.each([null, '25.00', '10.00'])('shows no discount when the previous price is %s', (compareAtPrice) => {
+    renderCard(buildProduct({ price: '25.00', compareAtPrice }), false)
+
+    expect(screen.queryByText(/−\d+%/)).not.toBeInTheDocument()
+  })
+
+  it('marks a product with variants, and does not advertise a discount it cannot honour', () => {
+    renderCard(
+      buildProduct({
+        hasVariants: true,
+        price: '79.99',
+        compareAtPrice: '89.99',
+        variants: [{ id: 'v1', name: 'Black', sku: null, price: '79.99', cost: null, quantity: 0, locationId: null }],
+      }),
+      false,
+    )
+
+    expect(screen.getByText('In Variants')).toBeInTheDocument()
+    expect(screen.queryByText(/−\d+%/)).not.toBeInTheDocument()
+  })
+})

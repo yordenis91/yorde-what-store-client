@@ -39,6 +39,7 @@ export function buildProduct(overrides: Partial<Product> = {}): Product {
     sku: 'SOAP-1',
     description: 'Cold pressed.',
     price: '25.00',
+    compareAtPrice: null,
     cost: null,
     quantity: 0,
     hasVariants: false,

@@ -29,3 +29,11 @@ export function slugify(value: string): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '')
 }
+
+/** Whole-number percent off, or null when there is no real discount (missing, equal or lower "before" price). */
+export function discountPercent(price: string | number, compareAt: string | number | null | undefined): number | null {
+  const now = Number(price)
+  const before = Number(compareAt)
+  if (!compareAt || !(before > now) || !(before > 0)) return null
+  return Math.round(((before - now) / before) * 100)
+}
