@@ -5,9 +5,11 @@ interface CheckoutStepsProps {
   current: number
   /** Lets the customer jump back to a step they already completed. */
   onGoTo: (index: number) => void
+  /** For wizards where nothing is gated (editing an existing record): every step is reachable. */
+  freeNavigation?: boolean
 }
 
-export function CheckoutSteps({ steps, current, onGoTo }: CheckoutStepsProps) {
+export function CheckoutSteps({ steps, current, onGoTo, freeNavigation }: CheckoutStepsProps) {
   return (
     <ol className="flex items-center gap-2">
       {steps.map((label, index) => {
@@ -18,10 +20,10 @@ export function CheckoutSteps({ steps, current, onGoTo }: CheckoutStepsProps) {
           <li key={label} className="flex flex-1 items-center gap-2">
             <button
               type="button"
-              onClick={() => done && onGoTo(index)}
-              disabled={!done}
+              onClick={() => (freeNavigation || done) && onGoTo(index)}
+              disabled={!freeNavigation && !done}
               aria-current={active ? 'step' : undefined}
-              className={`flex items-center gap-2 ${done ? 'cursor-pointer' : 'cursor-default'}`}
+              className={`flex items-center gap-2 ${freeNavigation || done ? 'cursor-pointer' : 'cursor-default'}`}
             >
               <span
                 className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-colors ${

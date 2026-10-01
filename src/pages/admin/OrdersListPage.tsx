@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
@@ -9,7 +9,6 @@ import { Card } from '@/components/ui/Card'
 import { Modal } from '@/components/ui/Modal'
 import { QueryErrorState } from '@/components/ui/QueryErrorState'
 import { EyeIcon, PencilIcon, TrashIcon } from '@/components/ui/icons'
-import { EditOrderModal } from '@/components/admin/EditOrderModal'
 import {
   exportOrdersCsv,
   hideOrder,
@@ -50,7 +49,7 @@ export function OrdersListPage() {
   const [exporting, setExporting] = useState(false)
   const [sortBy, setSortBy] = useState<OrderSortField>('createdAt')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
-  const [editing, setEditing] = useState<Order | null>(null)
+  const navigate = useNavigate()
   const [deleting, setDeleting] = useState<Order | null>(null)
   const [pendingStatus, setPendingStatus] = useState<{ order: Order; status: OrderStatus } | null>(null)
   const queryClient = useQueryClient()
@@ -282,7 +281,7 @@ export function OrdersListPage() {
                           aria-label={`${t('orders.editOrder')} ${order.orderNumber}`}
                           title={locked ? t('orders.editLocked', { status: order.status }) : t('orders.editOrder')}
                           disabled={locked}
-                          onClick={() => setEditing(order)}
+                          onClick={() => navigate(`/admin/orders/${order.id}/edit`)}
                           className={iconButton}
                         >
                           <PencilIcon className="h-5 w-5" />
@@ -306,8 +305,6 @@ export function OrdersListPage() {
           </table>
         </div>
       )}
-
-      {editing && <EditOrderModal order={editing} onClose={() => setEditing(null)} />}
 
       {deleting && (
         <Modal title={t('orders.deleteTitle')} onClose={() => setDeleting(null)}>
