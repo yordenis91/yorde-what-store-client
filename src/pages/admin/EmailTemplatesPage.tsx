@@ -99,13 +99,17 @@ function TemplateCard({ template }: { template: ResolvedEmailTemplate }) {
 
       <form onSubmit={(e) => void handleSubmit((values) => saveMutation.mutate(values))(e)} className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">{t('emailTemplates.subject')}</label>
+          <label htmlFor={`${template.key}-subject`} className="text-sm font-medium text-gray-700">
+            {t('emailTemplates.subject')}
+          </label>
           <input
+            id={`${template.key}-subject`}
             className="rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
             {...register('subject', { required: true })}
           />
         </div>
         <Textarea
+          id={`${template.key}-body`}
           label={t('emailTemplates.body')}
           className="font-mono text-xs"
           rows={6}

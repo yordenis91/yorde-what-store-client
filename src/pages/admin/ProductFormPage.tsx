@@ -458,6 +458,7 @@ export function ProductFormPage() {
             <div className="flex max-w-full flex-wrap items-center gap-2">
               {availableTemplates.length > 0 && (
                 <select
+                  aria-label={t('products.fromCatalog')}
                   className="max-w-full min-w-0 rounded-lg border border-gray-300 px-2 py-1 text-xs text-gray-700"
                   value=""
                   disabled={createCategoryFromTemplateMutation.isPending}

@@ -1,4 +1,4 @@
-import { type InputHTMLAttributes, forwardRef } from 'react'
+import { type InputHTMLAttributes, forwardRef, useId } from 'react'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
@@ -7,7 +7,12 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, className = '', id, ...props }, ref) => {
-    const inputId = id ?? props.name
+    // Without an id the <label htmlFor> pointed at nothing, so the field announced no name.
+    const generatedId = useId()
+    const inputId = id ?? props.name ?? generatedId
+    // A field with no visible label still needs a name: fall back to its placeholder
+    // rather than leave it anonymous (an explicit aria-label always wins).
+    const fallbackName = !label && !props['aria-label'] && !props['aria-labelledby'] ? props.placeholder : undefined
     return (
       // `className` belongs here, not on the <input>: this div is the element
       // callers actually lay out (as a flex/grid item — `flex-1`, `col-span-2`,
@@ -22,6 +27,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         <input
           ref={ref}
           id={inputId}
+          aria-label={fallbackName}
           className={`w-full rounded-lg border px-3 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 sm:py-2 ${
             error ? 'border-red-400' : 'border-gray-300'
           }`}

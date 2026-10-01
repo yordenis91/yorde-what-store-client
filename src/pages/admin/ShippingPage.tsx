@@ -133,7 +133,11 @@ function ShippingTab() {
             step="0.01"
             {...register('cost', { required: true, valueAsNumber: true })}
           />
-          <select className="rounded-lg border border-gray-300 px-3 py-2 text-sm" {...register('locationId')}>
+          <select
+            aria-label={t('shipping.anyLocation')}
+            className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+            {...register('locationId')}
+          >
             <option value="">{t('shipping.anyLocation')}</option>
             {locations?.map((loc) => (
               <option key={loc.id} value={loc.id}>

@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
+import { Textarea } from '@/components/ui/Textarea'
 import { getCurrentTenant, updateCurrentTenant, listPaymentSettings, upsertPaymentSetting } from '@/services/tenants.service'
 import { useAuthStore } from '@/store/auth.store'
 import { extractErrorMessage, resolveMediaUrl } from '@/services/api-client'
@@ -521,15 +522,12 @@ function PaymentSettingsSection() {
             {...zelleForm.register('recipientEmail')}
           />
           <Input label={t('settings.zelleRecipientPhone')} {...zelleForm.register('recipientPhone')} />
-          <div>
-            <span className="mb-1 block text-sm font-medium text-gray-700">{t('settings.zelleInstructions')}</span>
-            <textarea
-              rows={3}
-              placeholder={t('settings.zelleInstructionsPlaceholder')}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-              {...zelleForm.register('instructions')}
-            />
-          </div>
+          <Textarea
+            label={t('settings.zelleInstructions')}
+            rows={3}
+            placeholder={t('settings.zelleInstructionsPlaceholder')}
+            {...zelleForm.register('instructions')}
+          />
           <Button type="submit" loading={zelleMutation.isPending} className="w-fit">
             {t('settings.save')}
           </Button>

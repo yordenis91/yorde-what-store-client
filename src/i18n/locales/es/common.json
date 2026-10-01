@@ -509,7 +509,8 @@
       "PAID": "Pagado",
       "FAILED": "Fallido",
       "REFUNDED": "Reembolsado"
-    }
+    },
+    "sortBy": "Ordenar por"
   },
   "account": {
     "signIn": "Iniciar sesión",

@@ -509,7 +509,8 @@
       "PAID": "Paid",
       "FAILED": "Failed",
       "REFUNDED": "Refunded"
-    }
+    },
+    "sortBy": "Sort by"
   },
   "account": {
     "signIn": "Sign in",
