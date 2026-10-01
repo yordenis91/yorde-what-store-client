@@ -1,18 +1,27 @@
 import { useEffect, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
+import { Modal } from '@/components/ui/Modal'
 import { QueryErrorState } from '@/components/ui/QueryErrorState'
-import { exportOrdersCsv, listOrders } from '@/services/orders.service'
+import { EyeIcon, PencilIcon, TrashIcon } from '@/components/ui/icons'
+import { EditOrderModal } from '@/components/admin/EditOrderModal'
+import {
+  exportOrdersCsv,
+  hideOrder,
+  listOrders,
+  updateOrderStatus,
+  type OrderSortField,
+} from '@/services/orders.service'
 import { useAuthStore } from '@/store/auth.store'
 import { useOrderNotificationsStore } from '@/store/order-notifications.store'
 import { extractErrorMessage } from '@/services/api-client'
 import { formatDate, formatMoney } from '@/utils/format'
-import type { OrderStatus } from '@/types/api'
+import type { Order, OrderStatus } from '@/types/api'
 
 const statusColors: Record<string, string> = {
   PENDING: 'bg-yellow-100 text-yellow-700',
@@ -25,6 +34,12 @@ const statusColors: Record<string, string> = {
 
 const STATUSES: OrderStatus[] = ['PENDING', 'CONFIRMED', 'PROCESSING', 'COMPLETED', 'CANCELLED', 'REFUNDED']
 
+/** Mirror the API's rules so the UI doesn't offer a change it will reject with a 409. */
+const TERMINAL_STATUSES: OrderStatus[] = ['CANCELLED', 'REFUNDED']
+const HIDEABLE_STATUSES: OrderStatus[] = ['COMPLETED', 'CANCELLED', 'REFUNDED']
+/** These can't be walked back (stock released / money returned), so they ask first. */
+const CONFIRM_STATUSES: OrderStatus[] = ['CANCELLED', 'REFUNDED']
+
 export function OrdersListPage() {
   const { t } = useTranslation()
   const [search, setSearch] = useState('')
@@ -33,6 +48,12 @@ export function OrdersListPage() {
   const [dateTo, setDateTo] = useState('')
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const [sortBy, setSortBy] = useState<OrderSortField>('createdAt')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
+  const [editing, setEditing] = useState<Order | null>(null)
+  const [deleting, setDeleting] = useState<Order | null>(null)
+  const [pendingStatus, setPendingStatus] = useState<{ order: Order; status: OrderStatus } | null>(null)
+  const queryClient = useQueryClient()
   const activeFilterCount = [status, dateFrom, dateTo].filter(Boolean).length
   const activeTenant = useAuthStore((s) => s.activeTenant)
   const symbol = activeTenant?.currencySymbol ?? '$'
@@ -49,7 +70,7 @@ export function OrdersListPage() {
     isError,
     refetch,
   } = useQuery({
-    queryKey: ['orders', search, status, dateFrom, dateTo],
+    queryKey: ['orders', search, status, dateFrom, dateTo, sortBy, sortDir],
     queryFn: () =>
       listOrders({
         page: 1,
@@ -58,8 +79,45 @@ export function OrdersListPage() {
         status: status || undefined,
         dateFrom: dateFrom || undefined,
         dateTo: dateTo || undefined,
+        sortBy,
+        sortDir,
       }),
   })
+
+  function toggleSort(field: OrderSortField) {
+    if (field === sortBy) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
+    else {
+      setSortBy(field)
+      // Dates and totals read best biggest/newest first; names and numbers A→Z.
+      setSortDir(field === 'createdAt' || field === 'grandTotal' ? 'desc' : 'asc')
+    }
+  }
+
+  const statusMutation = useMutation({
+    mutationFn: ({ order, status }: { order: Order; status: OrderStatus }) => updateOrderStatus(order.id, status),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['orders'] })
+      toast.success(t('orders.statusChanged'))
+    },
+    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
+    onSettled: () => setPendingStatus(null),
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (order: Order) => hideOrder(order.id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['orders'] })
+      toast.success(t('orders.deleted'))
+    },
+    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
+    onSettled: () => setDeleting(null),
+  })
+
+  function requestStatus(order: Order, next: OrderStatus) {
+    if (next === order.status) return
+    if (CONFIRM_STATUSES.includes(next)) setPendingStatus({ order, status: next })
+    else statusMutation.mutate({ order, status: next })
+  }
 
   async function handleExport() {
     setExporting(true)
@@ -76,6 +134,8 @@ export function OrdersListPage() {
       setExporting(false)
     }
   }
+
+  const sortProps = { sortBy, sortDir, onSort: toggleSort }
 
   return (
     <div>
@@ -171,37 +231,155 @@ export function OrdersListPage() {
           <table className="w-full text-sm">
             <thead className="border-b border-gray-200 bg-gray-50 text-left text-xs uppercase text-gray-500">
               <tr>
-                <th className="px-4 py-3">{t('orders.orderNumber')}</th>
-                <th className="px-4 py-3">{t('orders.customer')}</th>
+                <SortableTh field="orderNumber" label={t('orders.orderNumber')} {...sortProps} />
+                <SortableTh field="customerName" label={t('orders.customer')} {...sortProps} />
                 <th className="px-4 py-3">{t('orders.fulfillment')}</th>
                 <th className="px-4 py-3">{t('orders.status')}</th>
-                <th className="px-4 py-3">{t('orders.total')}</th>
-                <th className="px-4 py-3">{t('orders.date')}</th>
-                <th className="px-4 py-3" />
+                <SortableTh field="grandTotal" label={t('orders.total')} {...sortProps} />
+                <SortableTh field="createdAt" label={t('orders.date')} {...sortProps} />
+                <th className="px-4 py-3 text-right">{t('orders.actions')}</th>
               </tr>
             </thead>
             <tbody>
-              {data?.items.map((order) => (
-                <tr key={order.id} className="border-b border-gray-100 last:border-0">
-                  <td className="px-4 py-3 font-medium text-gray-900">{order.orderNumber}</td>
-                  <td className="px-4 py-3">{order.customerName}</td>
-                  <td className="px-4 py-3">{order.fulfillmentMethod}</td>
-                  <td className="px-4 py-3">
-                    <span className={`rounded-full px-2 py-0.5 text-xs ${statusColors[order.status]}`}>{order.status}</span>
-                  </td>
-                  <td className="px-4 py-3">{formatMoney(order.grandTotal, symbol, position)}</td>
-                  <td className="px-4 py-3 text-gray-500">{formatDate(order.createdAt)}</td>
-                  <td className="px-4 py-3">
-                    <Link to={`/admin/orders/${order.id}`} className="font-medium text-brand-700">
-                      {t('orders.viewDetail')}
-                    </Link>
-                  </td>
-                </tr>
-              ))}
+              {data?.items.map((order) => {
+                const locked = TERMINAL_STATUSES.includes(order.status)
+                const canDelete = HIDEABLE_STATUSES.includes(order.status)
+                return (
+                  <tr key={order.id} className="border-b border-gray-100 last:border-0">
+                    <td className="px-4 py-3 font-medium text-gray-900">{order.orderNumber}</td>
+                    <td className="px-4 py-3">{order.customerName}</td>
+                    <td className="px-4 py-3">{order.fulfillmentMethod}</td>
+                    <td className="px-4 py-3">
+                      <select
+                        aria-label={t('orders.statusFor', { number: order.orderNumber })}
+                        value={order.status}
+                        disabled={locked || (statusMutation.isPending && statusMutation.variables?.order.id === order.id)}
+                        title={locked ? t('orders.statusLocked', { status: order.status }) : undefined}
+                        onChange={(e) => requestStatus(order, e.target.value as OrderStatus)}
+                        className={`rounded-full border-0 py-1 pl-2.5 pr-7 text-xs font-medium disabled:cursor-not-allowed ${statusColors[order.status]}`}
+                      >
+                        {STATUSES.map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-4 py-3">{formatMoney(order.grandTotal, symbol, position)}</td>
+                    <td className="px-4 py-3 text-gray-500">{formatDate(order.createdAt)}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-1">
+                        <Link
+                          to={`/admin/orders/${order.id}`}
+                          aria-label={`${t('orders.view')} ${order.orderNumber}`}
+                          title={t('orders.view')}
+                          className={iconButton}
+                        >
+                          <EyeIcon className="h-5 w-5" />
+                        </Link>
+                        <button
+                          type="button"
+                          aria-label={`${t('orders.editOrder')} ${order.orderNumber}`}
+                          title={locked ? t('orders.editLocked', { status: order.status }) : t('orders.editOrder')}
+                          disabled={locked}
+                          onClick={() => setEditing(order)}
+                          className={iconButton}
+                        >
+                          <PencilIcon className="h-5 w-5" />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label={`${t('orders.deleteOrder')} ${order.orderNumber}`}
+                          title={canDelete ? t('orders.deleteOrder') : t('orders.deleteLocked')}
+                          disabled={!canDelete}
+                          onClick={() => setDeleting(order)}
+                          className={`${iconButton} hover:text-red-600`}
+                        >
+                          <TrashIcon className="h-5 w-5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
       )}
+
+      {editing && <EditOrderModal order={editing} onClose={() => setEditing(null)} />}
+
+      {deleting && (
+        <Modal title={t('orders.deleteTitle')} onClose={() => setDeleting(null)}>
+          <p className="text-sm text-gray-600">{t('orders.deleteConfirm', { number: deleting.orderNumber })}</p>
+          <div className="mt-5 flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setDeleting(null)}>
+              {t('common.cancel')}
+            </Button>
+            <Button variant="danger" loading={deleteMutation.isPending} onClick={() => deleteMutation.mutate(deleting)}>
+              {t('common.delete')}
+            </Button>
+          </div>
+        </Modal>
+      )}
+
+      {pendingStatus && (
+        <Modal
+          title={t('orders.changeStatusTitle', { status: pendingStatus.status })}
+          onClose={() => setPendingStatus(null)}
+        >
+          <p className="text-sm text-gray-600">
+            {pendingStatus.status === 'REFUNDED' ? t('orders.refundConfirm') : t('orders.cancelConfirm')}
+          </p>
+          <div className="mt-5 flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setPendingStatus(null)}>
+              {t('common.cancel')}
+            </Button>
+            <Button
+              variant="danger"
+              loading={statusMutation.isPending}
+              onClick={() => statusMutation.mutate(pendingStatus)}
+            >
+              {t('orders.confirm')}
+            </Button>
+          </div>
+        </Modal>
+      )}
     </div>
+  )
+}
+
+const iconButton =
+  'flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-gray-500'
+
+function SortableTh({
+  field,
+  label,
+  sortBy,
+  sortDir,
+  onSort,
+}: {
+  field: OrderSortField
+  label: string
+  sortBy: OrderSortField
+  sortDir: 'asc' | 'desc'
+  onSort: (field: OrderSortField) => void
+}) {
+  const { t } = useTranslation()
+  const active = sortBy === field
+  return (
+    <th className="px-4 py-3" aria-sort={active ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
+      <button
+        type="button"
+        onClick={() => onSort(field)}
+        title={t('orders.sortBy', { column: label })}
+        className={`inline-flex items-center gap-1 uppercase ${active ? 'text-gray-900' : 'hover:text-gray-700'}`}
+      >
+        {label}
+        <span aria-hidden className="text-[10px]">
+          {active ? (sortDir === 'asc' ? '▲' : '▼') : '↕'}
+        </span>
+      </button>
+    </th>
   )
 }

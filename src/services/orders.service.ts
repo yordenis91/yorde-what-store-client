@@ -108,7 +108,11 @@ export interface OrderListParams {
   status?: Order['status']
   dateFrom?: string
   dateTo?: string
+  sortBy?: OrderSortField
+  sortDir?: 'asc' | 'desc'
 }
+
+export type OrderSortField = 'createdAt' | 'orderNumber' | 'customerName' | 'grandTotal'
 
 export async function listOrders(params: OrderListParams) {
   const { data } = await apiClient.get<ApiEnvelope<PaginatedResult<Order>>>('/orders', { params })
@@ -158,4 +162,22 @@ export async function getPublicOrder(slug: string, id: string) {
     headers: { 'X-Tenant-ID': slug },
   })
   return data.data
+}
+
+export interface OrderDetailsInput {
+  customerName?: string
+  customerEmail?: string | null
+  customerPhone?: string | null
+  shippingAddress?: { line1?: string; line2?: string; city?: string; state?: string; postalCode?: string; notes?: string }
+}
+
+/** Contact and delivery corrections only — items and totals are not editable. */
+export async function updateOrderDetails(id: string, payload: OrderDetailsInput) {
+  const { data } = await apiClient.patch<ApiEnvelope<Order>>(`/orders/${id}`, payload)
+  return data.data
+}
+
+/** Soft delete: the order disappears from the list but stays in the database. */
+export async function hideOrder(id: string) {
+  await apiClient.delete(`/orders/${id}`)
 }
