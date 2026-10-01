@@ -410,7 +410,41 @@
     "policyNotPublished": "{{store}} hasn't published this policy yet.",
     "inVariants": "In Variants",
     "previousPrice": "Previous price",
-    "quantityInCart": "{{count}} in cart"
+    "quantityInCart": "{{count}} in cart",
+    "otherProducts": "Other products",
+    "orderThanks": "Thank you for your order. It will be processed shortly.",
+    "viewOrderDetails": "View order details",
+    "orderInvoiceLink": "Order invoice link",
+    "orderInvoiceLinkHint": "Save this link to check your order any time.",
+    "copyLink": "Copy",
+    "linkCopied": "Copied",
+    "orderInvoice": "Order Invoice",
+    "orderNumber": "Order",
+    "orderDate": "Date",
+    "payment": "Payment",
+    "customerInformation": "Customer information",
+    "orderItems": "Order items",
+    "item": "Item",
+    "qty": "Qty",
+    "price": "Price",
+    "thankYouBusiness": "Thank you for your business! If you have any questions, please contact the store.",
+    "printInvoice": "Print",
+    "orderNotFound": "Order not found",
+    "orderNotFoundHint": "Check that the link is complete, or contact the store.",
+    "orderStatus": {
+      "PENDING": "Pending",
+      "CONFIRMED": "Confirmed",
+      "PROCESSING": "Processing",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled",
+      "REFUNDED": "Refunded"
+    },
+    "paymentStatus": {
+      "PENDING": "Pending",
+      "PAID": "Paid",
+      "FAILED": "Failed",
+      "REFUNDED": "Refunded"
+    }
   },
   "account": {
     "signIn": "Sign in",

@@ -343,3 +343,33 @@ export interface TenantMember {
   isActive: boolean
   user: { id: string; email: string; name: string; isActive: boolean }
 }
+
+/** What the public, link-only invoice page shows: an order minus everything internal. */
+export interface PublicOrder {
+  id: string
+  orderNumber: string
+  status: OrderStatus
+  paymentStatus: PaymentStatus
+  fulfillmentMethod: FulfillmentMethod
+  currency: string
+  createdAt: string
+  customerName: string
+  customerEmail: string | null
+  customerPhone: string | null
+  shippingAddress: ShippingAddress | null
+  shipping: { name: string; cost: string } | null
+  subtotal: string
+  taxTotal: string
+  discountTotal: string
+  shippingTotal: string
+  grandTotal: string
+  items: {
+    id: string
+    productName: string
+    variantName: string | null
+    quantity: number
+    unitPrice: string
+    taxAmount: string
+    lineTotal: string
+  }[]
+}

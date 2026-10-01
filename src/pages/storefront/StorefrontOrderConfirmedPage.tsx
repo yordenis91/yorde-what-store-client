@@ -30,7 +30,13 @@ export function StorefrontOrderConfirmedPage() {
         </div>
         <h1 className="mb-2 text-2xl font-semibold text-gray-900">{t('storefront.orderConfirmed')}</h1>
         <p className="text-sm text-gray-500">Order ID: {order?.orderNumber ?? id}</p>
+        <p className="mt-3 text-sm text-gray-700">{t('storefront.orderThanks')}</p>
+        <Link to={path(`/order/${id}`)} className="mt-4 inline-block">
+          <Button>{t('storefront.viewOrderDetails')}</Button>
+        </Link>
       </div>
+
+      <InvoiceLink url={`${window.location.origin}${path(`/order/${id}`)}`} />
 
       {order && (
         <Card className="mb-6">
@@ -157,6 +163,46 @@ function ZelleProofUpload({
           {order.paymentProofUrl ? t('storefront.zelleReplaceProof') : t('storefront.zelleUploadButton')}
         </Button>
       </div>
+    </Card>
+  )
+}
+
+/** The link to the customer's invoice page, to keep: the confirmation page itself is not reachable again. */
+function InvoiceLink({ url }: { url: string }) {
+  const { t } = useTranslation()
+  const [copied, setCopied] = useState(false)
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      toast.error(t('errors.generic'))
+    }
+  }
+
+  return (
+    <Card className="mb-6 print:hidden">
+      <label htmlFor="invoice-link" className="text-sm font-medium text-gray-700">
+        {t('storefront.orderInvoiceLink')}
+      </label>
+      <p className="mt-0.5 text-xs text-gray-500">{t('storefront.orderInvoiceLinkHint')}</p>
+      <div className="mt-2 flex gap-2">
+        <input
+          id="invoice-link"
+          readOnly
+          value={url}
+          onFocus={(e) => e.currentTarget.select()}
+          className="min-w-0 flex-1 rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-700"
+        />
+        <Button type="button" variant="secondary" onClick={() => void copy()} className="shrink-0">
+          {copied ? t('storefront.linkCopied') : t('storefront.copyLink')}
+        </Button>
+      </div>
+      <span role="status" className="sr-only">
+        {copied ? t('storefront.linkCopied') : ''}
+      </span>
     </Card>
   )
 }
