@@ -156,7 +156,9 @@
     "imagesAfterSaveHint": "Vas a poder subir fotos apenas guardes el producto por primera vez.",
     "removeImage": "Eliminar foto",
     "removeImageConfirm": "¿Eliminar esta foto?",
-    "dragToReorder": "Arrastrar para reordenar"
+    "dragToReorder": "Arrastrar para reordenar",
+    "compareAtPrice": "Precio anterior (opcional)",
+    "compareAtPriceHint": "Mayor que el precio de arriba para mostrar un descuento: el cliente ve una etiqueta con el % y este precio tachado."
   },
   "notifications": {
     "bell": "Notificaciones",
@@ -405,7 +407,10 @@
     "shippingPolicy": "Política de envío",
     "returnPolicy": "Política de devoluciones / reembolsos",
     "privacyPolicy": "Política de privacidad",
-    "policyNotPublished": "{{store}} todavía no publicó esta política."
+    "policyNotPublished": "{{store}} todavía no publicó esta política.",
+    "inVariants": "En variantes",
+    "previousPrice": "Precio anterior",
+    "quantityInCart": "{{count}} en el carrito"
   },
   "account": {
     "signIn": "Iniciar sesión",

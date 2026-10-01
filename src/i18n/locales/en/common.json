@@ -156,7 +156,9 @@
     "imagesAfterSaveHint": "You'll be able to upload photos as soon as you save the product for the first time.",
     "removeImage": "Remove photo",
     "removeImageConfirm": "Remove this photo?",
-    "dragToReorder": "Drag to reorder"
+    "dragToReorder": "Drag to reorder",
+    "compareAtPrice": "Previous price (optional)",
+    "compareAtPriceHint": "Higher than the price above to show a discount: the customer sees a % badge and this price struck through."
   },
   "notifications": {
     "bell": "Notifications",
@@ -405,7 +407,10 @@
     "shippingPolicy": "Shipping policy",
     "returnPolicy": "Return / refund policy",
     "privacyPolicy": "Privacy policy",
-    "policyNotPublished": "{{store}} hasn't published this policy yet."
+    "policyNotPublished": "{{store}} hasn't published this policy yet.",
+    "inVariants": "In Variants",
+    "previousPrice": "Previous price",
+    "quantityInCart": "{{count}} in cart"
   },
   "account": {
     "signIn": "Sign in",

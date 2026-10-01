@@ -57,10 +57,16 @@ export function StorefrontCartPage() {
               <div key={`${item.productId}-${item.variantId ?? ''}`} className="flex gap-4 p-4">
                 <Link
                   to={productPath}
-                  className="h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-gray-50"
+                  className="relative h-20 w-20 shrink-0 rounded-lg border border-gray-200 bg-gray-50"
                 >
+                  <span
+                    className="absolute -left-2 -top-2 z-10 flex h-6 min-w-6 items-center justify-center rounded-full bg-brand-600 px-1.5 text-xs font-semibold text-white shadow ring-2 ring-white"
+                    aria-label={t('storefront.quantityInCart', { count: item.quantity })}
+                  >
+                    {item.quantity}
+                  </span>
                   {item.imageUrl ? (
-                    <img src={item.imageUrl} alt={item.name} className="h-full w-full object-cover" />
+                    <img src={item.imageUrl} alt={item.name} className="h-full w-full rounded-lg object-cover" />
                   ) : (
                     <span className="flex h-full w-full items-center justify-center text-gray-300">
                       <CartIcon className="h-6 w-6" />

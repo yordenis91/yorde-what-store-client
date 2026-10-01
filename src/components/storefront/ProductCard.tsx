@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { resolveMediaUrl } from '@/services/api-client'
 import { useCartStore } from '@/store/cart.store'
-import { formatMoney } from '@/utils/format'
+import { discountPercent, formatMoney } from '@/utils/format'
 import { CartIcon, CheckIcon } from '@/components/ui/icons'
 import { QuantityStepper } from '@/components/storefront/QuantityStepper'
 import type { Product } from '@/types/api'
@@ -32,6 +32,9 @@ export function ProductCard({ product, to, symbol, position, tracksInventory }: 
   // reading it unconditionally marks every product in a store that doesn't
   // track inventory as sold out.
   const soldOut = tracksInventory && !needsVariantChoice && product.quantity <= 0
+  // A variant product's real price depends on the option picked, so a product-level
+  // "before" price would mislead there; the discount badge is for simple products.
+  const percent = needsVariantChoice ? null : discountPercent(product.price, product.compareAtPrice)
   const max = tracksInventory && !needsVariantChoice ? Math.max(1, product.quantity) : undefined
 
   function handleAdd() {
@@ -48,7 +51,21 @@ export function ProductCard({ product, to, symbol, position, tracksInventory }: 
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:border-brand-500/40 hover:shadow-lg hover:shadow-brand-600/5">
-      <Link to={to} className="block aspect-square overflow-hidden bg-gray-100">
+      <Link to={to} className="relative block aspect-square overflow-hidden bg-gray-100">
+        {(needsVariantChoice || percent !== null) && (
+          <span className="absolute left-2 top-2 z-10 flex flex-col items-start gap-1">
+            {needsVariantChoice && (
+              <span className="rounded-full bg-brand-600 px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
+                {t('storefront.inVariants')}
+              </span>
+            )}
+            {percent !== null && (
+              <span className="rounded-full bg-red-600 px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
+                −{percent}%
+              </span>
+            )}
+          </span>
+        )}
         {cover ? (
           <img
             src={resolveMediaUrl(cover.url)}
@@ -67,8 +84,14 @@ export function ProductCard({ product, to, symbol, position, tracksInventory }: 
           <Link to={to} className="line-clamp-2 text-sm font-medium text-gray-900 transition-colors hover:text-brand-700">
             {product.name}
           </Link>
-          <p className="mt-1 text-base font-semibold text-brand-700">
+          <p className="mt-1 flex flex-wrap items-baseline gap-x-2 text-base font-semibold text-brand-700">
             {formatMoney(product.price, symbol, position)}
+            {percent !== null && (
+              <span className="text-sm font-normal text-gray-500 line-through">
+                <span className="sr-only">{t('storefront.previousPrice')}: </span>
+                {formatMoney(product.compareAtPrice!, symbol, position)}
+              </span>
+            )}
           </p>
         </div>
 
