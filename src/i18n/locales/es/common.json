@@ -158,7 +158,9 @@
     "removeImageConfirm": "¿Eliminar esta foto?",
     "dragToReorder": "Arrastrar para reordenar",
     "compareAtPrice": "Precio anterior (opcional)",
-    "compareAtPriceHint": "Mayor que el precio de arriba para mostrar un descuento: el cliente ve una etiqueta con el % y este precio tachado."
+    "compareAtPriceHint": "Mayor que el precio de arriba para mostrar un descuento: el cliente ve una etiqueta con el % y este precio tachado.",
+    "allCategories": "Todas las categorías",
+    "allStatus": "Todos los estados"
   },
   "notifications": {
     "bell": "Notificaciones",
