@@ -56,8 +56,11 @@ export function StorefrontHeader({
   const banner = tenant.bannerUrl ? resolveMediaUrl(tenant.bannerUrl) : null
 
   return (
-    <header>
-      <div className="sticky top-0 z-40 border-b border-gray-200/80 bg-white/85 backdrop-blur-md">
+    // The bar is its own <header>, a sibling of the hero: `sticky` only holds while its
+    // parent is on screen, and wrapped together with the hero its parent was only as
+    // tall as the bar itself, so it scrolled away with the page.
+    <>
+      <header className="sticky top-0 z-40 border-b border-gray-200/80 bg-white/85 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
           <Link to={homePath} className="flex min-w-0 items-center gap-2.5">
             {logo ? (
@@ -97,7 +100,7 @@ export function StorefrontHeader({
             </Link>
           </div>
         </div>
-      </div>
+      </header>
 
       {showHero && (
         <div className="relative isolate overflow-hidden bg-brand-700">
@@ -136,6 +139,6 @@ export function StorefrontHeader({
           </div>
         </div>
       )}
-    </header>
+    </>
   )
 }
