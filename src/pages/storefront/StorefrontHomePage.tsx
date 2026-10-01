@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { listPublishedProducts, listPublicCategories } from '@/services/products.service'
 import { useStorefront } from '@/hooks/useStorefront'
 import { resolveMediaUrl } from '@/services/api-client'
+import type { Product } from '@/types/api'
 import { ProductCard } from '@/components/storefront/ProductCard'
 import { Seo } from '@/components/storefront/Seo'
 import { metaDescription } from '@/utils/seo'
@@ -27,17 +28,43 @@ export function StorefrontHomePage() {
     enabled: !!slug,
   })
 
+  // The unfiltered front page lists every product under its category title. The API
+  // paginates (100 max per request), so grouping needs the whole catalogue in one
+  // response; any filter, or a catalogue too big for one response, falls back to the
+  // paginated flat grid.
+  const wantsGroups = !categoryId && !search
+  const limit = wantsGroups ? 100 : 12
+
   const { data, isLoading } = useQuery({
-    queryKey: ['storefront-products', slug, search, categoryId, sort, page],
+    queryKey: ['storefront-products', slug, search, categoryId, sort, page, limit],
     queryFn: () =>
       listPublishedProducts(slug, {
         page,
-        limit: 12,
+        limit,
         search: search || undefined,
         categoryId: categoryId || undefined,
         sort,
       }),
   })
+
+  const sections = useMemo(() => {
+    if (!wantsGroups || !data || data.meta.totalPages > 1) return null
+    const groups = (categories ?? [])
+      .map((c) => ({
+        id: c.id,
+        name: c.name,
+        products: data.items.filter((p) => p.categories.some((pc) => pc.category.id === c.id)),
+      }))
+      .filter((g) => g.products.length > 0)
+    const uncategorized = data.items.filter((p) => p.categories.length === 0)
+    // Only worth a heading when it sits next to real categories.
+    if (uncategorized.length > 0) {
+      groups.push({ id: 'uncategorized', name: groups.length > 0 ? t('storefront.otherProducts') : '', products: uncategorized })
+    }
+    return groups
+  }, [wantsGroups, data, categories, t])
+
+  const selectedCategory = categories?.find((c) => c.id === categoryId)
 
   const symbol = tenant.currencySymbol
   const position = tenant.currencySymbolPosition as 'pre' | 'post'
@@ -45,6 +72,23 @@ export function StorefrontHomePage() {
   function selectCategory(id: string) {
     setCategoryId(id)
     setPage(1)
+  }
+
+  function renderGrid(products: Product[]) {
+    return (
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+        {products.map((product) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            to={path(`/product/${product.id}`)}
+            symbol={symbol}
+            position={position}
+            tracksInventory={tenant.tracksInventory}
+          />
+        ))}
+      </div>
+    )
   }
 
   const social = tenant.bannerUrl ?? tenant.logoUrl
@@ -110,19 +154,31 @@ export function StorefrontHomePage() {
 
         {isLoading ? (
           <p className="text-sm text-gray-500">{t('common.loading')}</p>
-        ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
-            {data?.items.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                to={path(`/product/${product.id}`)}
-                symbol={symbol}
-                position={position}
-                tracksInventory={tenant.tracksInventory}
-              />
+        ) : sections ? (
+          <div className="flex flex-col gap-10">
+            {sections.map((g) => (
+              <section key={g.id} aria-labelledby={g.name ? `cat-${g.id}` : undefined}>
+                {g.name && (
+                  <h2
+                    id={`cat-${g.id}`}
+                    className="mb-4 border-b border-gray-200 pb-2 text-xl font-bold tracking-tight text-gray-900"
+                  >
+                    {g.name}
+                  </h2>
+                )}
+                {renderGrid(g.products)}
+              </section>
             ))}
           </div>
+        ) : (
+          <>
+            {selectedCategory && (
+              <h2 className="mb-4 border-b border-gray-200 pb-2 text-xl font-bold tracking-tight text-gray-900">
+                {selectedCategory.name}
+              </h2>
+            )}
+            {renderGrid(data?.items ?? [])}
+          </>
         )}
 
         {data?.items.length === 0 && (
