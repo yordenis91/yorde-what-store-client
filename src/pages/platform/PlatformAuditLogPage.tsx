@@ -68,8 +68,11 @@ export function PlatformAuditLogPage() {
           className="max-w-xs"
         />
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">{t('auditLog.actionLabel')}</label>
+          <label htmlFor="audit-action-filter" className="text-sm font-medium text-gray-700">
+            {t('auditLog.actionLabel')}
+          </label>
           <select
+            id="audit-action-filter"
             value={action}
             onChange={(e) => updateFilter(setAction)(e.target.value)}
             className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700"

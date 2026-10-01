@@ -506,6 +506,7 @@ export function StorefrontCheckoutPage() {
                   value={couponInput}
                   onChange={(e) => setCouponInput(e.target.value)}
                   placeholder="CODE"
+                  aria-label={t('storefront.coupon')}
                   className="min-w-0 flex-1"
                 />
                 <Button

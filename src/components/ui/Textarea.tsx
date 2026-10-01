@@ -1,4 +1,4 @@
-import { type TextareaHTMLAttributes, forwardRef } from 'react'
+import { type TextareaHTMLAttributes, forwardRef, useId } from 'react'
 
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string
@@ -9,7 +9,8 @@ interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 /** Same label/id wiring as Input — a visible <label> with no htmlFor announces nothing to a screen reader. */
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ label, error, className = '', containerClassName = '', id, ...props }, ref) => {
-    const textareaId = id ?? props.name
+    const generatedId = useId()
+    const textareaId = id ?? props.name ?? generatedId
     return (
       <div className={`flex min-w-0 flex-col gap-1 ${containerClassName}`}>
         {label && (

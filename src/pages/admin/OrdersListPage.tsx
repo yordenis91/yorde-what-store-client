@@ -188,8 +188,11 @@ export function OrdersListPage() {
 
         <div className={`${filtersOpen ? 'flex' : 'hidden'} flex-col gap-3 sm:flex sm:flex-row sm:flex-wrap`}>
           <div className="flex min-w-0 flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">{t('orders.status')}</label>
+            <label htmlFor="orders-status-filter" className="text-sm font-medium text-gray-700">
+              {t('orders.status')}
+            </label>
             <select
+              id="orders-status-filter"
               className="w-full rounded-lg border border-gray-300 px-3 py-3 text-sm sm:w-auto sm:py-2"
               value={status}
               onChange={(e) => setStatus(e.target.value as OrderStatus | '')}

@@ -54,8 +54,11 @@ export function CustomersListPage() {
           className="max-w-xs flex-1 sm:flex-none"
         />
         <div className="flex min-w-0 flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">{t('customers.segment')}</label>
+          <label htmlFor="customers-segment-filter" className="text-sm font-medium text-gray-700">
+            {t('customers.segment')}
+          </label>
           <select
+            id="customers-segment-filter"
             className="w-full rounded-lg border border-gray-300 px-3 py-3 text-sm sm:w-auto sm:py-2"
             value={segment}
             onChange={(e) => setSegment(e.target.value as CustomerSegment | '')}
