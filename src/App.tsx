@@ -87,6 +87,9 @@ const StorefrontCartPage = lazy(() =>
 const StorefrontCheckoutPage = lazy(() =>
   import('@/pages/storefront/StorefrontCheckoutPage').then((m) => ({ default: m.StorefrontCheckoutPage })),
 )
+const StorefrontOrderPage = lazy(() =>
+  import('@/pages/storefront/StorefrontOrderPage').then((m) => ({ default: m.StorefrontOrderPage })),
+)
 const StorefrontOrderConfirmedPage = lazy(() =>
   import('@/pages/storefront/StorefrontOrderConfirmedPage').then((m) => ({ default: m.StorefrontOrderConfirmedPage })),
 )
@@ -111,6 +114,7 @@ const storefrontRoutes = (
     <Route path="cart" element={<StorefrontCartPage />} />
     <Route path="checkout" element={<StorefrontCheckoutPage />} />
     <Route path="order-confirmed/:id" element={<StorefrontOrderConfirmedPage />} />
+    <Route path="order/:id" element={<StorefrontOrderPage />} />
     <Route path="login" element={<StorefrontLoginPage />} />
     <Route path="account" element={<StorefrontAccountPage />} />
     <Route

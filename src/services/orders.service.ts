@@ -1,5 +1,5 @@
 import { apiClient } from './api-client'
-import type { ApiEnvelope, FulfillmentMethod, Order, PaginatedResult } from '@/types/api'
+import type { ApiEnvelope, FulfillmentMethod, Order, PaginatedResult, PublicOrder } from '@/types/api'
 
 export interface CreateOrderPayload {
   customerName: string
@@ -150,4 +150,12 @@ export async function downloadInvoice(id: string, orderNumber: string) {
   link.download = `invoice-${orderNumber}.pdf`
   link.click()
   URL.revokeObjectURL(url)
+}
+
+/** The customer's own invoice-style order page; the order id in the link is the credential. */
+export async function getPublicOrder(slug: string, id: string) {
+  const { data } = await apiClient.get<ApiEnvelope<PublicOrder>>(`/storefront/orders/${id}/public`, {
+    headers: { 'X-Tenant-ID': slug },
+  })
+  return data.data
 }

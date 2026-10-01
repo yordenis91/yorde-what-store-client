@@ -410,7 +410,41 @@
     "policyNotPublished": "{{store}} todavía no publicó esta política.",
     "inVariants": "En variantes",
     "previousPrice": "Precio anterior",
-    "quantityInCart": "{{count}} en el carrito"
+    "quantityInCart": "{{count}} en el carrito",
+    "otherProducts": "Otros productos",
+    "orderThanks": "Gracias por su pedido. Será procesado en breve.",
+    "viewOrderDetails": "Ver detalles del pedido",
+    "orderInvoiceLink": "Enlace de factura del pedido",
+    "orderInvoiceLinkHint": "Guarda este enlace para consultar tu pedido cuando quieras.",
+    "copyLink": "Copiar",
+    "linkCopied": "Copiado",
+    "orderInvoice": "Factura del pedido",
+    "orderNumber": "Pedido",
+    "orderDate": "Fecha",
+    "payment": "Pago",
+    "customerInformation": "Datos del cliente",
+    "orderItems": "Artículos del pedido",
+    "item": "Artículo",
+    "qty": "Cant.",
+    "price": "Precio",
+    "thankYouBusiness": "¡Gracias por su compra! Si tiene preguntas, contacte a la tienda.",
+    "printInvoice": "Imprimir",
+    "orderNotFound": "Pedido no encontrado",
+    "orderNotFoundHint": "Verifica que el enlace esté completo o contacta a la tienda.",
+    "orderStatus": {
+      "PENDING": "Pendiente",
+      "CONFIRMED": "Confirmado",
+      "PROCESSING": "En proceso",
+      "COMPLETED": "Completado",
+      "CANCELLED": "Cancelado",
+      "REFUNDED": "Reembolsado"
+    },
+    "paymentStatus": {
+      "PENDING": "Pendiente",
+      "PAID": "Pagado",
+      "FAILED": "Fallido",
+      "REFUNDED": "Reembolsado"
+    }
   },
   "account": {
     "signIn": "Iniciar sesión",

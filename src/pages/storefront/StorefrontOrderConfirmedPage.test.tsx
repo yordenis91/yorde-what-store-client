@@ -108,3 +108,26 @@ describe('Zelle proof upload', () => {
     expect(screen.queryByRole('button', { name: /upload screenshot/i })).not.toBeInTheDocument()
   })
 })
+
+describe('order invoice link', () => {
+  it('thanks the customer and links to the order details page', () => {
+    renderPage(buildOrder({ fulfillmentMethod: 'WHATSAPP' }))
+
+    expect(screen.getByText(/thank you for your order/i)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /view order details/i })).toHaveAttribute('href', '/store/vortex/order/order-1')
+  })
+
+  it('shows the full link and copies it', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+    renderPage(buildOrder({ fulfillmentMethod: 'WHATSAPP' }))
+
+    const link = `${window.location.origin}/store/vortex/order/order-1`
+    expect(screen.getByLabelText(/order invoice link/i)).toHaveValue(link)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Copy' }))
+
+    expect(writeText).toHaveBeenCalledWith(link)
+    expect(await screen.findByRole('button', { name: 'Copied' })).toBeInTheDocument()
+  })
+})
