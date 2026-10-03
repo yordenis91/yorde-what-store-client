@@ -144,6 +144,7 @@ NODE_ENV=production
 PORT=3000
 API_PREFIX=api/v1
 CORS_ORIGINS=https://tudominio.com
+PUBLIC_WEB_URL=https://tudominio.com
 
 DATABASE_URL=postgresql://USUARIO:CLAVE@yws_postgres:5432/BASE?schema=public
 
@@ -198,6 +199,9 @@ Dos avisos sobre estas variables:
 - **`CORS_ORIGINS` vacío significa "acepta cualquier origen" con credenciales**
   (`src/main.ts:31`: `origin: corsOrigins.length > 0 ? corsOrigins : true`). Con
   mismo origen no se usa, pero déjala puesta como red de seguridad.
+- **`PUBLIC_WEB_URL` es la base de los enlaces que la API manda por email**
+  (restablecer contraseña, invitaciones). Sin ella se usa la primera entrada de
+  `CORS_ORIGINS`, así que si esa lista empieza por otra dirección, defínela.
 - **`ENCRYPTION_KEY` sin definir cae a `JWT_SECRET` y, si tampoco existe, a la
   cadena literal `'insecure-dev-key'`** (`src/config/index.ts`). Defínela siempre.
 
