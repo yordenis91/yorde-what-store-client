@@ -216,7 +216,7 @@ emite y renueva el certificado Let's Encrypt.
 
 ```env
 VITE_API_URL=/api/v1
-VITE_STOREFRONT_ROOT_DOMAIN=tudominio.com
+VITE_STOREFRONT_ROOT_DOMAIN=
 UPLOADS_UPSTREAM=yws_api:3000
 SITEMAP_UPSTREAM=yws_api:3000
 ```
@@ -225,8 +225,12 @@ SITEMAP_UPSTREAM=yws_api:3000
 el origen actual, así que el mismo contenedor sirve `tudominio.com` y cualquier
 subdominio de tienda, sin reconstruir la imagen.
 
-`VITE_STOREFRONT_ROOT_DOMAIN` activa los subdominios por tienda (sección 7). Si
-la dejas vacía, las tiendas solo son accesibles en `/store/<slug>`.
+`VITE_STOREFRONT_ROOT_DOMAIN` activa los subdominios por tienda (sección 7).
+Déjala **vacía** mientras no hayas completado esa sección (DNS comodín, hosts
+en EasyPanel y certificado comodín). Vacía, las tiendas se sirven en
+`/store/<slug>`. Si la configuras antes, el enlace para compartir y el QR que
+genera el panel apuntan a `<slug>.tudominio.com`, que todavía no resuelve, y
+quien los abra no llega a la tienda.
 
 `UPLOADS_UPSTREAM` es la dirección del servicio `api` en la red interna del
 proyecto (mismo formato que `DATABASE_URL` usa para Postgres, con el puerto de
