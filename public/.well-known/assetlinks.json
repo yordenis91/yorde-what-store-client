@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.yordewhatstore.customer",
+      "sha256_cert_fingerprints": [
+        "E8:61:3D:50:A8:41:24:EA:F5:D1:08:14:7F:38:4B:D0:03:AA:2B:25:38:1F:20:A9:58:4C:C1:82:47:73:82:0E"
+      ]
+    }
+  }
+]
