@@ -256,7 +256,11 @@
     "orderStatus": "Estado de la orden",
     "statusLockedPage": "Esta orden está {{status}} y ya no se puede editar.",
     "saved": "Orden guardada",
-    "saveFailedStatus": "Los datos se guardaron, pero no se pudo cambiar el estado."
+    "saveFailedStatus": "Los datos se guardaron, pero no se pudo cambiar el estado.",
+    "publicLink": "Enlace del pedido para el cliente",
+    "publicLinkHint": "La página del pedido que ve el cliente, con su detalle y factura. Compartila si la perdió o para enviarle el detalle.",
+    "shareLink": "Compartir",
+    "openLink": "Abrir"
   },
   "customers": {
     "title": "Clientes",

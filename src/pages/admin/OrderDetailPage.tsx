@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -8,6 +9,7 @@ import { confirmZellePayment, downloadInvoice, getOrder, rejectZellePayment, upd
 import { useAuthStore } from '@/store/auth.store'
 import { formatDate, formatMoney } from '@/utils/format'
 import { extractErrorMessage, resolveMediaUrl } from '@/services/api-client'
+import { storefrontUrl } from '@/config/storefront'
 import type { OrderStatus } from '@/types/api'
 
 const STATUSES: OrderStatus[] = ['PENDING', 'CONFIRMED', 'PROCESSING', 'COMPLETED', 'CANCELLED', 'REFUNDED']
@@ -87,6 +89,10 @@ export function OrderDetailPage() {
       </div>
       <h1 className="mb-1 text-2xl font-semibold text-gray-900">{order.orderNumber}</h1>
       <p className="mb-6 text-sm text-gray-500">{formatDate(order.createdAt)}</p>
+
+      {activeTenant && (
+        <PublicOrderLink url={`${storefrontUrl(activeTenant.slug)}/order/${order.id}`} orderNumber={order.orderNumber} />
+      )}
 
       <Card className="mb-4">
         <h2 className="mb-2 font-medium text-gray-900">{t('orders.customer')}</h2>
@@ -250,5 +256,71 @@ export function OrderDetailPage() {
         </div>
       </Card>
     </div>
+  )
+}
+
+/**
+ * The order's public page — the same link the customer gets on the
+ * confirmation screen and in the confirmation email — so the store can reopen
+ * it or send it again (WhatsApp, email…) when the customer lost it.
+ */
+function PublicOrderLink({ url, orderNumber }: { url: string; orderNumber: string }) {
+  const { t } = useTranslation()
+  const [copied, setCopied] = useState(false)
+  const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function'
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      toast.error(t('errors.generic'))
+    }
+  }
+
+  async function share() {
+    try {
+      await navigator.share({ title: orderNumber, url })
+    } catch {
+      // Dismissing the share sheet rejects too — nothing to report.
+    }
+  }
+
+  return (
+    <Card className="mb-4 print:hidden">
+      <label htmlFor="public-order-link" className="text-sm font-medium text-gray-900">
+        {t('orders.publicLink')}
+      </label>
+      <p className="mt-0.5 text-xs text-gray-500">{t('orders.publicLinkHint')}</p>
+      <div className="mt-2 flex flex-wrap gap-2">
+        <input
+          id="public-order-link"
+          readOnly
+          value={url}
+          onFocus={(e) => e.currentTarget.select()}
+          className="min-w-0 flex-1 rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-700"
+        />
+        <Button type="button" variant="secondary" onClick={() => void copy()} className="shrink-0">
+          {copied ? t('storefront.linkCopied') : t('storefront.copyLink')}
+        </Button>
+        {canShare && (
+          <Button type="button" variant="secondary" onClick={() => void share()} className="shrink-0">
+            {t('orders.shareLink')}
+          </Button>
+        )}
+        <a
+          href={url}
+          target="_blank"
+          rel="noreferrer"
+          className="shrink-0 self-center text-sm font-medium text-brand-700 hover:underline"
+        >
+          {t('orders.openLink')}
+        </a>
+      </div>
+      <span role="status" className="sr-only">
+        {copied ? t('storefront.linkCopied') : ''}
+      </span>
+    </Card>
   )
 }

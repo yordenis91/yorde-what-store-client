@@ -256,7 +256,11 @@
     "orderStatus": "Order status",
     "statusLockedPage": "This order is {{status}} and can no longer be edited.",
     "saved": "Order saved",
-    "saveFailedStatus": "Details were saved, but the status could not be changed."
+    "saveFailedStatus": "Details were saved, but the status could not be changed.",
+    "publicLink": "Customer's order link",
+    "publicLinkHint": "The order page the customer sees, with its details and invoice. Share it if they lost it, or to send them the details.",
+    "shareLink": "Share",
+    "openLink": "Open"
   },
   "customers": {
     "title": "Customers",

@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -93,8 +93,11 @@ export function StorefrontAccountPage() {
                   </div>
                 ))}
               </div>
-              <div className="mt-2 flex justify-end border-t border-gray-100 pt-2 text-sm font-semibold text-gray-900">
-                {formatMoney(order.grandTotal, symbol, position)}
+              <div className="mt-2 flex items-center justify-between border-t border-gray-100 pt-2 text-sm">
+                <Link to={path(`/order/${order.id}`)} className="font-medium text-brand-700 hover:underline">
+                  {t('storefront.viewOrderDetails')}
+                </Link>
+                <span className="font-semibold text-gray-900">{formatMoney(order.grandTotal, symbol, position)}</span>
               </div>
             </Card>
           ))}

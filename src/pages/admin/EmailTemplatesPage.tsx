@@ -16,7 +16,7 @@ import { extractErrorMessage } from '@/services/api-client'
 
 const PLACEHOLDERS: Record<string, string> = {
   'staff-invite': '{name} {store_name} {temporary_password}',
-  'order-confirmation': '{customer_name} {store_name} {order_no} {grand_total}',
+  'order-confirmation': '{customer_name} {store_name} {order_no} {grand_total} {order_link}',
   'password-reset': '{name} {store_name} {reset_link}',
 }
 
