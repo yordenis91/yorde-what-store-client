@@ -51,6 +51,9 @@
     "statusPendingRequest": "Request for the {{plan}} plan pending approval",
     "currentPlan": "Current plan",
     "pendingApproval": "Pending approval",
+    "checkoutChannels": "Checkout channels",
+    "confirmDowngrade": "Switching to Free ends your {{plan}} plan now. This can't be undone and the unused time isn't refunded. Continue?",
+    "confirmDowngradeUntil": "Switching to Free ends your {{plan}} plan now, even though it's paid until {{date}}. The unused time isn't refunded or kept. Continue?",
     "subscribe": "Subscribe",
     "requestUpgrade": "Request upgrade",
     "upgradeRequested": "Upgrade requested — pending approval"

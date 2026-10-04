@@ -51,6 +51,9 @@
     "statusPendingRequest": "Solicitud del plan {{plan}} pendiente de aprobación",
     "currentPlan": "Plan actual",
     "pendingApproval": "Aprobación pendiente",
+    "checkoutChannels": "Canales de cobro",
+    "confirmDowngrade": "Pasar a Free termina tu plan {{plan}} ahora. No se puede deshacer y el tiempo no usado no se reembolsa. ¿Continuar?",
+    "confirmDowngradeUntil": "Pasar a Free termina tu plan {{plan}} ahora, aunque lo tienes pagado hasta el {{date}}. El tiempo no usado no se reembolsa ni se conserva. ¿Continuar?",
     "subscribe": "Suscribirse",
     "requestUpgrade": "Solicitar mejora",
     "upgradeRequested": "Mejora solicitada — pendiente de aprobación"
