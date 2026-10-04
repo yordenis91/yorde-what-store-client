@@ -365,6 +365,33 @@ describe('payment methods', () => {
     expect(screen.getByRole('button', { name: /pay with card/i })).toBeInTheDocument()
   })
 
+  it("offers only what the API lists in checkoutMethods, card gateways included", async () => {
+    // A Free-plan store: Telegram is switched on in its settings, but the API
+    // leaves it (and the card gateways) out of checkoutMethods.
+    currentTenant = buildTenant({ whatsappEnabled: true, telegramEnabled: true, checkoutMethods: ['WHATSAPP'] })
+    renderCheckout()
+    await screen.findByRole('heading', { name: /contact/i })
+    await fillContactAndContinue()
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
+    await screen.findByRole('heading', { name: /payment/i })
+
+    expect(screen.getByRole('button', { name: /order via whatsapp/i })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /order via telegram/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /pay with card/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /pay with mercadopago/i })).not.toBeInTheDocument()
+  })
+
+  it('says so when the store offers no checkout method at all', async () => {
+    currentTenant = buildTenant({ checkoutMethods: [] })
+    renderCheckout()
+    await screen.findByRole('heading', { name: /contact/i })
+    await fillContactAndContinue()
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
+    await screen.findByRole('heading', { name: /payment/i })
+
+    expect(screen.getByText(/isn't taking online orders/i)).toBeInTheDocument()
+  })
+
   it('does not offer Zelle when the store has not configured a recipient account', async () => {
     currentTenant = buildTenant({ zellePaymentInfo: undefined })
     renderCheckout()

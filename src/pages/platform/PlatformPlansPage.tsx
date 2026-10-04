@@ -8,13 +8,23 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { createPlan, deactivatePlan, listAllPlans, updatePlan, type PlanInput } from '@/services/plans.service'
 import { extractErrorMessage } from '@/services/api-client'
-import type { Plan } from '@/types/api'
+import type { FulfillmentMethod, Plan } from '@/types/api'
 
 const DURATION_KEYS: Record<Plan['duration'], string> = {
   MONTHLY: 'platformPlans.monthly',
   YEARLY: 'platformPlans.yearly',
   LIFETIME: 'platformPlans.lifetime',
 }
+
+/** Brand names, so not translated. Stripe is how card payments are taken. */
+const CHANNEL_LABELS: Record<FulfillmentMethod, string> = {
+  WHATSAPP: 'WhatsApp',
+  TELEGRAM: 'Telegram',
+  STRIPE: 'Stripe',
+  MERCADOPAGO: 'MercadoPago',
+  ZELLE: 'Zelle',
+}
+const CHANNELS = Object.keys(CHANNEL_LABELS) as FulfillmentMethod[]
 
 interface FormValues {
   name: string
@@ -23,6 +33,7 @@ interface FormValues {
   maxStores: number
   maxProducts: number
   features: string
+  fulfillmentMethods: FulfillmentMethod[]
 }
 
 export function PlatformPlansPage() {
@@ -32,7 +43,7 @@ export function PlatformPlansPage() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const { data: plans, isLoading } = useQuery({ queryKey: ['platform-plans'], queryFn: listAllPlans })
   const { register, handleSubmit, reset } = useForm<FormValues>({
-    defaultValues: { duration: 'MONTHLY', maxStores: 1, maxProducts: 50, features: '' },
+    defaultValues: { duration: 'MONTHLY', maxStores: 1, maxProducts: 50, features: '', fulfillmentMethods: ['WHATSAPP'] },
   })
 
   const saveMutation = useMutation({
@@ -47,6 +58,7 @@ export function PlatformPlansPage() {
           .split(',')
           .map((f) => f.trim())
           .filter(Boolean),
+        fulfillmentMethods: values.fulfillmentMethods,
       }
       return editingId ? updatePlan(editingId, payload) : createPlan(payload)
     },
@@ -76,12 +88,21 @@ export function PlatformPlansPage() {
       maxStores: plan.maxStores,
       maxProducts: plan.maxProducts,
       features: plan.features.join(', '),
+      fulfillmentMethods: plan.fulfillmentMethods,
     })
   }
 
   function startCreate() {
     setEditingId(null)
-    reset({ name: '', price: 0, duration: 'MONTHLY', maxStores: 1, maxProducts: 50, features: '' })
+    reset({
+      name: '',
+      price: 0,
+      duration: 'MONTHLY',
+      maxStores: 1,
+      maxProducts: 50,
+      features: '',
+      fulfillmentMethods: ['WHATSAPP'],
+    })
     setShowForm(true)
   }
 
@@ -131,6 +152,17 @@ export function PlatformPlansPage() {
               {...register('features')}
               className="sm:col-span-3"
             />
+            <fieldset className="sm:col-span-3">
+              <legend className="mb-1 text-sm font-medium text-gray-700">{t('platformPlans.channelsLabel')}</legend>
+              <div className="flex flex-wrap gap-x-4 gap-y-2">
+                {CHANNELS.map((channel) => (
+                  <label key={channel} className="flex items-center gap-2 text-sm text-gray-700">
+                    <input type="checkbox" value={channel} {...register('fulfillmentMethods')} />
+                    {CHANNEL_LABELS[channel]}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
             <Button type="submit" loading={saveMutation.isPending} className="sm:col-span-3 w-fit">
               {t('platformPlans.save')}
             </Button>
@@ -160,6 +192,9 @@ export function PlatformPlansPage() {
                 {plan.maxProducts === -1
                   ? t('platformPlans.unlimitedProducts')
                   : t('platformPlans.productsCount', { count: plan.maxProducts })}
+              </p>
+              <p className="mt-1 text-xs text-gray-500">
+                {plan.fulfillmentMethods.map((m) => CHANNEL_LABELS[m]).join(' · ')}
               </p>
               <ul className="mt-2 flex flex-col gap-0.5 text-xs text-gray-600">
                 {plan.features.map((f) => (

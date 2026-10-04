@@ -109,7 +109,9 @@ export function StorefrontCheckoutPage() {
       password: '',
       shippingId: '',
       address: { line1: '', line2: '', city: '', state: '', postalCode: '', notes: '' },
-      fulfillmentMethod: tenant.whatsappEnabled ? 'WHATSAPP' : tenant.telegramEnabled ? 'TELEGRAM' : 'STRIPE',
+      fulfillmentMethod:
+        tenant.checkoutMethods?.[0] ??
+        (tenant.whatsappEnabled ? 'WHATSAPP' : tenant.telegramEnabled ? 'TELEGRAM' : 'STRIPE'),
     },
   })
   const { errors } = formState
@@ -227,35 +229,41 @@ export function StorefrontCheckoutPage() {
     }
   }
 
+  // checkoutMethods is the API's own answer — configured AND on the store's
+  // plan, card gateways included. The per-channel guesses below only cover an
+  // older API that doesn't send it.
+  const isOffered = (method: FulfillmentMethod, legacy: boolean) =>
+    tenant.checkoutMethods ? tenant.checkoutMethods.includes(method) : legacy
   const methods: { value: FulfillmentMethod; label: string; hint: string; enabled: boolean }[] = [
     {
       value: 'WHATSAPP',
       label: t('storefront.checkoutWhatsapp'),
       hint: t('storefront.checkoutWhatsappHint'),
-      enabled: tenant.whatsappEnabled,
+      enabled: isOffered('WHATSAPP', tenant.whatsappEnabled),
     },
     {
       value: 'TELEGRAM',
       label: t('storefront.checkoutTelegram'),
       hint: t('storefront.checkoutTelegramHint'),
-      enabled: tenant.telegramEnabled,
+      enabled: isOffered('TELEGRAM', tenant.telegramEnabled),
     },
-    { value: 'STRIPE', label: t('storefront.checkoutCard'), hint: t('storefront.checkoutCardHint'), enabled: true },
+    {
+      value: 'STRIPE',
+      label: t('storefront.checkoutCard'),
+      hint: t('storefront.checkoutCardHint'),
+      enabled: isOffered('STRIPE', true),
+    },
     {
       value: 'MERCADOPAGO',
       label: t('storefront.checkoutMercadoPago'),
       hint: t('storefront.checkoutMercadoPagoHint'),
-      enabled: true,
+      enabled: isOffered('MERCADOPAGO', true),
     },
     {
       value: 'ZELLE',
       label: t('storefront.checkoutZelle'),
       hint: t('storefront.checkoutZelleHint'),
-      // Unlike Stripe/MercadoPago (secret keys, never exposed — so the client can't
-      // tell whether they're configured and always offers them), zellePaymentInfo is
-      // public-safe recipient info the backend only sends once a store has actually
-      // enabled Zelle, so its presence is a reliable signal to gate the option on.
-      enabled: Boolean(tenant.zellePaymentInfo),
+      enabled: isOffered('ZELLE', Boolean(tenant.zellePaymentInfo)),
     },
   ]
 
@@ -395,6 +403,11 @@ export function StorefrontCheckoutPage() {
                       hint={m.hint}
                     />
                   ))}
+                {!methods.some((m) => m.enabled) && (
+                  <p className="rounded-lg border border-gray-200 p-4 text-sm text-gray-600">
+                    {t('storefront.checkoutNoMethods')}
+                  </p>
+                )}
               </div>
 
               {fulfillmentMethod === 'ZELLE' && tenant.zellePaymentInfo && (

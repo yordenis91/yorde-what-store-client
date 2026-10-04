@@ -322,6 +322,8 @@
     "resetPasswordSent": "Se envió un link para restablecer la contraseña a este miembro del equipo."
   },
   "settings": {
+    "channelNotInPlan": "No incluido en tu plan actual.",
+    "upgradePlan": "Mejorar plan",
     "title": "Configuración de tienda",
     "general": "General",
     "orderMessageTemplate": "Plantilla del mensaje de pedido",
@@ -450,6 +452,7 @@
     "deliveryNotes": "Indicaciones para la entrega (opcional)",
     "reviewTitle": "Revisá tus datos",
     "checkoutWhatsappHint": "Tu pedido se abre como mensaje de WhatsApp a la tienda.",
+    "checkoutNoMethods": "Esta tienda no está recibiendo pedidos en línea por ahora. Contáctala directamente.",
     "checkoutTelegramHint": "Se notifica a la tienda por Telegram.",
     "checkoutCardHint": "Pagá de forma segura con tarjeta.",
     "checkoutMercadoPagoHint": "Pagá de forma segura con MercadoPago.",
@@ -691,6 +694,7 @@
     "maxStoresPlaceholder": "Máx. tiendas (-1 = ilimitado)",
     "maxProductsPlaceholder": "Máx. productos (-1 = ilimitado)",
     "featuresPlaceholder": "Características (separadas por coma)",
+    "channelsLabel": "Canales de cobro incluidos",
     "save": "Guardar",
     "saved": "Guardado",
     "inactive": "Inactivo",

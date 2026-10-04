@@ -322,6 +322,8 @@
     "resetPasswordSent": "A password reset link has been sent to this team member."
   },
   "settings": {
+    "channelNotInPlan": "Not included in your current plan.",
+    "upgradePlan": "Upgrade plan",
     "title": "Store settings",
     "general": "General",
     "orderMessageTemplate": "Order message template",
@@ -450,6 +452,7 @@
     "deliveryNotes": "Delivery notes (optional)",
     "reviewTitle": "Review your details",
     "checkoutWhatsappHint": "Your order opens as a WhatsApp message to the store.",
+    "checkoutNoMethods": "This store isn't taking online orders right now. Please contact it directly.",
     "checkoutTelegramHint": "The store is notified on Telegram.",
     "checkoutCardHint": "Pay securely by card.",
     "checkoutMercadoPagoHint": "Pay securely with MercadoPago.",
@@ -691,6 +694,7 @@
     "maxStoresPlaceholder": "Max stores (-1 = unlimited)",
     "maxProductsPlaceholder": "Max products (-1 = unlimited)",
     "featuresPlaceholder": "Features (comma separated)",
+    "channelsLabel": "Checkout channels included",
     "save": "Save",
     "saved": "Saved",
     "inactive": "Inactive",

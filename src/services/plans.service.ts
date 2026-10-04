@@ -1,5 +1,5 @@
 import { apiClient } from './api-client'
-import type { ApiEnvelope, Plan } from '@/types/api'
+import type { ApiEnvelope, FulfillmentMethod, Plan, PlanEntitlements } from '@/types/api'
 
 export async function listActivePlans() {
   const { data } = await apiClient.get<ApiEnvelope<Plan[]>>('/plans')
@@ -17,6 +17,11 @@ export interface Subscription {
 
 export async function getCurrentSubscription() {
   const { data } = await apiClient.get<ApiEnvelope<Subscription | null>>('/plans/current/subscription')
+  return data.data
+}
+
+export async function getCurrentEntitlements() {
+  const { data } = await apiClient.get<ApiEnvelope<PlanEntitlements>>('/plans/current/entitlements')
   return data.data
 }
 
@@ -40,6 +45,7 @@ export interface PlanInput {
   maxStores: number
   maxProducts: number
   features?: string[]
+  fulfillmentMethods?: FulfillmentMethod[]
   isActive?: boolean
 }
 
