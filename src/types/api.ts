@@ -163,6 +163,12 @@ export interface PublicTenant {
   privacyPolicyContent: string | null
   /** Present only when the store has an enabled Zelle recipient configured — absent, not null, otherwise. */
   zellePaymentInfo?: { recipientName?: string; recipientEmail?: string; recipientPhone?: string; instructions?: string } | null
+  /**
+   * Checkout channels the store both configured and has on its plan. Optional
+   * only so an older API that doesn't send it still works (the checkout then
+   * falls back to the per-channel flags above).
+   */
+  checkoutMethods?: FulfillmentMethod[]
 }
 
 export interface ProductCategory {
@@ -330,8 +336,19 @@ export interface Plan {
   duration: 'MONTHLY' | 'YEARLY' | 'LIFETIME'
   maxStores: number
   maxProducts: number
+  /** Display copy only — the enforced channel list is fulfillmentMethods. */
   features: string[]
+  fulfillmentMethods: FulfillmentMethod[]
   isActive: boolean
+}
+
+/** A plan's limits with any per-store override applied (GET /plans/current/entitlements). -1 means unlimited. */
+export interface PlanEntitlements {
+  planId: string | null
+  planName: string | null
+  maxStores: number
+  maxProducts: number
+  fulfillmentMethods: FulfillmentMethod[]
 }
 
 export interface TenantMember {

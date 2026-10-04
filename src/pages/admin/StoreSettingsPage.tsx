@@ -2,18 +2,20 @@ import { forwardRef, useEffect, useRef, useState } from 'react'
 import { useForm, type UseFormRegister, type UseFormRegisterReturn } from 'react-hook-form'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Textarea } from '@/components/ui/Textarea'
 import { getCurrentTenant, updateCurrentTenant, listPaymentSettings, upsertPaymentSetting } from '@/services/tenants.service'
+import { getCurrentEntitlements } from '@/services/plans.service'
 import { useAuthStore } from '@/store/auth.store'
 import { extractErrorMessage, resolveMediaUrl } from '@/services/api-client'
 import { uploadImage, type UploadImageType } from '@/services/uploads.service'
 import { SOCIAL_NETWORKS } from '@/config/social'
 import { DEFAULT_THEME, THEME_NAMES, themeSwatch } from '@/config/themes'
-import type { Tenant } from '@/types/api'
+import type { FulfillmentMethod, Tenant } from '@/types/api'
 
 type FormValues = Pick<
   Tenant,
@@ -168,6 +170,7 @@ export function StoreSettingsPage() {
           <label className="flex items-center gap-2 text-sm text-gray-700">
             <input type="checkbox" {...register('whatsappEnabled')} /> {t('common.edit')}
           </label>
+          <PlanLockedNotice method="WHATSAPP" />
           {watch('whatsappEnabled') && <Input label="WhatsApp number" placeholder="+15551234567" {...register('whatsappNumber')} />}
         </Card>
 
@@ -176,6 +179,7 @@ export function StoreSettingsPage() {
           <label className="flex items-center gap-2 text-sm text-gray-700">
             <input type="checkbox" {...register('telegramEnabled')} /> {t('common.edit')}
           </label>
+          <PlanLockedNotice method="TELEGRAM" />
           {watch('telegramEnabled') && (
             <>
               <Input label="Bot token" {...register('telegramBotToken')} />
@@ -375,6 +379,24 @@ interface ZelleFormValues {
   isEnabled: boolean
 }
 
+/**
+ * The API refuses to switch on a channel the plan doesn't include; this says
+ * so up front instead of only through the error toast on save.
+ */
+function PlanLockedNotice({ method }: { method: FulfillmentMethod }) {
+  const { t } = useTranslation()
+  const { data: entitlements } = useQuery({ queryKey: ['plan-entitlements'], queryFn: getCurrentEntitlements })
+  if (!entitlements || entitlements.fulfillmentMethods.includes(method)) return null
+  return (
+    <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+      {t('settings.channelNotInPlan')}{' '}
+      <Link to="/admin/plans" className="font-medium underline">
+        {t('settings.upgradePlan')}
+      </Link>
+    </p>
+  )
+}
+
 function PaymentSettingsSection() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
@@ -467,6 +489,7 @@ function PaymentSettingsSection() {
           <label className="flex items-center gap-2 text-sm text-gray-700">
             <input type="checkbox" {...register('isEnabled')} /> Enable Stripe checkout
           </label>
+          <PlanLockedNotice method="STRIPE" />
           <Input label="Publishable key" placeholder="pk_test_..." {...register('publishableKey')} />
           <Input label="Secret key" type="password" placeholder="sk_test_..." {...register('secretKey')} />
           <Button type="submit" loading={mutation.isPending} className="w-fit">
@@ -489,6 +512,7 @@ function PaymentSettingsSection() {
           <label className="flex items-center gap-2 text-sm text-gray-700">
             <input type="checkbox" {...mercadoPagoForm.register('isEnabled')} /> Enable MercadoPago checkout
           </label>
+          <PlanLockedNotice method="MERCADOPAGO" />
           <Input
             label="Access token"
             type="password"
@@ -515,6 +539,7 @@ function PaymentSettingsSection() {
           <label className="flex items-center gap-2 text-sm text-gray-700">
             <input type="checkbox" {...zelleForm.register('isEnabled')} /> {t('settings.zelleEnabled')}
           </label>
+          <PlanLockedNotice method="ZELLE" />
           <Input label={t('settings.zelleRecipientName')} {...zelleForm.register('recipientName')} />
           <Input
             label={t('settings.zelleRecipientEmail')}
