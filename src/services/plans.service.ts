@@ -10,8 +10,19 @@ export interface Subscription {
   id: string
   planId: string
   requestedPlanId: string | null
+  requestedPaymentReference: string | null
   status: string
+  /** Null for free and lifetime plans: they never expire. */
   expiresAt: string | null
+  /** After this, an unrenewed paid plan drops to Free limits. Null when it never expires. */
+  graceEndsAt: string | null
+  /** Past expiry and grace: the store already has Free limits. */
+  lapsed: boolean
+  billingProvider: 'MANUAL' | 'STRIPE'
+  stripeSubscriptionId: string | null
+  stripeCustomerId: string | null
+  /** A card plan cancelled from the billing portal: runs to expiresAt, then stops. */
+  cancelAtPeriodEnd: boolean
   plan: Plan
 }
 
@@ -30,9 +41,33 @@ export async function subscribeToPlan(planId: string) {
   return data.data
 }
 
-/** For paid plans: requires SUPER_ADMIN approval (see platform Upgrade requests panel) rather than switching instantly. */
-export async function requestPlanUpgrade(planId: string) {
-  const { data } = await apiClient.post<ApiEnvelope<Subscription>>('/plans/current/request-upgrade', { planId })
+/**
+ * Manual purchase or renewal of a paid plan (Zelle, transfer): a SUPER_ADMIN
+ * approves it from the platform Upgrade requests panel. Requesting the current
+ * plan again is a renewal.
+ */
+export async function requestPlanUpgrade({ planId, paymentReference }: { planId: string; paymentReference?: string }) {
+  const { data } = await apiClient.post<ApiEnvelope<Subscription>>('/plans/current/request-upgrade', {
+    planId,
+    paymentReference: paymentReference || undefined,
+  })
+  return data.data
+}
+
+export async function getBillingStatus() {
+  const { data } = await apiClient.get<ApiEnvelope<{ cardBillingEnabled: boolean }>>('/billing/status')
+  return data.data
+}
+
+/** Stripe Checkout for a paid plan; the caller redirects the browser to `url`. */
+export async function startCardCheckout(planId: string) {
+  const { data } = await apiClient.post<ApiEnvelope<{ url: string }>>('/billing/checkout', { planId })
+  return data.data
+}
+
+/** Stripe's billing portal (card, invoices, cancel); the caller redirects the browser to `url`. */
+export async function openBillingPortal() {
+  const { data } = await apiClient.post<ApiEnvelope<{ url: string }>>('/billing/portal')
   return data.data
 }
 
@@ -73,6 +108,10 @@ export interface UpgradeRequest {
   tenant: { id: string; name: string; slug: string }
   currentPlan: Plan
   requestedPlan: Plan | null
+  /** Same plan requested again: extends the current period instead of switching. */
+  isRenewal: boolean
+  paymentReference: string | null
+  expiresAt: string | null
   createdAt: string
 }
 
@@ -83,5 +122,10 @@ export async function listUpgradeRequests() {
 
 export async function approveUpgrade(subscriptionId: string) {
   const { data } = await apiClient.post<ApiEnvelope<Subscription>>(`/plans/${subscriptionId}/approve-upgrade`)
+  return data.data
+}
+
+export async function rejectUpgrade(subscriptionId: string) {
+  const { data } = await apiClient.post<ApiEnvelope<Subscription>>(`/plans/${subscriptionId}/reject-upgrade`)
   return data.data
 }
