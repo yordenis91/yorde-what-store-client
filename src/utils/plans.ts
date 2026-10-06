@@ -1,13 +1,13 @@
-import type { FulfillmentMethod, Plan } from "@/types/api";
+import type { FulfillmentMethod, Plan } from '@/types/api'
 
 /** Brand names, so not translated. Stripe is how card payments are taken. */
 export const CHANNEL_LABELS: Record<FulfillmentMethod, string> = {
-  WHATSAPP: "WhatsApp",
-  TELEGRAM: "Telegram",
-  STRIPE: "Stripe",
-  MERCADOPAGO: "MercadoPago",
-  ZELLE: "Zelle",
-};
+  WHATSAPP: 'WhatsApp',
+  TELEGRAM: 'Telegram',
+  STRIPE: 'Stripe',
+  MERCADOPAGO: 'MercadoPago',
+  ZELLE: 'Zelle',
+}
 
 /**
  * Plan.features is free-form marketing copy, and the limits and channels it
@@ -17,10 +17,8 @@ export const CHANNEL_LABELS: Record<FulfillmentMethod, string> = {
  * the rest ("Priority support") is kept.
  */
 const COVERED_BY_REAL_FIELDS =
-  /\b(stores?|tiendas?|products?|productos?|checkout|payments?|pagos?)\b|whatsapp|telegram|stripe|mercado\s?pago|zelle/i;
+  /\b(stores?|tiendas?|products?|productos?|checkout|payments?|pagos?)\b|whatsapp|telegram|stripe|mercado\s?pago|zelle/i
 
-export function extraPlanFeatures(plan: Pick<Plan, "features">): string[] {
-  return plan.features.filter(
-    (feature) => !COVERED_BY_REAL_FIELDS.test(feature),
-  );
+export function extraPlanFeatures(plan: Pick<Plan, 'features'>): string[] {
+  return plan.features.filter((feature) => !COVERED_BY_REAL_FIELDS.test(feature))
 }
