@@ -226,7 +226,7 @@ describe('payments', () => {
     )
   })
 
-  it('also needs the credentials to switch an already saved method off', async () => {
+  it('switches an already saved method off without asking for its credentials again', async () => {
     listPaymentSettings.mockResolvedValue([{ id: 'p1', provider: 'MERCADOPAGO', isEnabled: true }])
     renderPage('/admin/settings?section=payments')
     const card = (await screen.findByText('MercadoPago')).closest('div.rounded-xl') as HTMLElement
@@ -235,8 +235,35 @@ describe('payments', () => {
     await userEvent.click(within(card).getByLabelText('Enable MercadoPago checkout'))
     await userEvent.click(within(card).getByRole('button', { name: 'Save changes' }))
 
-    expect(await within(card).findByText('Required')).toBeInTheDocument()
+    await waitFor(() => expect(upsertPaymentSetting).toHaveBeenCalledTimes(1))
+    expect(upsertPaymentSetting.mock.calls[0][0]).toEqual({
+      provider: 'MERCADOPAGO',
+      credentials: undefined,
+      isEnabled: false,
+    })
+  })
+
+  it('still needs the full set to replace saved credentials, never half of it', async () => {
+    listPaymentSettings.mockResolvedValue([{ id: 'p1', provider: 'STRIPE', isEnabled: true }])
+    renderPage('/admin/settings?section=payments')
+    const stripe = (await screen.findByText('Stripe')).closest('div.rounded-xl') as HTMLElement
+
+    await userEvent.type(within(stripe).getByLabelText('Publishable key'), 'pk_test_new')
+    await userEvent.click(within(stripe).getByRole('button', { name: 'Save changes' }))
+
+    expect(await within(stripe).findByText('Required')).toBeInTheDocument()
     expect(upsertPaymentSetting).not.toHaveBeenCalled()
+
+    await userEvent.type(within(stripe).getByLabelText('Secret key'), 'sk_test_new')
+    await userEvent.click(within(stripe).getByRole('button', { name: 'Save changes' }))
+
+    await waitFor(() =>
+      expect(upsertPaymentSetting).toHaveBeenCalledWith({
+        provider: 'STRIPE',
+        credentials: { publishableKey: 'pk_test_new', secretKey: 'sk_test_new' },
+        isEnabled: true,
+      }),
+    )
   })
 
   it('fills Zelle from what the storefront publishes, since the API never returns stored credentials', async () => {

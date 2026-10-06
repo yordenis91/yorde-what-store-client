@@ -433,10 +433,11 @@
     "paymentEnabled": "{{name}} activado",
     "credentialRequired": "Obligatorio",
     "credentialsNewHint": "Las claves se guardan cifradas y no se vuelven a mostrar.",
-    "credentialsSavedHint": "Las credenciales están guardadas y ocultas. Al guardar se reemplazan, así que vuelve a ingresarlas completas, incluso para desactivar este método.",
+    "credentialsSavedHint": "Las credenciales están guardadas y ocultas. Deja los campos vacíos para conservarlas (igual puedes activar o desactivar este método), o ingresa el conjunto completo para reemplazarlas.",
     "zelleHint": "El destinatario y las instrucciones se muestran a los clientes al pagar. Al guardar se reemplaza lo almacenado.",
     "storeDetails": "Datos de la tienda",
-    "logoAndBanner": "Logo y banner"
+    "logoAndBanner": "Logo y banner",
+    "zelleSavedHint": "El destinatario y las instrucciones se muestran a los clientes al pagar. Cambia los campos para reemplazar lo almacenado."
   },
   "storefront": {
     "addToCart": "Agregar al carrito",
