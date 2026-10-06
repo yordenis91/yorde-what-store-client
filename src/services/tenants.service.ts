@@ -34,7 +34,8 @@ export async function listPaymentSettings() {
 
 export async function upsertPaymentSetting(payload: {
   provider: 'STRIPE' | 'MERCADOPAGO' | 'ZELLE'
-  credentials: Record<string, string>
+  /** Omit to only switch an already saved provider on or off; the stored credentials are kept. */
+  credentials?: Record<string, string>
   isEnabled: boolean
 }) {
   const { data } = await apiClient.put<ApiEnvelope<PaymentSetting>>('/tenants/current/payment-settings', payload)

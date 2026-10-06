@@ -433,10 +433,11 @@
     "paymentEnabled": "{{name}} enabled",
     "credentialRequired": "Required",
     "credentialsNewHint": "Keys are stored encrypted and are never shown again.",
-    "credentialsSavedHint": "Credentials are saved and hidden. Saving replaces them, so enter the full set again — even to turn this method off.",
+    "credentialsSavedHint": "Credentials are saved and hidden. Leave the fields blank to keep them (you can still switch this method on or off), or enter the full set to replace them.",
     "zelleHint": "The recipient and instructions are shown to customers at checkout. Saving replaces what is stored.",
     "storeDetails": "Store details",
-    "logoAndBanner": "Logo and banner"
+    "logoAndBanner": "Logo and banner",
+    "zelleSavedHint": "The recipient and instructions are shown to customers at checkout. Change the fields to replace what is stored."
   },
   "storefront": {
     "addToCart": "Add to cart",

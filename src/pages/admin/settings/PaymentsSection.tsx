@@ -25,17 +25,19 @@ function EnabledBadge({ show, label }: { show: boolean; label: string }) {
 }
 
 /**
- * Saving a payment method replaces its stored credentials wholesale, and the
- * API never returns them. So a save always has to carry the complete set:
- * submitting the form with blank keys would overwrite the ones that work with
- * nothing. Every field the provider needs is therefore required here, even
- * when the only change is switching it off.
+ * Credentials are write-only: the API stores them encrypted and never returns
+ * them. Sending a set replaces the stored one wholesale, so a partial set would
+ * destroy working keys — a provider's fields are all-or-nothing. With none
+ * filled, an already saved provider is just switched on or off and keeps what
+ * it has; a first-time setup needs the full set.
  */
+const filled = (...values: string[]) => values.some((v) => v.trim() !== '')
+
 function usePaymentSave(provider: Provider) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (payload: { credentials: Record<string, string>; isEnabled: boolean }) =>
+    mutationFn: (payload: { credentials?: Record<string, string>; isEnabled: boolean }) =>
       upsertPaymentSetting({ provider, ...payload }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['payment-settings'] })
@@ -98,14 +100,18 @@ function StripeForm({ setting }: { setting?: PaymentSetting }) {
           label={t('settings.stripePublishableKey')}
           placeholder="pk_test_..."
           error={formState.errors.publishableKey && required}
-          {...register('publishableKey', { validate: (v) => v.trim() !== '' })}
+          {...register('publishableKey', {
+            validate: (v, all) => (!!setting && !filled(v, all.secretKey)) || v.trim() !== '',
+          })}
         />
         <Input
           label={t('settings.stripeSecretKey')}
           type="password"
           placeholder="sk_test_..."
           error={formState.errors.secretKey && required}
-          {...register('secretKey', { validate: (v) => v.trim() !== '' })}
+          {...register('secretKey', {
+            validate: (v, all) => (!!setting && !filled(v, all.publishableKey)) || v.trim() !== '',
+          })}
         />
         <SaveCredentials loading={save.isPending} />
       </form>
@@ -140,7 +146,7 @@ function MercadoPagoForm({ setting }: { setting?: PaymentSetting }) {
         onSubmit={(e) =>
           void handleSubmit((v) =>
             save.mutate({
-              credentials: { accessToken: v.accessToken.trim() },
+              credentials: filled(v.accessToken) ? { accessToken: v.accessToken.trim() } : undefined,
               isEnabled: v.isEnabled,
             }),
           )(e)
@@ -156,7 +162,7 @@ function MercadoPagoForm({ setting }: { setting?: PaymentSetting }) {
           type="password"
           placeholder="APP_USR-..."
           error={formState.errors.accessToken && t('settings.credentialRequired')}
-          {...register('accessToken', { validate: (v) => v.trim() !== '' })}
+          {...register('accessToken', { validate: (v) => !!setting || v.trim() !== '' })}
         />
         <SaveCredentials loading={save.isPending} />
       </form>
@@ -171,6 +177,8 @@ interface ZelleValues {
   instructions: string
   isEnabled: boolean
 }
+
+const zelleFilled = (v: ZelleValues) => filled(v.recipientName, v.recipientEmail, v.recipientPhone, v.instructions)
 
 const emptyZelle = (isEnabled: boolean): ZelleValues => ({
   recipientName: '',
@@ -211,18 +219,20 @@ function ZelleForm({ setting, slug }: { setting?: PaymentSetting; slug: string }
   const required = t('settings.credentialRequired')
 
   return (
-    <SectionCard title="Zelle" hint={t('settings.zelleHint')}>
+    <SectionCard title="Zelle" hint={setting ? t('settings.zelleSavedHint') : t('settings.zelleHint')}>
       <EnabledBadge show={!!setting?.isEnabled} label={t('settings.paymentEnabled', { name: 'Zelle' })} />
       <form
         onSubmit={(e) =>
           void handleSubmit((v) =>
             save.mutate({
-              credentials: {
-                recipientName: v.recipientName.trim(),
-                recipientEmail: v.recipientEmail.trim(),
-                recipientPhone: v.recipientPhone.trim(),
-                instructions: v.instructions.trim(),
-              },
+              credentials: zelleFilled(v)
+                ? {
+                    recipientName: v.recipientName.trim(),
+                    recipientEmail: v.recipientEmail.trim(),
+                    recipientPhone: v.recipientPhone.trim(),
+                    instructions: v.instructions.trim(),
+                  }
+                : undefined,
               isEnabled: v.isEnabled,
             }),
           )(e)
@@ -236,13 +246,13 @@ function ZelleForm({ setting, slug }: { setting?: PaymentSetting; slug: string }
         <Input
           label={t('settings.zelleRecipientName')}
           error={formState.errors.recipientName && required}
-          {...register('recipientName', { validate: (v) => v.trim() !== '' })}
+          {...register('recipientName', { validate: (v, all) => (!!setting && !zelleFilled(all)) || v.trim() !== '' })}
         />
         <Input
           label={t('settings.zelleRecipientEmail')}
           placeholder="payments@yourstore.com"
           error={formState.errors.recipientEmail && required}
-          {...register('recipientEmail', { validate: (v) => v.trim() !== '' })}
+          {...register('recipientEmail', { validate: (v, all) => (!!setting && !zelleFilled(all)) || v.trim() !== '' })}
         />
         <Input label={t('settings.zelleRecipientPhone')} {...register('recipientPhone')} />
         <Textarea
