@@ -1,651 +1,109 @@
-import { forwardRef, useEffect, useRef, useState } from 'react'
-import { useForm, type UseFormRegister, type UseFormRegisterReturn } from 'react-hook-form'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useCallback, useEffect, useRef, type ReactNode } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
-import { toast } from 'sonner'
-import { Input } from '@/components/ui/Input'
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
-import { Textarea } from '@/components/ui/Textarea'
-import { getCurrentTenant, updateCurrentTenant, listPaymentSettings, upsertPaymentSetting } from '@/services/tenants.service'
-import { getCurrentEntitlements } from '@/services/plans.service'
-import { useAuthStore } from '@/store/auth.store'
-import { extractErrorMessage, resolveMediaUrl } from '@/services/api-client'
-import { uploadImage, type UploadImageType } from '@/services/uploads.service'
-import { SOCIAL_NETWORKS } from '@/config/social'
-import { DEFAULT_THEME, THEME_NAMES, themeSwatch } from '@/config/themes'
-import type { FulfillmentMethod, Tenant } from '@/types/api'
+import { useSearchParams } from 'react-router-dom'
+import { getCurrentTenant } from '@/services/tenants.service'
+import { AppearanceSection } from './settings/AppearanceSection'
+import { ChannelsSection } from './settings/ChannelsSection'
+import { EmailSection } from './settings/EmailSection'
+import { GeneralSection } from './settings/GeneralSection'
+import { PaymentsSection } from './settings/PaymentsSection'
+import { PoliciesSection } from './settings/PoliciesSection'
+import { SocialSection } from './settings/SocialSection'
+import { DirtyProvider, SECTION_IDS, useCanEditSettings, type SectionId } from './settings/hooks'
+import type { Tenant } from '@/types/api'
 
-type FormValues = Pick<
-  Tenant,
-  | 'name'
-  | 'tagline'
-  | 'theme'
-  | 'logoUrl'
-  | 'bannerUrl'
-  | 'invoiceLogoUrl'
-  | 'socialLinks'
-  | 'tracksInventory'
-  | 'currencySymbol'
-  | 'whatsappEnabled'
-  | 'whatsappNumber'
-  | 'telegramEnabled'
-  | 'telegramBotToken'
-  | 'telegramChatId'
-  | 'orderMessageTemplate'
-  | 'termsOfSaleContent'
-  | 'shippingPolicyContent'
-  | 'returnPolicyContent'
-  | 'privacyPolicyContent'
->
+const SECTIONS: Record<SectionId, (props: { tenant: Tenant }) => ReactNode> = {
+  general: (p) => <GeneralSection {...p} />,
+  appearance: (p) => <AppearanceSection {...p} />,
+  social: (p) => <SocialSection {...p} />,
+  channels: (p) => <ChannelsSection {...p} />,
+  payments: (p) => <PaymentsSection {...p} />,
+  policies: (p) => <PoliciesSection {...p} />,
+  email: (p) => <EmailSection {...p} />,
+}
 
+function isSectionId(value: string | null): value is SectionId {
+  return SECTION_IDS.includes(value as SectionId)
+}
+
+/**
+ * Store settings, split into seven sections reached from an index. Each section
+ * is its own form and saves only its own fields (see useSaveTenantFields); the
+ * page just chooses which one is on screen, keeps that choice in the URL
+ * (?section=…) so it survives a reload and the back button, and asks before
+ * leaving a section with unsaved edits.
+ */
 export function StoreSettingsPage() {
   const { t } = useTranslation()
-  const queryClient = useQueryClient()
-  const setActiveTenant = useAuthStore((s) => s.setActiveTenant)
-
-  const { data: tenant } = useQuery({ queryKey: ['current-tenant'], queryFn: getCurrentTenant })
-  const { register, handleSubmit, reset, watch, setValue } = useForm<FormValues>()
-
-  useEffect(() => {
-    if (tenant) {
-      reset({
-        name: tenant.name,
-        tagline: tenant.tagline,
-        theme: tenant.theme,
-        logoUrl: tenant.logoUrl,
-        bannerUrl: tenant.bannerUrl,
-        invoiceLogoUrl: tenant.invoiceLogoUrl,
-        socialLinks: tenant.socialLinks ?? {},
-        tracksInventory: tenant.tracksInventory,
-        currencySymbol: tenant.currencySymbol,
-        whatsappEnabled: tenant.whatsappEnabled,
-        whatsappNumber: tenant.whatsappNumber,
-        telegramEnabled: tenant.telegramEnabled,
-        telegramBotToken: tenant.telegramBotToken,
-        telegramChatId: tenant.telegramChatId,
-        orderMessageTemplate: tenant.orderMessageTemplate,
-        termsOfSaleContent: tenant.termsOfSaleContent,
-        shippingPolicyContent: tenant.shippingPolicyContent,
-        returnPolicyContent: tenant.returnPolicyContent,
-        privacyPolicyContent: tenant.privacyPolicyContent,
-      })
-    }
-  }, [tenant, reset])
-
-  const mutation = useMutation({
-    mutationFn: (values: FormValues) => updateCurrentTenant(values),
-    onSuccess: (updated) => {
-      void queryClient.invalidateQueries({ queryKey: ['current-tenant'] })
-      setActiveTenant(updated)
-      toast.success(t('settings.saved'))
-    },
-    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
+  const [searchParams, setSearchParams] = useSearchParams()
+  const canEdit = useCanEditSettings()
+  const { data: tenant } = useQuery({
+    queryKey: ['current-tenant'],
+    queryFn: getCurrentTenant,
   })
+
+  const requested = searchParams.get('section')
+  const active: SectionId = isSectionId(requested) ? requested : 'general'
+
+  // On a phone the index scrolls sideways; keep the open section in view.
+  const navRef = useRef<HTMLElement>(null)
+  useEffect(() => {
+    navRef.current?.querySelector('[aria-current]')?.scrollIntoView?.({ inline: 'center', block: 'nearest' })
+  }, [active, tenant?.id])
+
+  const dirtyReporters = useRef(new Set<string>())
+  const reportDirty = useCallback((reporter: string, dirty: boolean) => {
+    if (dirty) dirtyReporters.current.add(reporter)
+    else dirtyReporters.current.delete(reporter)
+  }, [])
+
+  function select(id: SectionId) {
+    if (id === active) return
+    if (dirtyReporters.current.size > 0 && !confirm(t('settings.unsavedConfirm'))) return
+    dirtyReporters.current.clear()
+    setSearchParams({ section: id })
+  }
 
   if (!tenant) return <p className="text-sm text-gray-500">{t('common.loading')}</p>
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-4xl">
       <h1 className="mb-6 text-2xl font-semibold text-gray-900">{t('settings.title')}</h1>
-      <form onSubmit={(e) => void handleSubmit((values) => mutation.mutate(values))(e)} className="flex flex-col gap-6">
-        <Card className="flex flex-col gap-4">
-          <h2 className="font-medium text-gray-900">{t('settings.general')}</h2>
-          <Input label={t('products.name')} {...register('name')} />
-          <Input label="Tagline" {...register('tagline')} />
-          <Input label="Currency symbol" {...register('currencySymbol')} className="max-w-[120px]" />
-        </Card>
-
-        <Card className="flex flex-col gap-5">
-          <h2 className="font-medium text-gray-900">{t('settings.appearance')}</h2>
-          <ImageField
-            label={t('settings.logo')}
-            hint={t('settings.logoHint')}
-            value={watch('logoUrl')}
-            onChange={(url) => setValue('logoUrl', url, { shouldDirty: true })}
-            previewClassName="h-20 w-20 rounded-xl"
-            uploadType="logo"
-          />
-          <ImageField
-            label={t('settings.banner')}
-            hint={t('settings.bannerHint')}
-            value={watch('bannerUrl')}
-            onChange={(url) => setValue('bannerUrl', url, { shouldDirty: true })}
-            previewClassName="aspect-[4/1] w-full rounded-xl"
-            uploadType="banner"
-          />
-        </Card>
-
-        <Card className="flex flex-col gap-4">
-          <h2 className="font-medium text-gray-900">{t('settings.billing')}</h2>
-          <ImageField
-            label={t('settings.invoiceLogo')}
-            hint={t('settings.invoiceLogoHint')}
-            value={watch('invoiceLogoUrl')}
-            onChange={(url) => setValue('invoiceLogoUrl', url, { shouldDirty: true })}
-            previewClassName="h-20 w-20 rounded-xl"
-            uploadType="logo"
-          />
-        </Card>
-
-        <Card className="flex flex-col gap-3">
-          <div>
-            <h2 className="font-medium text-gray-900">{t('settings.inventory')}</h2>
-            <p className="mt-1 text-xs text-gray-500">{t('settings.inventoryHint')}</p>
-          </div>
-          <label className="flex items-start gap-2 text-sm text-gray-700">
-            <input type="checkbox" className="mt-0.5" {...register('tracksInventory')} />
-            <span>{t('settings.tracksInventory')}</span>
-          </label>
-        </Card>
-
-        <ThemePicker selected={watch('theme')} register={register} />
-
-        <Card className="flex flex-col gap-3">
-          <div>
-            <h2 className="font-medium text-gray-900">{t('settings.social')}</h2>
-            <p className="mt-1 text-xs text-gray-500">{t('settings.socialHint')}</p>
-          </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {SOCIAL_NETWORKS.map(({ key, label, Icon, placeholder }) => (
-              <label key={key} className="flex items-center gap-2">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-600">
-                  <Icon className="h-4 w-4" />
-                </span>
-                <input
-                  type="url"
-                  placeholder={placeholder}
-                  aria-label={label}
-                  className="min-w-0 flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                  {...register(`socialLinks.${key}`)}
-                />
-              </label>
+      {!canEdit && (
+        <p role="note" className="mb-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          {t('settings.ownerOnly')}
+        </p>
+      )}
+      <div className="flex flex-col gap-6 md:flex-row md:items-start">
+        <nav ref={navRef} aria-label={t('settings.title')} className="md:sticky md:top-4 md:w-48 md:shrink-0">
+          <ul className="flex gap-1 overflow-x-auto md:flex-col md:overflow-visible">
+            {SECTION_IDS.map((id) => (
+              <li key={id} className="shrink-0">
+                <button
+                  type="button"
+                  onClick={() => select(id)}
+                  aria-current={id === active ? 'page' : undefined}
+                  className={`w-full whitespace-nowrap rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+                    id === active ? 'bg-brand-50 font-medium text-brand-700' : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  {t(`settings.sections.${id}`)}
+                </button>
+              </li>
             ))}
-          </div>
-        </Card>
+          </ul>
+        </nav>
 
-        <Card className="flex flex-col gap-4">
-          <h2 className="font-medium text-gray-900">{t('settings.whatsapp')}</h2>
-          <label className="flex items-center gap-2 text-sm text-gray-700">
-            <input type="checkbox" {...register('whatsappEnabled')} /> {t('common.edit')}
-          </label>
-          <PlanLockedNotice method="WHATSAPP" />
-          {watch('whatsappEnabled') && <Input label="WhatsApp number" placeholder="+15551234567" {...register('whatsappNumber')} />}
-        </Card>
-
-        <Card className="flex flex-col gap-4">
-          <h2 className="font-medium text-gray-900">{t('settings.telegram')}</h2>
-          <label className="flex items-center gap-2 text-sm text-gray-700">
-            <input type="checkbox" {...register('telegramEnabled')} /> {t('common.edit')}
-          </label>
-          <PlanLockedNotice method="TELEGRAM" />
-          {watch('telegramEnabled') && (
-            <>
-              <Input label="Bot token" {...register('telegramBotToken')} />
-              <Input label="Chat ID" {...register('telegramChatId')} />
-            </>
-          )}
-        </Card>
-
-        <Card className="flex flex-col gap-2">
-          <h2 id="order-message-template-label" className="font-medium text-gray-900">
-            {t('settings.orderMessageTemplate')}
-          </h2>
-          <p className="text-xs text-gray-500">
-            {t('settings.orderMessageTemplatePlaceholders')}:{' '}
-            {'{store_name} {order_no} {item_variable} {sub_total} {discount_amount} {shipping_amount} {item_tax} {item_total}'}
-          </p>
-          <textarea
-            aria-labelledby="order-message-template-label"
-            className="rounded-lg border border-gray-300 px-3 py-2 font-mono text-xs"
-            rows={8}
-            {...register('orderMessageTemplate')}
-          />
-        </Card>
-
-        <Card className="flex flex-col gap-4">
-          <div>
-            <h2 className="font-medium text-gray-900">{t('settings.policies')}</h2>
-            <p className="mt-1 text-xs text-gray-500">{t('settings.policiesHint')}</p>
-          </div>
-          <PolicyField label={t('settings.termsOfSale')} hint={t('settings.termsOfSaleHint')} {...register('termsOfSaleContent')} />
-          <PolicyField label={t('settings.shippingPolicy')} hint={t('settings.shippingPolicyHint')} {...register('shippingPolicyContent')} />
-          <PolicyField label={t('settings.returnPolicy')} hint={t('settings.returnPolicyHint')} {...register('returnPolicyContent')} />
-          <PolicyField label={t('settings.privacyPolicy')} hint={t('settings.privacyPolicyHint')} {...register('privacyPolicyContent')} />
-        </Card>
-
-        <Button type="submit" loading={mutation.isPending} className="w-fit">
-          {t('settings.save')}
-        </Button>
-      </form>
-
-      <PaymentSettingsSection />
-      <SmtpSettingsSection tenant={tenant} />
-    </div>
-  )
-}
-
-/** Upload-or-clear field for a single stored image, with a live preview. */
-function ImageField({
-  label,
-  hint,
-  value,
-  onChange,
-  previewClassName,
-  uploadType,
-}: {
-  label: string
-  hint: string
-  value: string | null | undefined
-  onChange: (url: string | null) => void
-  previewClassName: string
-  uploadType?: UploadImageType
-}) {
-  const { t } = useTranslation()
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [uploading, setUploading] = useState(false)
-
-  async function handleFile(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0]
-    if (!file) return
-    setUploading(true)
-    try {
-      onChange(await uploadImage(file, uploadType))
-    } catch (error) {
-      toast.error(extractErrorMessage(error, t('errors.generic')))
-    } finally {
-      setUploading(false)
-      // Clear it so re-picking the same file still fires a change event.
-      event.target.value = ''
-    }
-  }
-
-  return (
-    <div>
-      <p className="text-sm font-medium text-gray-700">{label}</p>
-      <p className="mt-0.5 text-xs text-gray-500">{hint}</p>
-      {/*
-        Stacked rather than side-by-side: the banner preview's own className
-        sets width: 100% (it needs to show the actual wide aspect ratio), and
-        a flex row with a 100%-wide, non-shrinking sibling pushes the upload
-        button completely off the right edge instead of wrapping it.
-      */}
-      <div className="mt-2 flex flex-col items-start gap-3">
-        <div className={`shrink-0 overflow-hidden border border-gray-200 bg-gray-50 ${previewClassName}`}>
-          {value && <img src={resolveMediaUrl(value)} alt="" className="h-full w-full object-cover" />}
-        </div>
-        <div className="flex flex-col gap-2">
-          <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={(e) => void handleFile(e)} />
-          <Button type="button" variant="secondary" loading={uploading} onClick={() => inputRef.current?.click()}>
-            {t('settings.upload')}
-          </Button>
-          {value && (
-            <button type="button" onClick={() => onChange(null)} className="text-xs text-gray-500 hover:text-red-600">
-              {t('settings.remove')}
-            </button>
-          )}
-        </div>
+        <DirtyProvider value={reportDirty}>
+          <section aria-labelledby="settings-section-title" className="min-w-0 flex-1">
+            <h2 id="settings-section-title" className="mb-4 text-lg font-medium text-gray-900">
+              {t(`settings.sections.${active}`)}
+            </h2>
+            {SECTIONS[active]({ tenant })}
+          </section>
+        </DirtyProvider>
       </div>
     </div>
-  )
-}
-
-/** Labelled textarea for one merchant-authored policy. Blank means "not published" — the storefront just omits that page/link. */
-const PolicyField = forwardRef<HTMLTextAreaElement, { label: string; hint: string } & UseFormRegisterReturn>(
-  function PolicyField({ label, hint, ...field }, ref) {
-    return (
-      <div>
-        <label htmlFor={field.name} className="text-sm font-medium text-gray-700">
-          {label}
-        </label>
-        <p className="mt-0.5 text-xs text-gray-500">{hint}</p>
-        <textarea
-          id={field.name}
-          ref={ref}
-          rows={6}
-          className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
-          {...field}
-        />
-      </div>
-    )
-  },
-)
-
-/**
- * Colour picker for the storefront. Each swatch paints itself with the theme it
- * selects, so the choice is visible without a preview pane.
- */
-function ThemePicker({
-  selected,
-  register,
-}: {
-  selected: string | undefined
-  register: UseFormRegister<FormValues>
-}) {
-  const { t } = useTranslation()
-  const active = selected ?? DEFAULT_THEME
-
-  return (
-    <Card className="flex flex-col gap-3">
-      <div>
-        <h2 className="font-medium text-gray-900">{t('settings.theme')}</h2>
-        <p className="mt-1 text-xs text-gray-500">{t('settings.themeHint')}</p>
-      </div>
-      <div className="flex flex-wrap gap-3">
-        {THEME_NAMES.map((name) => {
-          const isActive = active === name
-          return (
-            <label
-              key={name}
-              title={t(`settings.themes.${name}`)}
-              className={`flex cursor-pointer flex-col items-center gap-1.5 rounded-lg border px-3 py-2 transition-colors ${
-                isActive ? 'border-gray-900 bg-gray-50' : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              <input type="radio" value={name} className="sr-only" {...register('theme')} />
-              <span
-                aria-hidden
-                className="h-7 w-7 rounded-full ring-1 ring-black/10"
-                style={{ backgroundColor: themeSwatch(name) }}
-              />
-              <span className={`text-xs ${isActive ? 'font-medium text-gray-900' : 'text-gray-500'}`}>
-                {t(`settings.themes.${name}`)}
-              </span>
-            </label>
-          )
-        })}
-      </div>
-    </Card>
-  )
-}
-
-interface StripeFormValues {
-  publishableKey: string
-  secretKey: string
-  isEnabled: boolean
-}
-
-interface MercadoPagoFormValues {
-  accessToken: string
-  isEnabled: boolean
-}
-
-interface ZelleFormValues {
-  recipientName: string
-  recipientEmail: string
-  recipientPhone: string
-  instructions: string
-  isEnabled: boolean
-}
-
-/**
- * The API refuses to switch on a channel the plan doesn't include; this says
- * so up front instead of only through the error toast on save.
- */
-function PlanLockedNotice({ method }: { method: FulfillmentMethod }) {
-  const { t } = useTranslation()
-  const { data: entitlements } = useQuery({ queryKey: ['plan-entitlements'], queryFn: getCurrentEntitlements })
-  if (!entitlements || entitlements.fulfillmentMethods.includes(method)) return null
-  return (
-    <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
-      {t('settings.channelNotInPlan')}{' '}
-      <Link to="/admin/plans" className="font-medium underline">
-        {t('settings.upgradePlan')}
-      </Link>
-    </p>
-  )
-}
-
-function PaymentSettingsSection() {
-  const { t } = useTranslation()
-  const queryClient = useQueryClient()
-  const { data: settings } = useQuery({ queryKey: ['payment-settings'], queryFn: listPaymentSettings })
-  const { register, handleSubmit, reset } = useForm<StripeFormValues>()
-  const mercadoPagoForm = useForm<MercadoPagoFormValues>()
-  const zelleForm = useForm<ZelleFormValues>()
-
-  useEffect(() => {
-    const stripe = settings?.find((s) => s.provider === 'STRIPE')
-    reset({ publishableKey: '', secretKey: '', isEnabled: stripe?.isEnabled ?? false })
-    const mercadoPago = settings?.find((s) => s.provider === 'MERCADOPAGO')
-    mercadoPagoForm.reset({ accessToken: '', isEnabled: mercadoPago?.isEnabled ?? false })
-    const zelle = settings?.find((s) => s.provider === 'ZELLE')
-    zelleForm.reset({
-      recipientName: '',
-      recipientEmail: '',
-      recipientPhone: '',
-      instructions: '',
-      isEnabled: zelle?.isEnabled ?? false,
-    })
-  }, [settings, reset, mercadoPagoForm, zelleForm])
-
-  const mutation = useMutation({
-    mutationFn: (values: StripeFormValues) =>
-      upsertPaymentSetting({
-        provider: 'STRIPE',
-        credentials: { publishableKey: values.publishableKey, secretKey: values.secretKey },
-        isEnabled: values.isEnabled,
-      }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['payment-settings'] })
-      toast.success(t('settings.saved'))
-    },
-    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
-  })
-
-  const mercadoPagoMutation = useMutation({
-    mutationFn: (values: MercadoPagoFormValues) =>
-      upsertPaymentSetting({
-        provider: 'MERCADOPAGO',
-        credentials: { accessToken: values.accessToken },
-        isEnabled: values.isEnabled,
-      }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['payment-settings'] })
-      toast.success(t('settings.saved'))
-    },
-    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
-  })
-
-  const zelleMutation = useMutation({
-    mutationFn: (values: ZelleFormValues) =>
-      upsertPaymentSetting({
-        provider: 'ZELLE',
-        // Unlike the Stripe/MercadoPago "credentials" above (secret keys), this is
-        // just the recipient info shown to customers at checkout — nothing secret.
-        credentials: {
-          recipientName: values.recipientName,
-          recipientEmail: values.recipientEmail,
-          recipientPhone: values.recipientPhone,
-          instructions: values.instructions,
-        },
-        isEnabled: values.isEnabled,
-      }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['payment-settings'] })
-      toast.success(t('settings.saved'))
-    },
-    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
-  })
-
-  const stripeConfigured = settings?.some((s) => s.provider === 'STRIPE' && s.isEnabled)
-  const mercadoPagoConfigured = settings?.some((s) => s.provider === 'MERCADOPAGO' && s.isEnabled)
-  const zelleConfigured = settings?.some((s) => s.provider === 'ZELLE' && s.isEnabled)
-
-  return (
-    <Card className="mt-6 flex flex-col gap-6">
-      <div>
-        <div className="flex items-center justify-between">
-          <h2 className="font-medium text-gray-900">{t('settings.payments')}</h2>
-          {stripeConfigured && (
-            <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">Stripe enabled</span>
-          )}
-        </div>
-        <form
-          onSubmit={(e) => void handleSubmit((values) => mutation.mutate(values))(e)}
-          className="mt-3 flex flex-col gap-3"
-        >
-          <label className="flex items-center gap-2 text-sm text-gray-700">
-            <input type="checkbox" {...register('isEnabled')} /> Enable Stripe checkout
-          </label>
-          <PlanLockedNotice method="STRIPE" />
-          <Input label="Publishable key" placeholder="pk_test_..." {...register('publishableKey')} />
-          <Input label="Secret key" type="password" placeholder="sk_test_..." {...register('secretKey')} />
-          <Button type="submit" loading={mutation.isPending} className="w-fit">
-            {t('settings.save')}
-          </Button>
-        </form>
-      </div>
-
-      <div className="border-t border-gray-100 pt-6">
-        <div className="flex items-center justify-between">
-          <h2 className="font-medium text-gray-900">MercadoPago</h2>
-          {mercadoPagoConfigured && (
-            <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">MercadoPago enabled</span>
-          )}
-        </div>
-        <form
-          onSubmit={(e) => void mercadoPagoForm.handleSubmit((values) => mercadoPagoMutation.mutate(values))(e)}
-          className="mt-3 flex flex-col gap-3"
-        >
-          <label className="flex items-center gap-2 text-sm text-gray-700">
-            <input type="checkbox" {...mercadoPagoForm.register('isEnabled')} /> Enable MercadoPago checkout
-          </label>
-          <PlanLockedNotice method="MERCADOPAGO" />
-          <Input
-            label="Access token"
-            type="password"
-            placeholder="APP_USR-..."
-            {...mercadoPagoForm.register('accessToken')}
-          />
-          <Button type="submit" loading={mercadoPagoMutation.isPending} className="w-fit">
-            {t('settings.save')}
-          </Button>
-        </form>
-      </div>
-
-      <div className="border-t border-gray-100 pt-6">
-        <div className="flex items-center justify-between">
-          <h2 className="font-medium text-gray-900">Zelle</h2>
-          {zelleConfigured && (
-            <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">Zelle enabled</span>
-          )}
-        </div>
-        <form
-          onSubmit={(e) => void zelleForm.handleSubmit((values) => zelleMutation.mutate(values))(e)}
-          className="mt-3 flex flex-col gap-3"
-        >
-          <label className="flex items-center gap-2 text-sm text-gray-700">
-            <input type="checkbox" {...zelleForm.register('isEnabled')} /> {t('settings.zelleEnabled')}
-          </label>
-          <PlanLockedNotice method="ZELLE" />
-          <Input label={t('settings.zelleRecipientName')} {...zelleForm.register('recipientName')} />
-          <Input
-            label={t('settings.zelleRecipientEmail')}
-            placeholder="payments@yourstore.com"
-            {...zelleForm.register('recipientEmail')}
-          />
-          <Input label={t('settings.zelleRecipientPhone')} {...zelleForm.register('recipientPhone')} />
-          <Textarea
-            label={t('settings.zelleInstructions')}
-            rows={3}
-            placeholder={t('settings.zelleInstructionsPlaceholder')}
-            {...zelleForm.register('instructions')}
-          />
-          <Button type="submit" loading={zelleMutation.isPending} className="w-fit">
-            {t('settings.save')}
-          </Button>
-        </form>
-      </div>
-    </Card>
-  )
-}
-
-interface SmtpFormValues {
-  smtpEnabled: boolean
-  smtpHost: string
-  smtpPort: string
-  smtpUser: string
-  smtpPassword: string
-  smtpFrom: string
-}
-
-/**
- * The password field always loads blank (write-only, per Tenant.smtpPassword)
- * — leaving it blank on save keeps whatever password is already stored,
- * mirroring how the Stripe/MercadoPago secret fields above never round-trip
- * a previously saved secret back into the browser.
- */
-function SmtpSettingsSection({ tenant }: { tenant: Tenant }) {
-  const { t } = useTranslation()
-  const queryClient = useQueryClient()
-  const { register, handleSubmit, reset, watch } = useForm<SmtpFormValues>()
-
-  useEffect(() => {
-    reset({
-      smtpEnabled: tenant.smtpEnabled,
-      smtpHost: tenant.smtpHost ?? '',
-      smtpPort: tenant.smtpPort ? String(tenant.smtpPort) : '',
-      smtpUser: tenant.smtpUser ?? '',
-      smtpPassword: '',
-      smtpFrom: tenant.smtpFrom ?? '',
-    })
-  }, [tenant, reset])
-
-  const mutation = useMutation({
-    mutationFn: (values: SmtpFormValues) => {
-      const payload: Partial<Tenant> = {
-        smtpEnabled: values.smtpEnabled,
-        smtpHost: values.smtpHost || null,
-        smtpPort: values.smtpPort ? Number(values.smtpPort) : null,
-        smtpUser: values.smtpUser || null,
-        smtpFrom: values.smtpFrom || null,
-      }
-      if (values.smtpPassword) payload.smtpPassword = values.smtpPassword
-      return updateCurrentTenant(payload)
-    },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['current-tenant'] })
-      toast.success(t('settings.saved'))
-    },
-    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
-  })
-
-  return (
-    <Card className="mt-6 flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="font-medium text-gray-900">{t('settings.smtp')}</h2>
-          <p className="mt-1 text-xs text-gray-500">{t('settings.smtpHint')}</p>
-        </div>
-        {tenant.smtpEnabled && tenant.smtpPasswordSet && (
-          <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">{t('settings.smtpConfigured')}</span>
-        )}
-      </div>
-      <form onSubmit={(e) => void handleSubmit((values) => mutation.mutate(values))(e)} className="flex flex-col gap-3">
-        <label className="flex items-center gap-2 text-sm text-gray-700">
-          <input type="checkbox" {...register('smtpEnabled')} /> {t('settings.smtpEnabled')}
-        </label>
-        {watch('smtpEnabled') && (
-          <>
-            <Input label={t('settings.smtpHost')} placeholder="smtp.example.com" {...register('smtpHost')} />
-            <Input label={t('settings.smtpPort')} type="number" placeholder="587" {...register('smtpPort')} className="max-w-[120px]" />
-            <Input label={t('settings.smtpUser')} {...register('smtpUser')} />
-            <Input
-              label={t('settings.smtpPassword')}
-              type="password"
-              placeholder={tenant.smtpPasswordSet ? '••••••••' : ''}
-              {...register('smtpPassword')}
-            />
-            <p className="-mt-2 text-xs text-gray-500">{t('settings.smtpPasswordHint')}</p>
-            <Input label={t('settings.smtpFrom')} placeholder="orders@yourstore.com" {...register('smtpFrom')} />
-          </>
-        )}
-        <Button type="submit" loading={mutation.isPending} className="w-fit">
-          {t('settings.save')}
-        </Button>
-      </form>
-    </Card>
   )
 }
