@@ -19,6 +19,13 @@ interface AuthState {
   setAccessToken: (accessToken: string | null) => void
   setTenants: (tenants: Tenant[]) => void
   setActiveTenant: (tenant: Tenant | null) => void
+  /**
+   * Folds a fresh copy of a tenant (a PATCH /tenants/current response) into the
+   * session. Only GET /tenants/me adds `myRole`, so replacing the stored tenant
+   * with that response would drop it and demote the owner to read-only until
+   * the next reload — this keeps the role the session already knows.
+   */
+  mergeTenant: (tenant: Tenant) => void
   setBootstrapping: (value: boolean) => void
   clear: () => void
   /**
@@ -44,6 +51,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   setAccessToken: (accessToken) => set({ accessToken }),
   setTenants: (tenants) => set({ tenants }),
   setActiveTenant: (activeTenant) => set({ activeTenant }),
+  mergeTenant: (updated) =>
+    set((state) => {
+      const merge = (current: Tenant): Tenant => ({ ...current, ...updated, myRole: current.myRole ?? updated.myRole })
+      return {
+        activeTenant: state.activeTenant?.id === updated.id ? merge(state.activeTenant) : state.activeTenant,
+        tenants: state.tenants.map((t) => (t.id === updated.id ? merge(t) : t)),
+      }
+    }),
   setBootstrapping: (isBootstrapping) => set({ isBootstrapping }),
   clear: () => set({ user: null, accessToken: null, activeTenant: null, tenants: [], impersonation: null }),
   beginImpersonation: ({ accessToken, tenantId, tenantName, expiresAt }) => {
