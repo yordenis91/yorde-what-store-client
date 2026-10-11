@@ -82,10 +82,12 @@ function StripeForm({ setting }: { setting?: PaymentSetting }) {
         onSubmit={(e) =>
           void handleSubmit((v) =>
             save.mutate({
-              credentials: {
-                publishableKey: v.publishableKey.trim(),
-                secretKey: v.secretKey.trim(),
-              },
+              credentials: filled(v.publishableKey, v.secretKey)
+                ? {
+                    publishableKey: v.publishableKey.trim(),
+                    secretKey: v.secretKey.trim(),
+                  }
+                : undefined,
               isEnabled: v.isEnabled,
             }),
           )(e)

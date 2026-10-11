@@ -243,6 +243,22 @@ describe('payments', () => {
     })
   })
 
+  it('switches a saved Stripe off without sending empty keys that would wipe the stored ones', async () => {
+    listPaymentSettings.mockResolvedValue([{ id: 'p1', provider: 'STRIPE', isEnabled: true }])
+    renderPage('/admin/settings?section=payments')
+    const stripe = (await screen.findByText('Stripe')).closest('div.rounded-xl') as HTMLElement
+
+    await userEvent.click(within(stripe).getByLabelText('Enable Stripe checkout'))
+    await userEvent.click(within(stripe).getByRole('button', { name: 'Save changes' }))
+
+    await waitFor(() => expect(upsertPaymentSetting).toHaveBeenCalledTimes(1))
+    expect(upsertPaymentSetting.mock.calls[0][0]).toEqual({
+      provider: 'STRIPE',
+      credentials: undefined,
+      isEnabled: false,
+    })
+  })
+
   it('still needs the full set to replace saved credentials, never half of it', async () => {
     listPaymentSettings.mockResolvedValue([{ id: 'p1', provider: 'STRIPE', isEnabled: true }])
     renderPage('/admin/settings?section=payments')
