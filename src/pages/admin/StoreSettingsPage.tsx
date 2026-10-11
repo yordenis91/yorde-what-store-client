@@ -23,6 +23,7 @@ type FormValues = Pick<
   | 'bannerUrl'
   | 'invoiceLogoUrl'
   | 'socialLinks'
+  | 'trustBadges'
   | 'tracksInventory'
   | 'currencySymbol'
   | 'whatsappEnabled'
@@ -55,6 +56,7 @@ export function StoreSettingsPage() {
         bannerUrl: tenant.bannerUrl,
         invoiceLogoUrl: tenant.invoiceLogoUrl,
         socialLinks: tenant.socialLinks ?? {},
+        trustBadges: tenant.trustBadges ?? {},
         tracksInventory: tenant.tracksInventory,
         currencySymbol: tenant.currencySymbol,
         whatsappEnabled: tenant.whatsappEnabled,
@@ -158,6 +160,26 @@ export function StoreSettingsPage() {
                   {...register(`socialLinks.${key}`)}
                 />
               </label>
+            ))}
+          </div>
+        </Card>
+
+        <Card className="flex flex-col gap-3">
+          <div>
+            <h2 className="font-medium text-gray-900">{t('settings.trustStrip')}</h2>
+            <p className="mt-1 text-xs text-gray-500">{t('settings.trustStripHint')}</p>
+          </div>
+          <div className="flex flex-col gap-3">
+            {(['shipping', 'payment', 'delivery'] as const).map((key) => (
+              <div key={key} className="flex items-center gap-2">
+                <input type="checkbox" className="shrink-0" {...register(`trustBadges.${key}.enabled`)} />
+                <span className="w-20 shrink-0 text-sm text-gray-600">{t(`settings.trust${key.charAt(0).toUpperCase()}${key.slice(1)}`)}</span>
+                <input
+                  type="text"
+                  className="min-w-0 flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  {...register(`trustBadges.${key}.text`)}
+                />
+              </div>
             ))}
           </div>
         </Card>

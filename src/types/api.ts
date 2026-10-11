@@ -50,6 +50,7 @@ export interface Tenant {
   returnPolicyContent: string | null
   privacyPolicyContent: string | null
   socialLinks: Record<string, string>
+  trustBadges: Record<string, { enabled: boolean; text: string }>
   isActive: boolean
   /** Platform-admin lifecycle — see PlatformTenantsService. `isActive` above stays in sync with it. */
   status: TenantStatus
