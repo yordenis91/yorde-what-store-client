@@ -10,6 +10,7 @@ import { GeneralSection } from './settings/GeneralSection'
 import { PaymentsSection } from './settings/PaymentsSection'
 import { PoliciesSection } from './settings/PoliciesSection'
 import { SocialSection } from './settings/SocialSection'
+import { TrustSection } from './settings/TrustSection'
 import { DirtyProvider, SECTION_IDS, useCanEditSettings, type SectionId } from './settings/hooks'
 import type { Tenant } from '@/types/api'
 
@@ -17,6 +18,7 @@ const SECTIONS: Record<SectionId, (props: { tenant: Tenant }) => ReactNode> = {
   general: (p) => <GeneralSection {...p} />,
   appearance: (p) => <AppearanceSection {...p} />,
   social: (p) => <SocialSection {...p} />,
+  trust: (p) => <TrustSection {...p} />,
   channels: (p) => <ChannelsSection {...p} />,
   payments: (p) => <PaymentsSection {...p} />,
   policies: (p) => <PoliciesSection {...p} />,
@@ -28,7 +30,7 @@ function isSectionId(value: string | null): value is SectionId {
 }
 
 /**
- * Store settings, split into seven sections reached from an index. Each section
+ * Store settings, split into eight sections reached from an index. Each section
  * is its own form and saves only its own fields (see useSaveTenantFields); the
  * page just chooses which one is on screen, keeps that choice in the URL
  * (?section=…) so it survives a reload and the back button, and asks before

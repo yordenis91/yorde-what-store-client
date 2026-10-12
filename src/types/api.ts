@@ -12,6 +12,10 @@ export type TenantMemberRole = 'OWNER' | 'STAFF'
 
 export type TenantStatus = 'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'BANNED' | 'TRIAL_EXPIRED'
 
+/** Storefront trust strip: a fixed set of three badges, each switchable and with its own text. */
+export type TrustBadgeKey = 'shipping' | 'payment' | 'delivery'
+export type TrustBadges = Record<TrustBadgeKey, { enabled: boolean; text: string }>
+
 export interface Tenant {
   id: string
   ownerId: string
@@ -50,6 +54,7 @@ export interface Tenant {
   returnPolicyContent: string | null
   privacyPolicyContent: string | null
   socialLinks: Record<string, string>
+  trustBadges?: TrustBadges
   isActive: boolean
   /** Platform-admin lifecycle — see PlatformTenantsService. `isActive` above stays in sync with it. */
   status: TenantStatus
@@ -155,6 +160,7 @@ export interface PublicTenant {
   currencySymbolPosition: string
   locale: string
   socialLinks: Record<string, string>
+  trustBadges?: TrustBadges
   whatsappEnabled: boolean
   telegramEnabled: boolean
   termsOfSaleContent: string | null
