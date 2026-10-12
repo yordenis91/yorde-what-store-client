@@ -85,7 +85,7 @@ beforeEach(() => {
 })
 
 describe('StoreSettingsPage index', () => {
-  it('lists the seven sections in order and opens General first', async () => {
+  it('lists the eight sections in order and opens General first', async () => {
     renderPage()
 
     const nav = await screen.findByRole('navigation')
@@ -93,7 +93,7 @@ describe('StoreSettingsPage index', () => {
       within(nav)
         .getAllByRole('button')
         .map((b) => b.textContent),
-    ).toEqual(['General', 'Appearance', 'Social links', 'Sales channels', 'Payments', 'Policies', 'Email'])
+    ).toEqual(['General', 'Appearance', 'Social links', 'Trust strip', 'Sales channels', 'Payments', 'Policies', 'Email'])
     expect(within(nav).getByRole('button', { name: 'General' })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByLabelText('Name')).toHaveValue('My Shop')
   })
@@ -142,6 +142,7 @@ describe('each section saves only its own fields', () => {
     ['General', ['currencySymbol', 'invoiceLogoUrl', 'name', 'tagline', 'tracksInventory']],
     ['Appearance', ['bannerUrl', 'logoUrl', 'theme']],
     ['Social links', ['socialLinks']],
+    ['Trust strip', ['trustBadges']],
     [
       'Sales channels',
       [
@@ -176,6 +177,30 @@ describe('each section saves only its own fields', () => {
     await waitFor(() => expect(useAuthStore.getState().activeTenant?.name).toBe('My Shop'))
     expect(useAuthStore.getState().activeTenant?.myRole).toBe('OWNER')
     expect(useAuthStore.getState().tenants[0].myRole).toBe('OWNER')
+  })
+})
+
+describe('trust strip', () => {
+  it('starts from the defaults, and saves all three badges with the edits', async () => {
+    renderPage('/admin/settings?section=trust')
+
+    const shippingText = await screen.findByLabelText('Shipping — Text')
+    expect(shippingText).toHaveValue('Envío gratis')
+    expect(screen.getByLabelText('Payment — Text')).toHaveValue('Pago seguro')
+
+    await userEvent.clear(shippingText)
+    await userEvent.type(shippingText, 'Envío en 24 h')
+    await userEvent.click(screen.getByRole('checkbox', { name: /Delivery/ }))
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+
+    await waitFor(() => expect(updateCurrentTenant).toHaveBeenCalledTimes(1))
+    expect(updateCurrentTenant.mock.calls[0][0]).toEqual({
+      trustBadges: {
+        shipping: { enabled: true, text: 'Envío en 24 h' },
+        payment: { enabled: true, text: 'Pago seguro' },
+        delivery: { enabled: false, text: 'Entrega rápida' },
+      },
+    })
   })
 })
 

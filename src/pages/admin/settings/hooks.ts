@@ -7,7 +7,7 @@ import { updateCurrentTenant } from '@/services/tenants.service'
 import { useAuthStore } from '@/store/auth.store'
 import type { Tenant } from '@/types/api'
 
-export const SECTION_IDS = ['general', 'appearance', 'social', 'channels', 'payments', 'policies', 'email'] as const
+export const SECTION_IDS = ['general', 'appearance', 'social', 'trust', 'channels', 'payments', 'policies', 'email'] as const
 export type SectionId = (typeof SECTION_IDS)[number]
 
 /**
