@@ -3,6 +3,7 @@
     "name": "Yorde What Store"
   },
   "nav": {
+    "security": "Security",
     "dashboard": "Dashboard",
     "products": "Products",
     "orders": "Orders",
@@ -233,6 +234,8 @@
     "updated": "Order updated",
     "changeStatusTitle": "Change status to {{status}}?",
     "cancelConfirm": "The order will be cancelled and its stock released. This can't be undone.",
+    "cancelPaidConfirm": "The order will be cancelled, its stock released and the card payment refunded through the gateway. This can't be undone.",
+    "ownerOnlyStatus": "Only the store owner can do this: it returns money through the store's payment account.",
     "refundConfirm": "The order will be marked refunded. If it was paid by card, the payment is refunded through the gateway. This can't be undone.",
     "statusFor": "Status of order {{number}}",
     "confirm": "Confirm",
@@ -336,8 +339,25 @@
     "anyLocation": "Any location",
     "noMethods": "No shipping methods yet."
   },
+  "security": {
+    "title": "Account security",
+    "twoFactor": "Two-factor authentication",
+    "statusOn": "Two-factor authentication is on for your account.",
+    "statusOff": "Add a second step to sign-in: a 6-digit code from an authenticator app.",
+    "enable": "Turn on",
+    "scan": "Scan this QR code with your authenticator app, then enter the 6-digit code it shows.",
+    "manualKey": "Or enter this key by hand",
+    "code": "6-digit code",
+    "confirm": "Confirm and turn on",
+    "disable": "Turn off",
+    "disableHint": "Enter a current code from your authenticator app to turn it off.",
+    "enabledToast": "Two-factor authentication is on. Your other sessions were signed out.",
+    "disabledToast": "Two-factor authentication is off. Your other sessions were signed out.",
+    "invalidCode": "Enter the 6-digit code."
+  },
   "staff": {
     "invite": "Invite a team member",
+    "inviteHint": "They will get an email with a link to choose their own password.",
     "resetPassword": "Reset password",
     "resetPasswordSent": "A password reset link has been sent to this team member."
   },
@@ -437,7 +457,9 @@
     "stripePublishableKey": "Publishable key",
     "stripeSecretKey": "Secret key",
     "mercadoPagoEnabled": "Enable MercadoPago checkout",
-    "mercadoPagoAccessToken": "Access token",
+    "mercadoPagoPlatformHint": "MercadoPago payments are processed through the platform's account, so there is nothing to configure here. Turn it on to offer it at checkout.",
+    "telegramBotTokenRequired": "Enter the bot token to turn Telegram on.",
+    "telegramBotTokenSavedHint": "A token is saved. Leave this blank to keep it, or enter a new one to replace it.",
     "paymentEnabled": "{{name}} enabled",
     "credentialRequired": "Required",
     "credentialsNewHint": "Keys are stored encrypted and are never shown again.",
@@ -720,6 +742,9 @@
     "loadError": "Couldn't load the backup list."
   },
   "platformDashboard": {
+    "mixedCurrenciesNote": "Stores charge in more than one currency. The revenue, GMV and commission figures below are in {{currency}} only; the others are listed here.",
+    "inPeriod": "this period",
+    "inTotal": "in total",
     "title": "Platform dashboard",
     "totalTenants": "Total tenants",
     "activeTenants": "Active tenants",

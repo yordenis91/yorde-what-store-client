@@ -4,7 +4,8 @@ import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MemoryRouter } from 'react-router-dom'
 import { OrdersListPage } from './OrdersListPage'
-import type { Order } from '@/types/api'
+import { useAuthStore } from '@/store/auth.store'
+import type { Order, Tenant } from '@/types/api'
 
 const listOrders = vi.fn()
 const updateOrderStatus = vi.fn()
@@ -135,5 +136,73 @@ describe('orders list', () => {
 
     await userEvent.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Delete' }))
     await waitFor(() => expect(hideOrder).toHaveBeenCalledWith('o3'))
+  })
+})
+
+describe('permissions: a collaborator (STAFF) versus the owner', () => {
+  const asRole = (myRole: 'OWNER' | 'STAFF') =>
+    useAuthStore.setState({ activeTenant: { id: 't1', myRole } as Tenant, impersonation: null })
+
+  beforeEach(() => {
+    listOrders.mockResolvedValue({
+      items: [
+        order({ id: 'p1', orderNumber: 'ORD-PAID', status: 'CONFIRMED', paymentStatus: 'PAID', fulfillmentMethod: 'STRIPE' }),
+        order({ id: 'u1', orderNumber: 'ORD-OPEN', status: 'PENDING', paymentStatus: 'PENDING', fulfillmentMethod: 'STRIPE' }),
+      ],
+      meta: { page: 1, limit: 50, total: 2, totalPages: 1 },
+    })
+  })
+
+  const option = (select: HTMLElement, name: string) => within(select).getByRole('option', { name }) as HTMLOptionElement
+
+  it('hides the CSV export from a collaborator, since it carries every customer\'s personal data', async () => {
+    asRole('STAFF')
+    renderPage()
+    await screen.findByText('ORD-PAID')
+
+    expect(screen.queryByRole('button', { name: 'Export CSV' })).not.toBeInTheDocument()
+  })
+
+  it('shows the owner the export', async () => {
+    asRole('OWNER')
+    renderPage()
+    await screen.findByText('ORD-PAID')
+
+    expect(screen.getByRole('button', { name: 'Export CSV' })).toBeInTheDocument()
+  })
+
+  it('stops a collaborator from picking a status that returns money', async () => {
+    asRole('STAFF')
+    renderPage()
+    await screen.findByText('ORD-PAID')
+
+    const paid = statusSelect('ORD-PAID')
+    expect(option(paid, 'REFUNDED').disabled).toBe(true)
+    expect(option(paid, 'CANCELLED').disabled).toBe(true) // cancelling a paid card order refunds it
+    expect(option(paid, 'PROCESSING').disabled).toBe(false)
+
+    const open = statusSelect('ORD-OPEN')
+    expect(option(open, 'CANCELLED').disabled).toBe(false) // no money moved
+    expect(option(open, 'REFUNDED').disabled).toBe(true)
+  })
+
+  it('leaves every status open to the owner', async () => {
+    asRole('OWNER')
+    renderPage()
+    await screen.findByText('ORD-PAID')
+
+    const paid = statusSelect('ORD-PAID')
+    expect(option(paid, 'REFUNDED').disabled).toBe(false)
+    expect(option(paid, 'CANCELLED').disabled).toBe(false)
+  })
+
+  it('tells the owner that cancelling a paid card order refunds it', async () => {
+    asRole('OWNER')
+    renderPage()
+    await screen.findByText('ORD-PAID')
+
+    await userEvent.selectOptions(statusSelect('ORD-PAID'), 'CANCELLED')
+
+    expect(await screen.findByText(/card payment refunded through the gateway/i)).toBeInTheDocument()
   })
 })

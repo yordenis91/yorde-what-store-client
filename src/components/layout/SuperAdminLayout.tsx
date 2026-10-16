@@ -24,6 +24,7 @@ const navItems = [
   { to: '/platform/audit-log', label: 'nav.auditLog', icon: <AuditLogIcon /> },
   { to: '/platform/backups', label: 'nav.backups', icon: <BackupsIcon /> },
   { to: '/platform/settings', label: 'nav.platformSettings', icon: <SettingsIcon /> },
+  { to: '/platform/security', label: 'nav.security', icon: <SettingsIcon /> },
 ]
 
 export function SuperAdminLayout() {

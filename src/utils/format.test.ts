@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatDate, formatMoney, slugify } from './format'
+import { formatCurrencyCode, formatDate, formatMoney, slugify } from './format'
 
 describe('formatMoney', () => {
   it('puts the symbol in front by default', () => {
@@ -43,5 +43,18 @@ describe('slugify', () => {
 describe('formatDate', () => {
   it('renders an ISO timestamp as a readable date', () => {
     expect(formatDate('2026-08-16T10:30:00.000Z')).toMatch(/2026/)
+  })
+})
+
+describe('formatCurrencyCode', () => {
+  it('writes an amount in its own currency, not with a bare dollar sign', () => {
+    expect(formatCurrencyCode(1234.5, 'USD')).toBe('$1,234.50')
+    expect(formatCurrencyCode(50000, 'CLP')).toContain('50,000')
+    expect(formatCurrencyCode(50000, 'CLP')).not.toContain('.00')
+  })
+
+  it('falls back to the plain number when there is no currency, or the code is unknown', () => {
+    expect(formatCurrencyCode(12.3, null)).toBe('12.30')
+    expect(formatCurrencyCode(12.3, 'NOT-A-CODE')).toBe('12.30 NOT-A-CODE')
   })
 })

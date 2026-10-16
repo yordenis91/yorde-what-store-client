@@ -36,7 +36,10 @@ export interface Tenant {
   whatsappEnabled: boolean
   whatsappNumber: string | null
   telegramEnabled: boolean
-  telegramBotToken: string | null
+  /** Whether a bot token is currently stored — the token itself is never returned by the API. */
+  telegramBotTokenSet: boolean
+  /** Write-only: send a new token to change it, or omit to leave it unchanged. Never present in a GET response. */
+  telegramBotToken?: string
   telegramChatId: string | null
   smtpEnabled: boolean
   smtpHost: string | null

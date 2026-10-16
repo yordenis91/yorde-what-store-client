@@ -37,6 +37,7 @@ const CustomerDetailPage = lazy(() =>
   import('@/pages/admin/CustomerDetailPage').then((m) => ({ default: m.CustomerDetailPage })),
 )
 const StoreSettingsPage = lazy(() => import('@/pages/admin/StoreSettingsPage').then((m) => ({ default: m.StoreSettingsPage })))
+const SecurityPage = lazy(() => import('@/pages/SecurityPage').then((m) => ({ default: m.SecurityPage })))
 const StaffPage = lazy(() => import('@/pages/admin/StaffPage').then((m) => ({ default: m.StaffPage })))
 const PlansPage = lazy(() => import('@/pages/admin/PlansPage').then((m) => ({ default: m.PlansPage })))
 const CouponsPage = lazy(() => import('@/pages/admin/CouponsPage').then((m) => ({ default: m.CouponsPage })))
@@ -190,6 +191,7 @@ export default function App() {
             <Route path="coupons" element={<CouponsPage />} />
             <Route path="shipping" element={<ShippingPage />} />
             <Route path="staff" element={<StaffPage />} />
+            <Route path="security" element={<SecurityPage />} />
             <Route path="email-templates" element={<EmailTemplatesPage />} />
             <Route path="plans" element={<PlansPage />} />
             <Route path="settings" element={<StoreSettingsPage />} />
@@ -208,6 +210,7 @@ export default function App() {
             <Route path="audit-log" element={<PlatformAuditLogPage />} />
             <Route path="backups" element={<PlatformBackupsPage />} />
             <Route path="settings" element={<PlatformSettingsPage />} />
+            <Route path="security" element={<SecurityPage />} />
           </Route>
         </Route>
 

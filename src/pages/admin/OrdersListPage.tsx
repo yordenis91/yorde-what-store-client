@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Modal } from '@/components/ui/Modal'
+import { useIsOwner } from '@/hooks/useIsOwner'
+import { needsOwnerToSet, terminalStatusConfirmKey } from '@/utils/order-permissions'
 import { QueryErrorState } from '@/components/ui/QueryErrorState'
 import { EyeIcon, PencilIcon, TrashIcon } from '@/components/ui/icons'
 import {
@@ -47,6 +49,7 @@ export function OrdersListPage() {
   const [dateTo, setDateTo] = useState('')
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const isOwner = useIsOwner()
   const [sortBy, setSortBy] = useState<OrderSortField>('createdAt')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
   const navigate = useNavigate()
@@ -140,9 +143,12 @@ export function OrdersListPage() {
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold text-gray-900">{t('orders.title')}</h1>
-        <Button variant="secondary" onClick={() => void handleExport()} loading={exporting}>
-          {t('orders.exportCsv')}
-        </Button>
+        {/* The export carries every customer's personal data: OWNER-only on the API. */}
+        {isOwner && (
+          <Button variant="secondary" onClick={() => void handleExport()} loading={exporting}>
+            {t('orders.exportCsv')}
+          </Button>
+        )}
       </div>
 
       <div className="mb-4 flex flex-col gap-3">
@@ -261,7 +267,7 @@ export function OrdersListPage() {
                         className={`rounded-full border-0 py-1 pl-2.5 pr-7 text-xs font-medium disabled:cursor-not-allowed ${statusColors[order.status]}`}
                       >
                         {STATUSES.map((s) => (
-                          <option key={s} value={s}>
+                          <option key={s} value={s} disabled={!isOwner && needsOwnerToSet(s, order)}>
                             {s}
                           </option>
                         ))}
@@ -329,7 +335,7 @@ export function OrdersListPage() {
           onClose={() => setPendingStatus(null)}
         >
           <p className="text-sm text-gray-600">
-            {pendingStatus.status === 'REFUNDED' ? t('orders.refundConfirm') : t('orders.cancelConfirm')}
+            {t(terminalStatusConfirmKey(pendingStatus.status, pendingStatus.order))}
           </p>
           <div className="mt-5 flex justify-end gap-2">
             <Button variant="secondary" onClick={() => setPendingStatus(null)}>
