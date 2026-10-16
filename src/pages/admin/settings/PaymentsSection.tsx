@@ -122,50 +122,34 @@ function StripeForm({ setting }: { setting?: PaymentSetting }) {
 }
 
 interface MercadoPagoValues {
-  accessToken: string
   isEnabled: boolean
 }
 
+/**
+ * MercadoPago is charged through the platform's own account (its webhook is verified with the platform's
+ * secret), so a store has no credentials of its own to enter — only the switch. The API refuses credentials
+ * for this provider.
+ */
 function MercadoPagoForm({ setting }: { setting?: PaymentSetting }) {
   const { t } = useTranslation()
   const { register, handleSubmit, reset, formState } = useForm<MercadoPagoValues>({
-    defaultValues: {
-      accessToken: '',
-      isEnabled: setting?.isEnabled ?? false,
-    },
+    defaultValues: { isEnabled: setting?.isEnabled ?? false },
   })
   const save = usePaymentSave('MERCADOPAGO')
   useReportDirty(formState.isDirty)
-  useEffect(() => reset({ accessToken: '', isEnabled: setting?.isEnabled ?? false }), [setting, reset])
+  useEffect(() => reset({ isEnabled: setting?.isEnabled ?? false }), [setting, reset])
 
   return (
-    <SectionCard
-      title="MercadoPago"
-      hint={setting ? t('settings.credentialsSavedHint') : t('settings.credentialsNewHint')}
-    >
+    <SectionCard title="MercadoPago" hint={t('settings.mercadoPagoPlatformHint')}>
       <EnabledBadge show={!!setting?.isEnabled} label={t('settings.paymentEnabled', { name: 'MercadoPago' })} />
       <form
-        onSubmit={(e) =>
-          void handleSubmit((v) =>
-            save.mutate({
-              credentials: filled(v.accessToken) ? { accessToken: v.accessToken.trim() } : undefined,
-              isEnabled: v.isEnabled,
-            }),
-          )(e)
-        }
+        onSubmit={(e) => void handleSubmit((v) => save.mutate({ isEnabled: v.isEnabled }))(e)}
         className="flex flex-col gap-3"
       >
         <label className="flex items-center gap-2 text-sm text-gray-700">
           <input type="checkbox" {...register('isEnabled')} /> {t('settings.mercadoPagoEnabled')}
         </label>
         <PlanLockedNotice method="MERCADOPAGO" />
-        <Input
-          label={t('settings.mercadoPagoAccessToken')}
-          type="password"
-          placeholder="APP_USR-..."
-          error={formState.errors.accessToken && t('settings.credentialRequired')}
-          {...register('accessToken', { validate: (v) => !!setting || v.trim() !== '' })}
-        />
         <SaveCredentials loading={save.isPending} />
       </form>
     </SectionCard>

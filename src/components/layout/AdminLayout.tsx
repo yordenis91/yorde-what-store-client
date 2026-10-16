@@ -58,6 +58,7 @@ export function AdminLayout() {
     { to: '/admin/email-templates', label: 'nav.emailTemplates', icon: <EmailTemplatesIcon /> },
     { to: '/admin/plans', label: 'nav.plans', icon: <PlansIcon /> },
     { to: '/admin/settings', label: 'nav.settings', icon: <SettingsIcon /> },
+    { to: '/admin/security', label: 'nav.security', icon: <SettingsIcon /> },
   ]
 
   async function handleLogout() {

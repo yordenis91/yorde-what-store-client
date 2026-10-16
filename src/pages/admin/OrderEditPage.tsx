@@ -14,7 +14,9 @@ import { getOrder, updateOrderDetails, updateOrderStatus, type OrderDetailsInput
 import { listProducts } from '@/services/products.service'
 import { listShippings } from '@/services/shipping.service'
 import { extractErrorMessage } from '@/services/api-client'
+import { useIsOwner } from '@/hooks/useIsOwner'
 import { useAuthStore } from '@/store/auth.store'
+import { needsOwnerToSet, terminalStatusConfirmKey } from '@/utils/order-permissions'
 import { formatMoney } from '@/utils/format'
 import type { Order, OrderStatus } from '@/types/api'
 
@@ -81,6 +83,7 @@ function OrderEditor({ order }: { order: Order }) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const activeTenant = useAuthStore((s) => s.activeTenant)
+  const isOwner = useIsOwner()
   const symbol = activeTenant?.currencySymbol ?? '$'
   const position = (activeTenant?.currencySymbolPosition as 'pre' | 'post') ?? 'pre'
 
@@ -322,7 +325,7 @@ function OrderEditor({ order }: { order: Order }) {
                   {...register('status')}
                 >
                   {STATUSES.map((s) => (
-                    <option key={s} value={s}>
+                    <option key={s} value={s} disabled={!isOwner && s !== order.status && needsOwnerToSet(s, order)}>
                       {s}
                     </option>
                   ))}
@@ -353,7 +356,7 @@ function OrderEditor({ order }: { order: Order }) {
       {confirmStatus && (
         <Modal title={t('orders.changeStatusTitle', { status: confirmStatus.status })} onClose={() => setConfirmStatus(null)}>
           <p className="text-sm text-gray-600">
-            {confirmStatus.status === 'REFUNDED' ? t('orders.refundConfirm') : t('orders.cancelConfirm')}
+            {t(terminalStatusConfirmKey(confirmStatus.status, order))}
           </p>
           <div className="mt-5 flex justify-end gap-2">
             <Button variant="secondary" onClick={() => setConfirmStatus(null)}>

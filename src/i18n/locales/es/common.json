@@ -3,6 +3,7 @@
     "name": "Yorde What Store"
   },
   "nav": {
+    "security": "Seguridad",
     "dashboard": "Panel",
     "products": "Productos",
     "orders": "Órdenes",
@@ -233,6 +234,8 @@
     "updated": "Orden actualizada",
     "changeStatusTitle": "¿Cambiar el estado a {{status}}?",
     "cancelConfirm": "La orden se cancelará y se liberará su stock. No se puede deshacer.",
+    "cancelPaidConfirm": "La orden se cancelará, se liberará su stock y el pago con tarjeta se reembolsará a través de la pasarela. No se puede deshacer.",
+    "ownerOnlyStatus": "Solo la persona dueña de la tienda puede hacerlo: devuelve dinero desde la cuenta de pagos de la tienda.",
     "refundConfirm": "La orden se marcará como reembolsada. Si se pagó con tarjeta, el pago se reembolsa a través de la pasarela. No se puede deshacer.",
     "statusFor": "Estado de la orden {{number}}",
     "confirm": "Confirmar",
@@ -336,8 +339,25 @@
     "anyLocation": "Cualquier ubicación",
     "noMethods": "Todavía no hay métodos de envío."
   },
+  "security": {
+    "title": "Seguridad de la cuenta",
+    "twoFactor": "Autenticación en dos pasos",
+    "statusOn": "La autenticación en dos pasos está activada en tu cuenta.",
+    "statusOff": "Añade un segundo paso al iniciar sesión: un código de 6 dígitos de una app de autenticación.",
+    "enable": "Activar",
+    "scan": "Escanea este código QR con tu app de autenticación y escribe el código de 6 dígitos que muestra.",
+    "manualKey": "O ingresa esta clave a mano",
+    "code": "Código de 6 dígitos",
+    "confirm": "Confirmar y activar",
+    "disable": "Desactivar",
+    "disableHint": "Ingresa un código actual de tu app de autenticación para desactivarla.",
+    "enabledToast": "Autenticación en dos pasos activada. Se cerraron tus otras sesiones.",
+    "disabledToast": "Autenticación en dos pasos desactivada. Se cerraron tus otras sesiones.",
+    "invalidCode": "Ingresa el código de 6 dígitos."
+  },
   "staff": {
     "invite": "Invitar miembro del equipo",
+    "inviteHint": "Recibirá un correo con un enlace para elegir su propia contraseña.",
     "resetPassword": "Restablecer contraseña",
     "resetPasswordSent": "Se envió un link para restablecer la contraseña a este miembro del equipo."
   },
@@ -437,7 +457,9 @@
     "stripePublishableKey": "Clave pública",
     "stripeSecretKey": "Clave secreta",
     "mercadoPagoEnabled": "Activar pago con MercadoPago",
-    "mercadoPagoAccessToken": "Access token",
+    "mercadoPagoPlatformHint": "Los pagos con MercadoPago se procesan con la cuenta de la plataforma, así que aquí no hay nada que configurar. Actívalo para ofrecerlo en el checkout.",
+    "telegramBotTokenRequired": "Ingresa el token del bot para activar Telegram.",
+    "telegramBotTokenSavedHint": "Hay un token guardado. Déjalo vacío para conservarlo, o ingresa uno nuevo para reemplazarlo.",
     "paymentEnabled": "{{name}} activado",
     "credentialRequired": "Obligatorio",
     "credentialsNewHint": "Las claves se guardan cifradas y no se vuelven a mostrar.",
@@ -720,6 +742,9 @@
     "loadError": "No se pudo cargar la lista de backups."
   },
   "platformDashboard": {
+    "mixedCurrenciesNote": "Las tiendas cobran en más de una moneda. Los ingresos, el GMV y las comisiones de abajo son solo en {{currency}}; las demás se listan aquí.",
+    "inPeriod": "en este periodo",
+    "inTotal": "en total",
     "title": "Panel de plataforma",
     "totalTenants": "Tiendas totales",
     "activeTenants": "Tiendas activas",

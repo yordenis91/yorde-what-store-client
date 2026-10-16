@@ -6,7 +6,9 @@ import { toast } from 'sonner'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { confirmZellePayment, downloadInvoice, getOrder, rejectZellePayment, updateOrderStatus } from '@/services/orders.service'
+import { useIsOwner } from '@/hooks/useIsOwner'
 import { useAuthStore } from '@/store/auth.store'
+import { needsOwnerToSet } from '@/utils/order-permissions'
 import { formatDate, formatMoney } from '@/utils/format'
 import { extractErrorMessage, resolveMediaUrl } from '@/services/api-client'
 import { storefrontUrl } from '@/config/storefront'
@@ -23,6 +25,7 @@ export function OrderDetailPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const activeTenant = useAuthStore((s) => s.activeTenant)
+  const isOwner = useIsOwner()
   const symbol = activeTenant?.currencySymbol ?? '$'
   const position = (activeTenant?.currencySymbolPosition as 'pre' | 'post') ?? 'pre'
 
@@ -241,13 +244,20 @@ export function OrderDetailPage() {
           {STATUSES.map((status) => {
             const isCurrent = status === order.status
             const locked = TERMINAL_STATUSES.includes(order.status) && !isCurrent
+            const ownerOnly = !isOwner && !isCurrent && needsOwnerToSet(status, order)
             return (
               <Button
                 key={status}
                 variant={isCurrent ? 'primary' : 'secondary'}
                 onClick={() => statusMutation.mutate(status)}
-                disabled={statusMutation.isPending || locked}
-                title={locked ? t('orders.statusLocked', { status: order.status }) : undefined}
+                disabled={statusMutation.isPending || locked || ownerOnly}
+                title={
+                  locked
+                    ? t('orders.statusLocked', { status: order.status })
+                    : ownerOnly
+                      ? t('orders.ownerOnlyStatus')
+                      : undefined
+                }
               >
                 {status}
               </Button>

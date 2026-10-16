@@ -19,7 +19,7 @@ import {
   sendTenantOwnerPasswordReset,
   updatePlatformTenant,
 } from '@/services/platform.service'
-import { formatDate } from '@/utils/format'
+import { formatDate, formatMoney } from '@/utils/format'
 import { extractErrorMessage } from '@/services/api-client'
 
 type Tab = 'info' | 'stats' | 'members' | 'notes' | 'history'
@@ -163,7 +163,9 @@ export function PlatformTenantDetailPage() {
           </Card>
           <Card>
             <p className="text-xs text-gray-500">{t('platformTenants.stats.gmv')}</p>
-            <p className="text-2xl font-semibold text-gray-900">${tenant.stats.gmv.toFixed(2)}</p>
+            <p className="text-2xl font-semibold text-gray-900">
+              {formatMoney(tenant.stats.gmv, tenant.currencySymbol, (tenant.currencySymbolPosition as 'pre' | 'post') ?? 'pre')}
+            </p>
           </Card>
         </div>
       )}

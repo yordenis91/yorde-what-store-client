@@ -42,7 +42,7 @@ const TENANT = {
   whatsappEnabled: true,
   whatsappNumber: '+15551234567',
   telegramEnabled: false,
-  telegramBotToken: null,
+  telegramBotTokenSet: false,
   telegramChatId: null,
   orderMessageTemplate: 'Hello',
   termsOfSaleContent: null,
@@ -147,7 +147,6 @@ describe('each section saves only its own fields', () => {
       'Sales channels',
       [
         'orderMessageTemplate',
-        'telegramBotToken',
         'telegramChatId',
         'telegramEnabled',
         'whatsappEnabled',
@@ -225,6 +224,69 @@ describe('a collaborator', () => {
     expect(listPaymentSettings).not.toHaveBeenCalled()
     expect(getPublicStorefront).not.toHaveBeenCalled()
     expect(upsertPaymentSetting).not.toHaveBeenCalled()
+  })
+})
+
+describe('the Telegram bot token is write-only', () => {
+  const TELEGRAM_ON = { ...TENANT, telegramEnabled: true, telegramBotTokenSet: true, telegramChatId: 'chat-1' }
+
+  async function openChannels() {
+    renderPage()
+    await screen.findByLabelText('Name')
+    await userEvent.click(section('Sales channels'))
+  }
+
+  it('does not send the token (which would erase it) when only something else changed', async () => {
+    getCurrentTenant.mockResolvedValue(TELEGRAM_ON)
+    await openChannels()
+
+    const chat = await screen.findByLabelText('Chat ID')
+    await userEvent.clear(chat)
+    await userEvent.type(chat, 'chat-2')
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+
+    await waitFor(() => expect(updateCurrentTenant).toHaveBeenCalledTimes(1))
+    const payload = updateCurrentTenant.mock.calls[0][0] as Record<string, unknown>
+    expect(payload).not.toHaveProperty('telegramBotToken')
+    expect(payload.telegramChatId).toBe('chat-2')
+  })
+
+  it('shows that a token is saved without showing it, and replaces it when a new one is typed', async () => {
+    getCurrentTenant.mockResolvedValue(TELEGRAM_ON)
+    await openChannels()
+
+    const token = await screen.findByLabelText('Bot token')
+    expect(token).toHaveValue('')
+    expect(token).toHaveAttribute('placeholder', '••••••••')
+    await userEvent.type(token, '  123:new-token ')
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+
+    await waitFor(() => expect(updateCurrentTenant).toHaveBeenCalledTimes(1))
+    expect(updateCurrentTenant.mock.calls[0][0]).toMatchObject({ telegramBotToken: '123:new-token' })
+  })
+
+  it('will not turn Telegram on with no token saved and none typed', async () => {
+    getCurrentTenant.mockResolvedValue({ ...TELEGRAM_ON, telegramBotTokenSet: false })
+    await openChannels()
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Save changes' }))
+
+    expect(await screen.findByText('Enter the bot token to turn Telegram on.')).toBeInTheDocument()
+    expect(updateCurrentTenant).not.toHaveBeenCalled()
+  })
+})
+
+describe('MercadoPago has no store credentials', () => {
+  it('offers only the switch, and saves it without any credentials', async () => {
+    renderPage('/admin/settings?section=payments')
+    const card = (await screen.findByText('MercadoPago')).closest('div.rounded-xl') as HTMLElement
+
+    expect(within(card).queryByLabelText('Access token')).not.toBeInTheDocument()
+    await userEvent.click(within(card).getByLabelText('Enable MercadoPago checkout'))
+    await userEvent.click(within(card).getByRole('button', { name: 'Save changes' }))
+
+    await waitFor(() => expect(upsertPaymentSetting).toHaveBeenCalledTimes(1))
+    expect(upsertPaymentSetting.mock.calls[0][0]).toEqual({ provider: 'MERCADOPAGO', isEnabled: true })
   })
 })
 

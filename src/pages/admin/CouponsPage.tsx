@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useIsOwner } from '@/hooks/useIsOwner'
 import { useForm } from 'react-hook-form'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -32,6 +33,8 @@ interface FormValues {
 const EMPTY: FormValues = { code: '', name: '', discountType: 'PERCENTAGE', discountValue: 0, isActive: true }
 
 export function CouponsPage() {
+  // Creating, editing and deleting coupons is OWNER-only on the API; a collaborator gets a read-only list.
+  const isOwner = useIsOwner()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [showForm, setShowForm] = useState(false)
@@ -103,9 +106,11 @@ export function CouponsPage() {
     <div className="max-w-3xl">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">{t('coupons.title')}</h1>
-        <Button onClick={() => (showForm ? closeForm() : openCreate())}>
-          {showForm ? t('common.cancel') : t('coupons.new')}
-        </Button>
+        {isOwner && (
+          <Button onClick={() => (showForm ? closeForm() : openCreate())}>
+            {showForm ? t('common.cancel') : t('coupons.new')}
+          </Button>
+        )}
       </div>
 
       {showForm && (
@@ -201,6 +206,7 @@ export function CouponsPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
+                    {isOwner && (
                     <div className="flex items-center justify-end gap-2">
                       <button
                         type="button"
@@ -215,6 +221,7 @@ export function CouponsPage() {
                         {t('common.delete')}
                       </Button>
                     </div>
+                    )}
                   </td>
                 </tr>
               ))}

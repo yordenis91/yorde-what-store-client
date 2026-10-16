@@ -6,7 +6,7 @@ import { Bar, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, 
 import { Card } from '@/components/ui/Card'
 import { getPlatformSummary } from '@/services/platform.service'
 import { DASHBOARD_RANGES, type DashboardRange } from '@/services/dashboard.service'
-import { formatDate, formatMoney } from '@/utils/format'
+import { formatCurrencyCode, formatDate, formatMoney } from '@/utils/format'
 
 function GmvChart({ data }: { data: { date: string; orders: number; gmv: number }[] }) {
   return (
@@ -31,18 +31,21 @@ export function PlatformDashboardPage() {
     queryFn: () => getPlatformSummary(range),
   })
 
+  // Money from stores is in the store's own currency; never show it with a bare "$".
+  const money = (value: number) => formatCurrencyCode(value, data?.currency)
+
   const lifetimeStats = [
     { label: t('platformDashboard.totalTenants'), value: data?.totalTenants ?? '—' },
     { label: t('platformDashboard.activeTenants'), value: data?.activeTenants ?? '—' },
     { label: t('platformDashboard.totalUsers'), value: data?.totalUsers ?? '—' },
     { label: t('platformDashboard.totalOrders'), value: data?.totalOrders ?? '—' },
-    { label: t('platformDashboard.platformRevenue'), value: formatMoney(data?.totalRevenue ?? 0) },
+    { label: t('platformDashboard.platformRevenue'), value: money(data?.totalRevenue ?? 0) },
   ]
 
   const periodStats = [
     { label: t('platformDashboard.periodOrders'), value: data?.periodOrders ?? '—' },
-    { label: t('platformDashboard.periodGmv'), value: formatMoney(data?.periodRevenue ?? 0) },
-    { label: t('platformDashboard.commissions'), value: formatMoney(data?.commissionsTotal ?? 0) },
+    { label: t('platformDashboard.periodGmv'), value: money(data?.periodRevenue ?? 0) },
+    { label: t('platformDashboard.commissions'), value: money(data?.commissionsTotal ?? 0) },
   ]
 
   const billingStats = [
@@ -68,6 +71,23 @@ export function PlatformDashboardPage() {
           ))}
         </div>
       </div>
+
+      {data?.mixedCurrencies && (
+        <Card className="mb-4 border-amber-200 bg-amber-50">
+          <p className="text-sm text-amber-900">
+            {t('platformDashboard.mixedCurrenciesNote', { currency: data.currency })}
+          </p>
+          <ul className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm text-amber-900">
+            {data.byCurrency.map((c) => (
+              <li key={c.currency}>
+                <span className="font-medium">{c.currency}</span>: {formatCurrencyCode(c.periodRevenue, c.currency)}{' '}
+                {t('platformDashboard.inPeriod')}, {formatCurrencyCode(c.totalRevenue, c.currency)}{' '}
+                {t('platformDashboard.inTotal')}
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {lifetimeStats.map((stat) => (
@@ -107,7 +127,7 @@ export function PlatformDashboardPage() {
                 className="flex items-center justify-between py-2 text-sm hover:text-brand-700"
               >
                 <span className="text-gray-700">{tenant.name}</span>
-                <span className="font-medium text-gray-900">{formatMoney(tenant.revenue)}</span>
+                <span className="font-medium text-gray-900">{money(tenant.revenue)}</span>
               </Link>
             ))}
             {data?.topTenantsByRevenue.length === 0 && (

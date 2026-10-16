@@ -11,7 +11,6 @@ import { extractErrorMessage } from '@/services/api-client'
 interface FormValues {
   email: string
   name: string
-  temporaryPassword: string
 }
 
 export function StaffPage() {
@@ -50,16 +49,12 @@ export function StaffPage() {
         <h2 className="mb-3 font-medium text-gray-900">{t('staff.invite')}</h2>
         <form
           onSubmit={(e) => void handleSubmit((values) => inviteMutation.mutate(values))(e)}
-          className="grid grid-cols-1 gap-3 sm:grid-cols-3"
+          className="grid grid-cols-1 gap-3 sm:grid-cols-2"
         >
           <Input placeholder={t('auth.name')} {...register('name', { required: true })} />
           <Input placeholder={t('auth.email')} type="email" {...register('email', { required: true })} />
-          <Input
-            type="password"
-            placeholder={t('auth.password')}
-            {...register('temporaryPassword', { required: true, minLength: 8 })}
-          />
-          <Button type="submit" loading={inviteMutation.isPending} className="sm:col-span-3 w-fit">
+          <p className="text-xs text-gray-500 sm:col-span-2">{t('staff.inviteHint')}</p>
+          <Button type="submit" loading={inviteMutation.isPending} className="sm:col-span-2 w-fit">
             {t('common.save')}
           </Button>
         </form>

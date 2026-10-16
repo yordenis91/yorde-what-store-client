@@ -65,8 +65,9 @@ export async function enableTwoFactor(code: string) {
   return data.data
 }
 
-export async function disableTwoFactor() {
-  const { data } = await apiClient.post<ApiEnvelope<{ twoFactorEnabled: boolean }>>('/auth/2fa/disable')
+/** Turning 2FA off needs a current code: a stolen access token alone must not be able to drop the second factor. */
+export async function disableTwoFactor(code: string) {
+  const { data } = await apiClient.post<ApiEnvelope<{ twoFactorEnabled: boolean }>>('/auth/2fa/disable', { code })
   return data.data
 }
 

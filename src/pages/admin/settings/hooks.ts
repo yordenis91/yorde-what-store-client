@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { extractErrorMessage } from '@/services/api-client'
 import { updateCurrentTenant } from '@/services/tenants.service'
+import { useIsOwner } from '@/hooks/useIsOwner'
 import { useAuthStore } from '@/store/auth.store'
 import type { Tenant } from '@/types/api'
 
@@ -18,9 +19,7 @@ export type SectionId = (typeof SECTION_IDS)[number]
  * collaborator — the API stays the authority and would answer 403.
  */
 export function useCanEditSettings() {
-  const myRole = useAuthStore((s) => s.activeTenant?.myRole)
-  const impersonating = useAuthStore((s) => s.impersonation !== null)
-  return impersonating || !myRole || myRole === 'OWNER'
+  return useIsOwner()
 }
 
 /** Lets a section tell the page it has unsaved edits, so switching sections can ask first. */

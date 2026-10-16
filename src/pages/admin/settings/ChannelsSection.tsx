@@ -6,21 +6,21 @@ import { PlanLockedNotice, SaveButton, SectionCard, SectionFieldset } from './sh
 import { useReportDirty, useSaveTenantFields } from './hooks'
 import type { Tenant } from '@/types/api'
 
-type Values = Pick<
-  Tenant,
-  | 'whatsappEnabled'
-  | 'whatsappNumber'
-  | 'telegramEnabled'
-  | 'telegramBotToken'
-  | 'telegramChatId'
-  | 'orderMessageTemplate'
->
+interface Values {
+  whatsappEnabled: boolean
+  whatsappNumber: string | null
+  telegramEnabled: boolean
+  /** Write-only: the API never returns the stored token, so this always starts blank. */
+  telegramBotToken: string
+  telegramChatId: string | null
+  orderMessageTemplate: string
+}
 
 const toValues = (t: Tenant): Values => ({
   whatsappEnabled: t.whatsappEnabled,
   whatsappNumber: t.whatsappNumber,
   telegramEnabled: t.telegramEnabled,
-  telegramBotToken: t.telegramBotToken,
+  telegramBotToken: '',
   telegramChatId: t.telegramChatId,
   orderMessageTemplate: t.orderMessageTemplate,
 })
@@ -34,8 +34,15 @@ export function ChannelsSection({ tenant }: { tenant: Tenant }) {
   useReportDirty(formState.isDirty)
   useEffect(() => reset(toValues(tenant)), [tenant, reset])
 
+  // An empty token field means "keep the stored one": sending '' would erase it, and with it every
+  // Telegram order notification, on an unrelated save (a new WhatsApp number, say).
+  function onSubmit({ telegramBotToken, ...rest }: Values) {
+    const token = telegramBotToken.trim()
+    save.mutate({ ...rest, ...(token !== '' && { telegramBotToken: token }) })
+  }
+
   return (
-    <form onSubmit={(e) => void handleSubmit((values) => save.mutate(values))(e)}>
+    <form onSubmit={(e) => void handleSubmit(onSubmit)(e)}>
       <SectionFieldset>
         <SectionCard title={t('settings.whatsapp')}>
           <label className="flex items-center gap-2 text-sm text-gray-700">
@@ -54,7 +61,20 @@ export function ChannelsSection({ tenant }: { tenant: Tenant }) {
           <PlanLockedNotice method="TELEGRAM" />
           {watch('telegramEnabled') && (
             <>
-              <Input label={t('settings.telegramBotToken')} {...register('telegramBotToken')} />
+              <Input
+                label={t('settings.telegramBotToken')}
+                type="password"
+                autoComplete="off"
+                placeholder={tenant.telegramBotTokenSet ? '••••••••' : ''}
+                error={formState.errors.telegramBotToken && t('settings.telegramBotTokenRequired')}
+                {...register('telegramBotToken', {
+                  // Turning Telegram on with no token stored (and none typed) would leave a channel that cannot send.
+                  validate: (v) => tenant.telegramBotTokenSet || v.trim() !== '',
+                })}
+              />
+              {tenant.telegramBotTokenSet && (
+                <p className="-mt-2 text-xs text-gray-500">{t('settings.telegramBotTokenSavedHint')}</p>
+              )}
               <Input label={t('settings.telegramChatId')} {...register('telegramChatId')} />
             </>
           )}

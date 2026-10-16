@@ -1,8 +1,10 @@
 import { useEffect, useRef } from 'react'
+import axios from 'axios'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { API_URL } from '@/services/api-client'
+import { getMyTenants } from '@/services/tenants.service'
 import { useAuthStore } from '@/store/auth.store'
 import { useOrderNotificationsStore } from '@/store/order-notifications.store'
 import { playNewOrderChime } from '@/utils/notification-sound'
@@ -81,11 +83,31 @@ export function useOrderEvents() {
         void queryClient.invalidateQueries({ queryKey: ['orders'] })
       }
 
+      // EventSource hides the HTTP status, so a stream the API refused (the member was removed, the account
+      // or store was deactivated) looks the same as a network blip. Reconnecting blindly would retry a
+      // refused stream every few seconds for as long as the tab stays open; making an ordinary
+      // authenticated call first tells the two apart. A 401 there goes through the client's
+      // refresh-or-sign-out handling (which is why this is not /auth/me: that path is exempt from it),
+      // ends the session and unmounts this hook, so the retry never happens.
       source.onerror = () => {
         source?.close()
         if (closed) return
-        retryTimer = setTimeout(connect, RETRY_AFTER_ERROR_MS)
+        scheduleReconnect()
       }
+    }
+
+    function scheduleReconnect() {
+      retryTimer = setTimeout(() => {
+        if (closed) return
+        getMyTenants()
+          .then(() => connect())
+          .catch((error: unknown) => {
+            // No response at all = the network (or the API) is down, not a refusal: keep trying. A real answer
+            // (a 401 the client could not refresh) has already ended the session; reconnecting would only
+            // be refused again.
+            if (!axios.isAxiosError(error) || !error.response) scheduleReconnect()
+          })
+      }, RETRY_AFTER_ERROR_MS)
     }
 
     connect()

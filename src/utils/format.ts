@@ -4,6 +4,20 @@ export function formatMoney(value: string | number, symbol = '$', position: 'pre
   return position === 'pre' ? `${symbol}${formatted}` : `${formatted}${symbol}`
 }
 
+/**
+ * Amount in an ISO 4217 currency (`USD`, `CLP`), shown the way that currency is written. Platform totals
+ * span stores that charge in different currencies, so a bare `$` would be wrong for most of them. Falls
+ * back to the plain number and the code when the runtime does not know the currency.
+ */
+export function formatCurrencyCode(value: number, currency: string | null | undefined): string {
+  if (!currency) return value.toFixed(2)
+  try {
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(value)
+  } catch {
+    return `${value.toFixed(2)} ${currency}`
+  }
+}
+
 export function formatDate(value: string): string {
   return new Date(value).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
 }

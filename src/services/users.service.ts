@@ -6,7 +6,8 @@ export async function listMembers() {
   return data.data
 }
 
-export async function inviteStaff(payload: { email: string; name: string; temporaryPassword: string }) {
+/** The invitee sets their own password through the link the API emails them — there is no password to send. */
+export async function inviteStaff(payload: { email: string; name: string }) {
   const { data } = await apiClient.post<ApiEnvelope<TenantMember>>('/users', payload)
   return data.data
 }

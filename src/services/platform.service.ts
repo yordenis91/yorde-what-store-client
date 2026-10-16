@@ -26,6 +26,11 @@ export interface PlatformSummary {
   topTenantsByRevenue: { tenantId: string; name: string; slug: string; revenue: number }[]
   commissionsTotal: number
   defaultCommissionRate: number
+  /** The currency the revenue, GMV and commission figures above are in: the one that moved the most money. Null with no sales. */
+  currency: string | null
+  /** True when stores charge in more than one currency — the figures above then cover only `currency`. */
+  mixedCurrencies: boolean
+  byCurrency: { currency: string; totalRevenue: number; periodRevenue: number; commissionsTotal: number }[]
   mrr: number
   activeSubscriptions: number
   planBreakdown: { planId: string; name: string; activeSubscriptions: number; mrr: number }[]

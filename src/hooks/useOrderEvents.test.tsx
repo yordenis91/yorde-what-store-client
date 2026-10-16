@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderHook } from '@testing-library/react'
+import { AxiosError } from 'axios'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { useAuthStore } from '@/store/auth.store'
@@ -9,6 +10,9 @@ import { useOrderEvents } from './useOrderEvents'
 
 const playNewOrderChime = vi.fn()
 vi.mock('@/utils/notification-sound', () => ({ playNewOrderChime: () => playNewOrderChime() }))
+
+const getMyTenants = vi.fn()
+vi.mock('@/services/tenants.service', () => ({ getMyTenants: () => getMyTenants() }))
 
 const toastInfo = vi.fn()
 vi.mock('sonner', () => ({ toast: { info: (...args: unknown[]) => toastInfo(...args) } }))
@@ -94,5 +98,55 @@ describe('useOrderEvents', () => {
 
     expect(useOrderNotificationsStore.getState().unseenCount).toBe(0)
     expect(useOrderNotificationsStore.getState().recent).toEqual([])
+  })
+
+  describe('when the stream drops', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+      getMyTenants.mockReset()
+    })
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('checks the session first and reconnects only if it is still valid', async () => {
+      getMyTenants.mockResolvedValue([])
+      renderHook(() => useOrderEvents(), { wrapper })
+      expect(FakeEventSource.instances).toHaveLength(1)
+
+      FakeEventSource.instances[0].onerror?.()
+      expect(getMyTenants).not.toHaveBeenCalled() // not before the retry delay
+      await vi.advanceTimersByTimeAsync(5000)
+
+      expect(getMyTenants).toHaveBeenCalledTimes(1)
+      expect(FakeEventSource.instances).toHaveLength(2)
+    })
+
+    it('does not keep retrying a stream the API refused: the session check gets a 401, so nothing reconnects', async () => {
+      // A removed member's call ends in the client's sign-out handling and rejects with the API's answer.
+      getMyTenants.mockRejectedValue(new AxiosError('unauthorized', '401', undefined, undefined, { status: 401 } as never))
+      renderHook(() => useOrderEvents(), { wrapper })
+
+      FakeEventSource.instances[0].onerror?.()
+      await vi.advanceTimersByTimeAsync(60_000)
+
+      expect(getMyTenants).toHaveBeenCalledTimes(1)
+      expect(FakeEventSource.instances).toHaveLength(1)
+    })
+
+    it('keeps trying while the network is down, then reconnects when it is back', async () => {
+      getMyTenants
+        .mockRejectedValueOnce(new AxiosError('Network Error')) // no response at all
+        .mockResolvedValueOnce([])
+      renderHook(() => useOrderEvents(), { wrapper })
+
+      FakeEventSource.instances[0].onerror?.()
+      await vi.advanceTimersByTimeAsync(5000)
+      expect(FakeEventSource.instances).toHaveLength(1)
+      await vi.advanceTimersByTimeAsync(5000)
+
+      expect(getMyTenants).toHaveBeenCalledTimes(2)
+      expect(FakeEventSource.instances).toHaveLength(2)
+    })
   })
 })
