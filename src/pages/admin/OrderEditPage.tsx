@@ -22,7 +22,7 @@ import type { Order, OrderStatus } from '@/types/api'
 
 const STATUSES: OrderStatus[] = ['PENDING', 'CONFIRMED', 'PROCESSING', 'COMPLETED', 'CANCELLED', 'REFUNDED']
 const TERMINAL: OrderStatus[] = ['CANCELLED', 'REFUNDED']
-const GATEWAY_METHODS = ['STRIPE', 'MERCADOPAGO']
+const GATEWAY_METHODS = ['STRIPE', 'MERCADOPAGO', 'PAYPAL']
 const selectClass = 'w-full rounded-lg border border-gray-300 px-3 py-3 text-sm disabled:bg-gray-50 disabled:text-gray-500 sm:py-2'
 
 interface Line {

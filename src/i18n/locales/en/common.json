@@ -24,7 +24,8 @@
     "logout": "Log out",
     "login": "Log in",
     "register": "Create store",
-    "cart": "Cart"
+    "cart": "Cart",
+    "buyers": "Buyers"
   },
   "footer": {
     "rights": "All rights reserved.",
@@ -467,7 +468,15 @@
     "zelleHint": "The recipient and instructions are shown to customers at checkout. Saving replaces what is stored.",
     "storeDetails": "Store details",
     "logoAndBanner": "Logo and banner",
-    "zelleSavedHint": "The recipient and instructions are shown to customers at checkout. Change the fields to replace what is stored."
+    "zelleSavedHint": "The recipient and instructions are shown to customers at checkout. Change the fields to replace what is stored.",
+    "paypalEnabled": "Enable PayPal checkout",
+    "paypalPlatformHint": "PayPal payments are processed through the platform's account, so there is nothing to configure here. Turn it on to offer it at checkout.",
+    "catalogType": "What does this store sell?",
+    "catalogTypeHint": "A store sells either physical products or digital products (files delivered by email), never both. It can only be changed while the store has no products.",
+    "catalogPhysical": "Physical products",
+    "catalogDigital": "Digital products (delivered by email)",
+    "storeLocale": "Language of customer emails",
+    "storeLocaleHint": "The language of the emails your customers receive (order confirmations, digital downloads)."
   },
   "storefront": {
     "addToCart": "Add to cart",
@@ -599,7 +608,23 @@
       "FAILED": "Failed",
       "REFUNDED": "Refunded"
     },
-    "sortBy": "Sort by"
+    "sortBy": "Sort by",
+    "checkoutPayPal": "Pay with PayPal",
+    "checkoutPayPalHint": "Pay with your PayPal balance, card or bank account.",
+    "digitalContactHint": "We send your downloads to this email address, so please double-check it.",
+    "digitalDeliveryNote": "We are emailing you your downloads. Check your inbox (and spam folder) in a few minutes.",
+    "digitalDeliveryNoteTo": "We are emailing your downloads to {{email}}. Check your inbox (and spam folder) in a few minutes.",
+    "paypalConfirming": "Confirming your payment with PayPal…",
+    "paypalConfirmingHint": "This only takes a moment. Please do not close this page.",
+    "paypalPaid": "Payment confirmed",
+    "paypalPending": "We have not received PayPal's confirmation yet",
+    "paypalPendingHint": "If you already approved the payment, it can take a few minutes. You will get an email as soon as it is confirmed. You can also check again now.",
+    "paypalCheckAgain": "Check again",
+    "paypalFailed": "The payment was not completed",
+    "paypalFailedHint": "PayPal did not complete the payment, so you have not been charged. You can try again.",
+    "paypalTryAgain": "Try again",
+    "paypalError": "We could not confirm your payment",
+    "paypalErrorHint": "Something went wrong while checking with PayPal. If you were charged, do not pay again: check again in a moment or contact the store."
   },
   "account": {
     "signIn": "Sign in",
@@ -867,7 +892,8 @@
     "search": "Search",
     "back": "Back",
     "loadError": "Couldn't load this. Please try again.",
-    "retry": "Retry"
+    "retry": "Retry",
+    "next": "Next"
   },
   "landing": {
     "nav": {
@@ -1017,5 +1043,64 @@
       "primary": "Create my store",
       "secondary": "Log in"
     }
+  },
+  "digital": {
+    "files": "Files for the buyer",
+    "filesHint": "The files buyers receive once they have paid. They are kept private: buyers only get expiring download links by email.",
+    "noFiles": "No files yet: a buyer who pays would receive nothing. Upload at least one.",
+    "filesAfterSaveHint": "Save the product first, then you can upload its files and plan price changes.",
+    "fileLabel": "Name shown to the buyer",
+    "fileLabelPlaceholder": "e.g. The book, Bonus 13",
+    "uploadFile": "Upload file (PDF, EPUB, ZIP)",
+    "fileUploaded": "File uploaded",
+    "removeFileConfirm": "Delete this file? This cannot be undone.",
+    "priceSchedule": "Planned price changes",
+    "priceScheduleHint": "The price switches by itself on the date you choose, with no code changes. Orders are always charged the price in force when they are placed.",
+    "newPrice": "New price",
+    "effectiveFrom": "Takes effect on",
+    "addSchedule": "Schedule price change",
+    "scheduleAdded": "Price change scheduled",
+    "scheduleApplied": "applied",
+    "schedulePending": "scheduled",
+    "scheduleZone": "Date and time are in your browser's time zone ({{zone}}).",
+    "schedulePreview": "The price will change on {{date}} ({{zone}})."
+  },
+  "buyers": {
+    "title": "Buyers",
+    "total_one": "{{count}} sale",
+    "total_other": "{{count}} sales",
+    "exportCsv": "Export CSV",
+    "searchPlaceholder": "Search name, email or order",
+    "paymentStatus": "Payment",
+    "allStatuses": "All payment statuses",
+    "from": "From date",
+    "to": "To date",
+    "empty": "No buyers yet.",
+    "buyer": "Buyer",
+    "product": "Product",
+    "amount": "Amount",
+    "date": "Date",
+    "provider": "Paid with",
+    "delivery": "Delivery",
+    "status": {
+      "PENDING": "Pending",
+      "PAID": "Paid",
+      "FAILED": "Failed",
+      "REFUNDED": "Refunded",
+      "DISPUTED": "Disputed"
+    },
+    "deliveryStatus": {
+      "PENDING": "Paid, delivery pending",
+      "SENT": "Delivered by email",
+      "REVOKED": "Links disabled",
+      "NONE": "No files to deliver"
+    },
+    "downloads_one": "{{count}} download",
+    "downloads_other": "{{count}} downloads",
+    "resend": "Resend email",
+    "resendQueued": "Delivery email queued",
+    "refund": "Refund",
+    "refunded": "Order refunded; download links disabled",
+    "pageOf": "Page {{page}} of {{total}}"
   }
 }

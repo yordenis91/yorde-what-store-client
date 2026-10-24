@@ -33,6 +33,8 @@ export interface Tenant {
   invoiceLogoUrl: string | null
   theme: string
   tracksInventory: boolean
+  /** Locked once the store has products. */
+  catalogType: CatalogType
   whatsappEnabled: boolean
   whatsappNumber: string | null
   telegramEnabled: boolean
@@ -158,6 +160,8 @@ export interface PublicTenant {
   bannerUrl: string | null
   theme: string
   tracksInventory: boolean
+  /** Optional only so an older API that doesn't send it still reads as a physical store. */
+  catalogType?: CatalogType
   currency: string
   currencySymbol: string
   currencySymbolPosition: string
@@ -240,9 +244,11 @@ export interface Product {
   createdAt: string
 }
 
-export type FulfillmentMethod = 'WHATSAPP' | 'TELEGRAM' | 'STRIPE' | 'MERCADOPAGO' | 'ZELLE'
+export type FulfillmentMethod = 'WHATSAPP' | 'TELEGRAM' | 'STRIPE' | 'MERCADOPAGO' | 'ZELLE' | 'PAYPAL'
+/** What a store sells. One kind per store: a digital store has no shipping or stock and delivers files by email once paid. */
+export type CatalogType = 'PHYSICAL' | 'DIGITAL'
 export type OrderStatus = 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED' | 'REFUNDED'
-export type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED'
+export type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED' | 'DISPUTED'
 
 export interface OrderItem {
   id: string

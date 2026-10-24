@@ -47,13 +47,16 @@ export function AdminLayout() {
     }
   }, [])
 
+  // A digital store has nothing to ship, and its sales list (with delivery state) is the buyers page.
+  const isDigital = activeTenant?.catalogType === 'DIGITAL'
   const navItems: SidebarNavItem[] = [
     { to: '/admin', label: 'nav.dashboard', end: true, icon: <DashboardIcon /> },
     { to: '/admin/products', label: 'nav.products', icon: <ProductsIcon /> },
     { to: '/admin/orders', label: 'nav.orders', badge: unseenOrders, icon: <OrdersIcon /> },
+    ...(isDigital ? [{ to: '/admin/buyers', label: 'nav.buyers', icon: <CustomersIcon /> }] : []),
     { to: '/admin/customers', label: 'nav.customers', icon: <CustomersIcon /> },
     { to: '/admin/coupons', label: 'nav.coupons', icon: <CouponsIcon /> },
-    { to: '/admin/shipping', label: 'nav.shipping', icon: <ShippingIcon /> },
+    ...(isDigital ? [] : [{ to: '/admin/shipping', label: 'nav.shipping', icon: <ShippingIcon /> }]),
     { to: '/admin/staff', label: 'nav.staff', icon: <StaffIcon /> },
     { to: '/admin/email-templates', label: 'nav.emailTemplates', icon: <EmailTemplatesIcon /> },
     { to: '/admin/plans', label: 'nav.plans', icon: <PlansIcon /> },

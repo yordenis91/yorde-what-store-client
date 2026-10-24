@@ -7,6 +7,7 @@ export const CHANNEL_LABELS: Record<FulfillmentMethod, string> = {
   STRIPE: 'Stripe',
   MERCADOPAGO: 'MercadoPago',
   ZELLE: 'Zelle',
+  PAYPAL: 'PayPal',
 }
 
 /**

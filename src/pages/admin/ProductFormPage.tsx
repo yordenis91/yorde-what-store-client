@@ -33,6 +33,8 @@ import { uploadImage } from '@/services/uploads.service'
 import { resolveMediaUrl } from '@/services/api-client'
 import { extractErrorMessage } from '@/services/api-client'
 import { flattenCategoryTree } from '@/utils/category-tree'
+import { useAuthStore } from '@/store/auth.store'
+import { DigitalProductPanel } from './DigitalProductPanel'
 import type { CategoryTemplate, ProductImage } from '@/types/api'
 
 const variantSchema = z.object({
@@ -167,6 +169,9 @@ export function ProductFormPage() {
   const { id } = useParams()
   const isEdit = !!id && id !== 'new'
   const queryClient = useQueryClient()
+  // A digital store sells files, not stock: no inventory or variants, and the files live on the product.
+  const activeTenant = useAuthStore((s) => s.activeTenant)
+  const isDigital = activeTenant?.catalogType === 'DIGITAL'
 
   const [showNewCategory, setShowNewCategory] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState('')
@@ -381,6 +386,21 @@ export function ProductFormPage() {
         </Card>
       )}
 
+      {isDigital && !isEdit && (
+        <Card className="mb-4">
+          <span className="mb-2 block text-sm font-medium text-gray-700">{t('digital.files')}</span>
+          <p className="text-xs text-gray-500">{t('digital.filesAfterSaveHint')}</p>
+        </Card>
+      )}
+
+      {isDigital && isEdit && (
+        <DigitalProductPanel
+          productId={id!}
+          currencySymbol={activeTenant?.currencySymbol ?? '$'}
+          currencySymbolPosition={(activeTenant?.currencySymbolPosition as 'pre' | 'post') ?? 'pre'}
+        />
+      )}
+
       {isEdit && (
         <Card className="mb-4">
           <span className="mb-3 block text-sm font-medium text-gray-700">{t('products.images')}</span>
@@ -441,7 +461,7 @@ export function ProductFormPage() {
             />
             <p className="mt-1 text-xs text-gray-500">{t('products.compareAtPriceHint')}</p>
           </div>
-          <Input label={t('products.stock')} type="number" {...register('quantity')} />
+          {!isDigital && <Input label={t('products.stock')} type="number" {...register('quantity')} />}
         </div>
 
         <div className="flex items-start gap-2">
@@ -547,6 +567,7 @@ export function ProductFormPage() {
           </div>
         </div>
 
+        {!isDigital && (
         <Card>
           <span className="mb-2 block text-sm font-medium text-gray-700">{t('products.variants')}</span>
           <p className="mb-2 text-xs text-gray-500">{t('products.variantsHint')}</p>
@@ -589,6 +610,7 @@ export function ProductFormPage() {
             ))}
           </div>
         </Card>
+        )}
 
         <div className="flex gap-3">
           <Button type="submit" loading={isSubmitting}>

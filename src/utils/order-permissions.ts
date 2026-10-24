@@ -4,7 +4,7 @@ type OrderPaymentInfo = Pick<Order, 'paymentStatus' | 'fulfillmentMethod'>
 
 /** A card order that has been paid: cancelling it refunds it through the gateway. */
 export function isPaidCardOrder(order: OrderPaymentInfo): boolean {
-  return order.paymentStatus === 'PAID' && (order.fulfillmentMethod === 'STRIPE' || order.fulfillmentMethod === 'MERCADOPAGO')
+  return order.paymentStatus === 'PAID' && (order.fulfillmentMethod === 'STRIPE' || order.fulfillmentMethod === 'MERCADOPAGO' || order.fulfillmentMethod === 'PAYPAL')
 }
 
 /**
