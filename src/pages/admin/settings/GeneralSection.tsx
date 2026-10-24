@@ -6,13 +6,15 @@ import { ImageField, SaveButton, SectionCard, SectionFieldset } from './shared'
 import { useReportDirty, useSaveTenantFields } from './hooks'
 import type { Tenant } from '@/types/api'
 
-type Values = Pick<Tenant, 'name' | 'tagline' | 'currencySymbol' | 'tracksInventory' | 'invoiceLogoUrl'>
+type Values = Pick<Tenant, 'name' | 'tagline' | 'currencySymbol' | 'tracksInventory' | 'invoiceLogoUrl' | 'catalogType' | 'locale'>
 
 const toValues = (t: Tenant): Values => ({
   name: t.name,
   tagline: t.tagline,
   currencySymbol: t.currencySymbol,
   tracksInventory: t.tracksInventory,
+  catalogType: t.catalogType ?? 'PHYSICAL',
+  locale: t.locale === 'es' ? 'es' : 'en',
   invoiceLogoUrl: t.invoiceLogoUrl,
 })
 
@@ -32,14 +34,46 @@ export function GeneralSection({ tenant }: { tenant: Tenant }) {
           <Input label={t('products.name')} {...register('name')} />
           <Input label={t('settings.tagline')} {...register('tagline')} />
           <Input label={t('settings.currencySymbol')} {...register('currencySymbol')} className="max-w-[120px]" />
+          <div>
+            <label htmlFor="store-locale" className="mb-1 block text-sm font-medium text-gray-700">
+              {t('settings.storeLocale')}
+            </label>
+            <select
+              id="store-locale"
+              className="w-full max-w-xs rounded-lg border border-gray-300 px-3 py-3 text-sm sm:py-2"
+              {...register('locale')}
+            >
+              <option value="en">English</option>
+              <option value="es">Español</option>
+            </select>
+            <p className="mt-1 text-xs text-gray-500">{t('settings.storeLocaleHint')}</p>
+          </div>
         </SectionCard>
 
-        <SectionCard title={t('settings.inventory')} hint={t('settings.inventoryHint')}>
-          <label className="flex items-start gap-2 text-sm text-gray-700">
-            <input type="checkbox" className="mt-0.5" {...register('tracksInventory')} />
-            <span>{t('settings.tracksInventory')}</span>
-          </label>
+        <SectionCard title={t('settings.catalogType')} hint={t('settings.catalogTypeHint')}>
+          <select
+            aria-label={t('settings.catalogType')}
+            className="w-full max-w-xs rounded-lg border border-gray-300 px-3 py-3 text-sm sm:py-2"
+            {...register('catalogType', {
+              // A digital store has no stock to count.
+              onChange: (e) => {
+                if (e.target.value === 'DIGITAL') setValue('tracksInventory', false, { shouldDirty: true })
+              },
+            })}
+          >
+            <option value="PHYSICAL">{t('settings.catalogPhysical')}</option>
+            <option value="DIGITAL">{t('settings.catalogDigital')}</option>
+          </select>
         </SectionCard>
+
+        {watch('catalogType') !== 'DIGITAL' && (
+          <SectionCard title={t('settings.inventory')} hint={t('settings.inventoryHint')}>
+            <label className="flex items-start gap-2 text-sm text-gray-700">
+              <input type="checkbox" className="mt-0.5" {...register('tracksInventory')} />
+              <span>{t('settings.tracksInventory')}</span>
+            </label>
+          </SectionCard>
+        )}
 
         <SectionCard title={t('settings.billing')}>
           <ImageField

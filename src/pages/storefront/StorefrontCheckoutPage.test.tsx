@@ -14,6 +14,7 @@ const createOrder = vi.fn()
 const quoteOrder = vi.fn()
 const listPublicShippings = vi.fn()
 const createStripeCheckout = vi.fn()
+const createPayPalCheckout = vi.fn()
 const registerCustomer = vi.fn()
 
 vi.mock('@/services/orders.service', () => ({
@@ -25,6 +26,7 @@ vi.mock('@/services/shipping.service', () => ({
 }))
 vi.mock('@/services/payments.service', () => ({
   createStripeCheckout: (...args: unknown[]) => createStripeCheckout(...args),
+  createPayPalCheckout: (...args: unknown[]) => createPayPalCheckout(...args),
 }))
 vi.mock('@/services/customers.service', () => ({
   registerCustomer: (...args: unknown[]) => registerCustomer(...args),
@@ -441,5 +443,121 @@ describe('payment methods', () => {
 
     await waitFor(() => expect(createOrder).toHaveBeenCalledTimes(1))
     expect(createOrder.mock.calls[0][1]).toMatchObject({ fulfillmentMethod: 'ZELLE' })
+  })
+})
+
+describe('digital store', () => {
+  beforeEach(() => {
+    currentTenant = buildTenant({
+      catalogType: 'DIGITAL',
+      whatsappEnabled: true,
+      checkoutMethods: ['WHATSAPP', 'PAYPAL', 'STRIPE'],
+    })
+    createOrder.mockResolvedValue({ order: { id: 'order-1', orderNumber: 'ORD-1' }, fulfillment: { type: 'PAYPAL' } })
+    createPayPalCheckout.mockReset()
+    createPayPalCheckout.mockResolvedValue({ checkoutUrl: 'https://paypal.test/approve', providerReference: 'PP-1' })
+  })
+
+  async function fillName() {
+    await userEvent.type(screen.getByLabelText(/full name/i), 'Bea Compradora')
+  }
+
+  it('asks for an email, not a phone, because the downloads go to the email', async () => {
+    renderCheckout()
+    await screen.findByRole('heading', { name: /contact/i })
+
+    expect(screen.queryByLabelText(/phone/i)).not.toBeInTheDocument()
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
+  })
+
+  it('will not continue without an email', async () => {
+    renderCheckout()
+    await screen.findByRole('heading', { name: /contact/i })
+    await fillName()
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
+
+    expect(await screen.findAllByText(/required/i)).not.toHaveLength(0)
+    expect(screen.queryByRole('heading', { name: /payment/i })).not.toBeInTheDocument()
+  })
+
+  it('skips the delivery step: contact goes straight to payment', async () => {
+    renderCheckout()
+    await screen.findByRole('heading', { name: /contact/i })
+    await fillName()
+    await userEvent.type(screen.getByLabelText(/email/i), 'bea@example.com')
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
+
+    expect(await screen.findByRole('heading', { name: /payment/i })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Delivery' })).not.toBeInTheDocument()
+  })
+
+  it('does not offer message channels, which would never trigger a delivery', async () => {
+    renderCheckout()
+    await screen.findByRole('heading', { name: /contact/i })
+    await fillName()
+    await userEvent.type(screen.getByLabelText(/email/i), 'bea@example.com')
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
+    await screen.findByRole('heading', { name: /payment/i })
+
+    expect(screen.getByText('Pay with PayPal')).toBeInTheDocument()
+    expect(screen.queryByText(/whatsapp/i)).not.toBeInTheDocument()
+  })
+
+  it('places a PayPal order for one copy, with no shipping, and sends the buyer to PayPal', async () => {
+    const assign = vi.fn()
+    Object.defineProperty(window, 'location', { configurable: true, value: { ...window.location, origin: 'http://localhost', set href(v: string) { assign(v) } } })
+    renderCheckout()
+    await screen.findByRole('heading', { name: /contact/i })
+    await fillName()
+    await userEvent.type(screen.getByLabelText(/email/i), 'bea@example.com')
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
+    await screen.findByRole('heading', { name: /payment/i })
+    await userEvent.click(screen.getAllByRole('button', { name: /place order/i })[0])
+
+    await waitFor(() => expect(createOrder).toHaveBeenCalledTimes(1))
+    // The cart holds two, but a digital product is one copy per order.
+    expect(createOrder.mock.calls[0][1]).toMatchObject({
+      customerName: 'Bea Compradora',
+      customerEmail: 'bea@example.com',
+      fulfillmentMethod: 'PAYPAL',
+      customerPhone: undefined,
+      shippingId: undefined,
+      shippingAddress: undefined,
+      items: [{ productId: 'p1', quantity: 1 }],
+    })
+    await waitFor(() => expect(createPayPalCheckout).toHaveBeenCalledTimes(1))
+    expect(createPayPalCheckout.mock.calls[0][1]).toMatchObject({
+      orderId: 'order-1',
+      successUrl: expect.stringContaining('/store/vortex/order-confirmed/order-1'),
+    })
+    await waitFor(() => expect(assign).toHaveBeenCalledWith('https://paypal.test/approve'))
+  })
+
+  it('never queries shipping options', async () => {
+    renderCheckout()
+    await screen.findByRole('heading', { name: /contact/i })
+    expect(listPublicShippings).not.toHaveBeenCalled()
+  })
+})
+
+describe('physical store keeps its rules', () => {
+  it('still requires a phone number', async () => {
+    renderCheckout()
+    await screen.findByRole('heading', { name: /contact/i })
+    await userEvent.type(screen.getByLabelText(/full name/i), 'Ana Pérez')
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
+
+    expect(screen.queryByRole('heading', { name: 'Delivery' })).not.toBeInTheDocument()
+  })
+
+  it('offers PayPal when the store enabled it', async () => {
+    currentTenant = buildTenant({ checkoutMethods: ['STRIPE', 'PAYPAL'] })
+    renderCheckout()
+    await screen.findByRole('heading', { name: /contact/i })
+    await fillContactAndContinue()
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
+    await screen.findByRole('heading', { name: /payment/i })
+
+    expect(screen.getByText('Pay with PayPal')).toBeInTheDocument()
   })
 })

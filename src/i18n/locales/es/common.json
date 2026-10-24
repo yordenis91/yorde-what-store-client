@@ -24,7 +24,8 @@
     "logout": "Cerrar sesión",
     "login": "Iniciar sesión",
     "register": "Crear tienda",
-    "cart": "Carrito"
+    "cart": "Carrito",
+    "buyers": "Compradores"
   },
   "footer": {
     "rights": "Todos los derechos reservados.",
@@ -467,7 +468,15 @@
     "zelleHint": "El destinatario y las instrucciones se muestran a los clientes al pagar. Al guardar se reemplaza lo almacenado.",
     "storeDetails": "Datos de la tienda",
     "logoAndBanner": "Logo y banner",
-    "zelleSavedHint": "El destinatario y las instrucciones se muestran a los clientes al pagar. Cambia los campos para reemplazar lo almacenado."
+    "zelleSavedHint": "El destinatario y las instrucciones se muestran a los clientes al pagar. Cambia los campos para reemplazar lo almacenado.",
+    "paypalEnabled": "Activar pago con PayPal",
+    "paypalPlatformHint": "Los pagos con PayPal se procesan con la cuenta de la plataforma, así que aquí no hay nada que configurar. Actívalo para ofrecerlo al pagar.",
+    "catalogType": "¿Qué vende esta tienda?",
+    "catalogTypeHint": "Una tienda vende productos físicos o productos digitales (archivos enviados por correo), nunca ambos. Solo se puede cambiar mientras la tienda no tenga productos.",
+    "catalogPhysical": "Productos físicos",
+    "catalogDigital": "Productos digitales (entregados por correo)",
+    "storeLocale": "Idioma de los correos a clientes",
+    "storeLocaleHint": "El idioma de los correos que reciben tus clientes (confirmación de pedido, descargas digitales)."
   },
   "storefront": {
     "addToCart": "Agregar al carrito",
@@ -599,7 +608,23 @@
       "FAILED": "Fallido",
       "REFUNDED": "Reembolsado"
     },
-    "sortBy": "Ordenar por"
+    "sortBy": "Ordenar por",
+    "checkoutPayPal": "Pagar con PayPal",
+    "checkoutPayPalHint": "Paga con tu saldo de PayPal, tarjeta o cuenta bancaria.",
+    "digitalContactHint": "Enviamos tus descargas a este correo, así que revísalo bien.",
+    "digitalDeliveryNote": "Te estamos enviando tus descargas por correo. Revisa tu bandeja de entrada (y la carpeta de spam) en unos minutos.",
+    "digitalDeliveryNoteTo": "Te estamos enviando tus descargas a {{email}}. Revisa tu bandeja de entrada (y la carpeta de spam) en unos minutos.",
+    "paypalConfirming": "Confirmando tu pago con PayPal…",
+    "paypalConfirmingHint": "Solo toma un momento. Por favor no cierres esta página.",
+    "paypalPaid": "Pago confirmado",
+    "paypalPending": "Aún no recibimos la confirmación de PayPal",
+    "paypalPendingHint": "Si ya aprobaste el pago, puede tardar unos minutos. Recibirás un correo en cuanto se confirme. También puedes verificar de nuevo ahora.",
+    "paypalCheckAgain": "Verificar de nuevo",
+    "paypalFailed": "El pago no se completó",
+    "paypalFailedHint": "PayPal no completó el pago, así que no se te ha cobrado. Puedes intentarlo de nuevo.",
+    "paypalTryAgain": "Intentar de nuevo",
+    "paypalError": "No pudimos confirmar tu pago",
+    "paypalErrorHint": "Algo falló al consultar a PayPal. Si se te cobró, no pagues otra vez: verifica de nuevo en un momento o contacta a la tienda."
   },
   "account": {
     "signIn": "Iniciar sesión",
@@ -867,7 +892,8 @@
     "search": "Buscar",
     "back": "Volver",
     "loadError": "No se pudo cargar esto. Intenta de nuevo.",
-    "retry": "Reintentar"
+    "retry": "Reintentar",
+    "next": "Siguiente"
   },
   "landing": {
     "nav": {
@@ -1017,5 +1043,64 @@
       "primary": "Crear mi tienda",
       "secondary": "Iniciar sesión"
     }
+  },
+  "digital": {
+    "files": "Archivos para el comprador",
+    "filesHint": "Los archivos que recibe quien paga. Se guardan en privado: el comprador solo recibe por correo enlaces de descarga que caducan.",
+    "noFiles": "Aún no hay archivos: quien pague no recibiría nada. Sube al menos uno.",
+    "filesAfterSaveHint": "Guarda primero el producto; luego podrás subir sus archivos y programar cambios de precio.",
+    "fileLabel": "Nombre que verá el comprador",
+    "fileLabelPlaceholder": "p. ej. El libro, Bono 13",
+    "uploadFile": "Subir archivo (PDF, EPUB, ZIP)",
+    "fileUploaded": "Archivo subido",
+    "removeFileConfirm": "¿Eliminar este archivo? No se puede deshacer.",
+    "priceSchedule": "Cambios de precio programados",
+    "priceScheduleHint": "El precio cambia solo en la fecha que elijas, sin tocar código. Cada pedido se cobra al precio vigente cuando se hace.",
+    "newPrice": "Nuevo precio",
+    "effectiveFrom": "Entra en vigor el",
+    "addSchedule": "Programar cambio de precio",
+    "scheduleAdded": "Cambio de precio programado",
+    "scheduleApplied": "aplicado",
+    "schedulePending": "programado",
+    "scheduleZone": "La fecha y la hora están en la zona horaria de tu navegador ({{zone}}).",
+    "schedulePreview": "El precio cambiará el {{date}} ({{zone}})."
+  },
+  "buyers": {
+    "title": "Compradores",
+    "total_one": "{{count}} venta",
+    "total_other": "{{count}} ventas",
+    "exportCsv": "Exportar CSV",
+    "searchPlaceholder": "Buscar nombre, correo o pedido",
+    "paymentStatus": "Pago",
+    "allStatuses": "Todos los estados de pago",
+    "from": "Desde",
+    "to": "Hasta",
+    "empty": "Aún no hay compradores.",
+    "buyer": "Comprador",
+    "product": "Producto",
+    "amount": "Monto",
+    "date": "Fecha",
+    "provider": "Pagó con",
+    "delivery": "Entrega",
+    "status": {
+      "PENDING": "Pendiente",
+      "PAID": "Pagado",
+      "FAILED": "Fallido",
+      "REFUNDED": "Reembolsado",
+      "DISPUTED": "En disputa"
+    },
+    "deliveryStatus": {
+      "PENDING": "Pagado, entrega pendiente",
+      "SENT": "Entregado por correo",
+      "REVOKED": "Enlaces desactivados",
+      "NONE": "Sin archivos que entregar"
+    },
+    "downloads_one": "{{count}} descarga",
+    "downloads_other": "{{count}} descargas",
+    "resend": "Reenviar correo",
+    "resendQueued": "Correo de entrega en cola",
+    "refund": "Reembolsar",
+    "refunded": "Pedido reembolsado; enlaces de descarga desactivados",
+    "pageOf": "Página {{page}} de {{total}}"
   }
 }

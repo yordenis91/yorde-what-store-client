@@ -18,6 +18,7 @@ export type CreateOrderResult =
   | { order: Order; fulfillment: { type: 'TELEGRAM'; queued: true } }
   | { order: Order; fulfillment: { type: 'STRIPE' } }
   | { order: Order; fulfillment: { type: 'MERCADOPAGO' } }
+  | { order: Order; fulfillment: { type: 'PAYPAL' } }
   | { order: Order; fulfillment: { type: 'ZELLE' } }
 
 export async function createOrder(slug: string, payload: CreateOrderPayload) {

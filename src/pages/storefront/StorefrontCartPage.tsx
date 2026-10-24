@@ -15,6 +15,7 @@ export function StorefrontCartPage() {
   const updateQuantity = useCartStore((s) => s.updateQuantity)
   const removeItem = useCartStore((s) => s.removeItem)
 
+  const isDigital = tenant.catalogType === 'DIGITAL'
   const symbol = tenant.currencySymbol
   const position = tenant.currencySymbolPosition as 'pre' | 'post'
   const subtotal = items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0)
@@ -102,7 +103,7 @@ export function StorefrontCartPage() {
                     <QuantityStepper
                       value={item.quantity}
                       onChange={(value) => updateQuantity(item.productId, item.variantId, value)}
-                      max={item.maxQuantity && item.maxQuantity > 0 ? item.maxQuantity : undefined}
+                      max={isDigital ? 1 : item.maxQuantity && item.maxQuantity > 0 ? item.maxQuantity : undefined}
                       className="w-28"
                     />
                     <span className="text-sm font-semibold tabular-nums text-gray-900">

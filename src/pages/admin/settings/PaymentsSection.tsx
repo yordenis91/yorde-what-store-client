@@ -121,35 +121,47 @@ function StripeForm({ setting }: { setting?: PaymentSetting }) {
   )
 }
 
-interface MercadoPagoValues {
+interface PlatformGatewayValues {
   isEnabled: boolean
 }
 
+const PLATFORM_GATEWAYS = {
+  MERCADOPAGO: { title: 'MercadoPago', hint: 'settings.mercadoPagoPlatformHint', enabled: 'settings.mercadoPagoEnabled' },
+  PAYPAL: { title: 'PayPal', hint: 'settings.paypalPlatformHint', enabled: 'settings.paypalEnabled' },
+} as const
+
 /**
- * MercadoPago is charged through the platform's own account (its webhook is verified with the platform's
- * secret), so a store has no credentials of its own to enter — only the switch. The API refuses credentials
- * for this provider.
+ * MercadoPago and PayPal are charged through the platform's own account (their webhooks are verified with
+ * the platform's secrets), so a store has no credentials of its own to enter — only the switch. The API
+ * refuses credentials for these providers.
  */
-function MercadoPagoForm({ setting }: { setting?: PaymentSetting }) {
+function PlatformGatewayForm({
+  provider,
+  setting,
+}: {
+  provider: keyof typeof PLATFORM_GATEWAYS
+  setting?: PaymentSetting
+}) {
   const { t } = useTranslation()
-  const { register, handleSubmit, reset, formState } = useForm<MercadoPagoValues>({
+  const gateway = PLATFORM_GATEWAYS[provider]
+  const { register, handleSubmit, reset, formState } = useForm<PlatformGatewayValues>({
     defaultValues: { isEnabled: setting?.isEnabled ?? false },
   })
-  const save = usePaymentSave('MERCADOPAGO')
+  const save = usePaymentSave(provider)
   useReportDirty(formState.isDirty)
   useEffect(() => reset({ isEnabled: setting?.isEnabled ?? false }), [setting, reset])
 
   return (
-    <SectionCard title="MercadoPago" hint={t('settings.mercadoPagoPlatformHint')}>
-      <EnabledBadge show={!!setting?.isEnabled} label={t('settings.paymentEnabled', { name: 'MercadoPago' })} />
+    <SectionCard title={gateway.title} hint={t(gateway.hint)}>
+      <EnabledBadge show={!!setting?.isEnabled} label={t('settings.paymentEnabled', { name: gateway.title })} />
       <form
         onSubmit={(e) => void handleSubmit((v) => save.mutate({ isEnabled: v.isEnabled }))(e)}
         className="flex flex-col gap-3"
       >
         <label className="flex items-center gap-2 text-sm text-gray-700">
-          <input type="checkbox" {...register('isEnabled')} /> {t('settings.mercadoPagoEnabled')}
+          <input type="checkbox" {...register('isEnabled')} /> {t(gateway.enabled)}
         </label>
-        <PlanLockedNotice method="MERCADOPAGO" />
+        <PlanLockedNotice method={provider} />
         <SaveCredentials loading={save.isPending} />
       </form>
     </SectionCard>
@@ -281,7 +293,8 @@ export function PaymentsSection({ tenant }: { tenant: Tenant }) {
   return (
     <div className="flex flex-col gap-6">
       <StripeForm setting={find('STRIPE')} />
-      <MercadoPagoForm setting={find('MERCADOPAGO')} />
+      <PlatformGatewayForm provider="MERCADOPAGO" setting={find('MERCADOPAGO')} />
+      <PlatformGatewayForm provider="PAYPAL" setting={find('PAYPAL')} />
       <ZelleForm setting={find('ZELLE')} slug={tenant.slug} />
     </div>
   )

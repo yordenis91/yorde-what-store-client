@@ -9,6 +9,8 @@ describe('order permissions', () => {
   it('treats only a paid Stripe/MercadoPago order as a paid card order', () => {
     expect(isPaidCardOrder(paidStripe)).toBe(true)
     expect(isPaidCardOrder({ paymentStatus: 'PAID', fulfillmentMethod: 'MERCADOPAGO' })).toBe(true)
+    expect(isPaidCardOrder({ paymentStatus: 'PAID', fulfillmentMethod: 'PAYPAL' })).toBe(true)
+    expect(isPaidCardOrder({ paymentStatus: 'PENDING', fulfillmentMethod: 'PAYPAL' })).toBe(false)
     expect(isPaidCardOrder(unpaidStripe)).toBe(false)
     expect(isPaidCardOrder(paidZelle)).toBe(false)
   })
@@ -16,6 +18,8 @@ describe('order permissions', () => {
   it('reserves refunds, and cancelling a paid card order, for the owner', () => {
     expect(needsOwnerToSet('REFUNDED', unpaidStripe)).toBe(true)
     expect(needsOwnerToSet('CANCELLED', paidStripe)).toBe(true)
+    // Cancelling a paid PayPal order refunds it through PayPal, so it is owner-only too.
+    expect(needsOwnerToSet('CANCELLED', { paymentStatus: 'PAID', fulfillmentMethod: 'PAYPAL' })).toBe(true)
   })
 
   it('lets a collaborator cancel an order that moved no money, and make ordinary status changes', () => {

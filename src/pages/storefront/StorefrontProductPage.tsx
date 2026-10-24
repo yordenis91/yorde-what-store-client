@@ -54,15 +54,18 @@ export function StorefrontProductPage() {
   // sit at their default of 0 and would read as sold out everywhere.
   const tracksInventory = tenant.tracksInventory
   const soldOut = tracksInventory && !needsVariant && stock <= 0
+  // Digital products are one copy per order: there is no quantity to choose, and buying twice is a mistake.
+  const isDigital = tenant.catalogType === 'DIGITAL'
 
   function handleAddToCart() {
+    if (isDigital && inCart) return
     addItem({
       productId: product!.id,
       variantId,
       name: product!.name,
       variantName: variant?.name,
       unitPrice: price,
-      quantity,
+      quantity: isDigital ? 1 : quantity,
       imageUrl: cover ? resolveMediaUrl(cover.url) : undefined,
       maxQuantity: tracksInventory ? stock : undefined,
     })
@@ -193,7 +196,7 @@ export function StorefrontProductPage() {
             <QuantityStepper
               value={quantity}
               onChange={setQuantity}
-              max={tracksInventory && !needsVariant ? Math.max(1, stock) : undefined}
+              max={isDigital ? 1 : tracksInventory && !needsVariant ? Math.max(1, stock) : undefined}
               size="md"
               className="w-36"
             />

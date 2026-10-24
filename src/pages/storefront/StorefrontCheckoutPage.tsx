@@ -10,7 +10,7 @@ import { useStorefront } from '@/hooks/useStorefront'
 import { useCartStore } from '@/store/cart.store'
 import { useCustomerStore } from '@/store/customer.store'
 import { createOrder, quoteOrder } from '@/services/orders.service'
-import { createStripeCheckout, createMercadoPagoCheckout } from '@/services/payments.service'
+import { createStripeCheckout, createMercadoPagoCheckout, createPayPalCheckout } from '@/services/payments.service'
 import { registerCustomer } from '@/services/customers.service'
 import { listPublicShippings } from '@/services/shipping.service'
 import { formatMoney } from '@/utils/format'
@@ -27,7 +27,9 @@ import type { FulfillmentMethod } from '@/types/api'
 const schema = z
   .object({
     customerName: z.string().min(2),
-    customerPhone: z.string().min(6),
+    // Required for delivery contact on physical orders; a digital order is delivered by email and needs no phone.
+    customerPhone: z.string(),
+    isDigital: z.boolean().optional(),
     customerEmail: z.string().email().optional().or(z.literal('')),
     createAccount: z.boolean().optional(),
     password: z.string().optional(),
@@ -40,7 +42,18 @@ const schema = z
       postalCode: z.string(),
       notes: z.string(),
     }),
-    fulfillmentMethod: z.enum(['WHATSAPP', 'TELEGRAM', 'STRIPE', 'MERCADOPAGO', 'ZELLE']),
+    fulfillmentMethod: z.enum(['WHATSAPP', 'TELEGRAM', 'STRIPE', 'MERCADOPAGO', 'ZELLE', 'PAYPAL']),
+  })
+  // A physical order needs a phone to coordinate delivery; a digital one needs the email its
+  // download links are sent to.
+  .superRefine((values, ctx) => {
+    if (values.isDigital) {
+      if (!values.customerEmail) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['customerEmail'], message: 'required' })
+      }
+    } else if (values.customerPhone.trim().length < 6) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['customerPhone'], message: 'required' })
+    }
   })
   // An address is only meaningful when something is being delivered; picking up
   // in store must not demand one.
@@ -68,11 +81,20 @@ const schema = z
 
 type FormValues = z.infer<typeof schema>
 
-const STEP_FIELDS = [
-  ['customerName', 'customerPhone', 'customerEmail', 'createAccount', 'password'],
-  ['shippingId', 'address.line1', 'address.city', 'address.postalCode'],
-  ['fulfillmentMethod'],
-] as const
+type StepId = 'contact' | 'delivery' | 'payment'
+
+const STEP_FIELDS: Record<StepId, readonly string[]> = {
+  contact: ['customerName', 'customerPhone', 'customerEmail', 'createAccount', 'password'],
+  delivery: ['shippingId', 'address.line1', 'address.city', 'address.postalCode'],
+  payment: ['fulfillmentMethod'],
+}
+
+/** A digital store has nothing to deliver, so it skips the delivery step. */
+const stepIdsFor = (isDigital: boolean): StepId[] =>
+  isDigital ? ['contact', 'payment'] : ['contact', 'delivery', 'payment']
+
+/** Message-based channels are settled by hand, so nothing would trigger a digital delivery. */
+const isMessageChannel = (m: FulfillmentMethod) => m === 'WHATSAPP' || m === 'TELEGRAM'
 
 export function StorefrontCheckoutPage() {
   const { t } = useTranslation()
@@ -83,7 +105,10 @@ export function StorefrontCheckoutPage() {
   const loggedInCustomer = useCustomerStore((s) => s.customer)
   const setCustomerSession = useCustomerStore((s) => s.setSession)
 
+  const isDigital = tenant.catalogType === 'DIGITAL'
+  const stepIds = stepIdsFor(isDigital)
   const [step, setStep] = useState(0)
+  const stepId = stepIds[step]
   const [couponInput, setCouponInput] = useState('')
   const [appliedCoupon, setAppliedCoupon] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -94,6 +119,7 @@ export function StorefrontCheckoutPage() {
   const { data: shippings } = useQuery({
     queryKey: ['storefront-shippings', slug],
     queryFn: () => listPublicShippings(slug),
+    enabled: !isDigital,
   })
 
   const { register, handleSubmit, watch, setValue, trigger, formState } = useForm<FormValues>({
@@ -105,13 +131,20 @@ export function StorefrontCheckoutPage() {
       customerName: '',
       customerPhone: '',
       customerEmail: '',
+      isDigital,
       createAccount: false,
       password: '',
       shippingId: '',
       address: { line1: '', line2: '', city: '', state: '', postalCode: '', notes: '' },
       fulfillmentMethod:
-        tenant.checkoutMethods?.[0] ??
-        (tenant.whatsappEnabled ? 'WHATSAPP' : tenant.telegramEnabled ? 'TELEGRAM' : 'STRIPE'),
+        (isDigital ? tenant.checkoutMethods?.find((m) => !isMessageChannel(m)) : tenant.checkoutMethods?.[0]) ??
+        (isDigital
+          ? 'PAYPAL'
+          : tenant.whatsappEnabled
+            ? 'WHATSAPP'
+            : tenant.telegramEnabled
+              ? 'TELEGRAM'
+              : 'STRIPE'),
     },
   })
   const { errors } = formState
@@ -120,8 +153,9 @@ export function StorefrontCheckoutPage() {
   const fulfillmentMethod = watch('fulfillmentMethod')
 
   const orderItems = useMemo(
-    () => items.map((i) => ({ productId: i.productId, variantId: i.variantId, quantity: i.quantity })),
-    [items],
+    // Digital products are sold one copy per order.
+    () => items.map((i) => ({ productId: i.productId, variantId: i.variantId, quantity: isDigital ? 1 : i.quantity })),
+    [items, isDigital],
   )
 
   // Every figure the customer sees comes from here — the same code that prices
@@ -151,14 +185,14 @@ export function StorefrontCheckoutPage() {
     }
   }, [quote?.couponError])
 
-  const isLastStep = step === STEP_FIELDS.length - 1
+  const isLastStep = step === stepIds.length - 1
   // Reported by the quote so the customer finds out here, not after filling in
   // three steps. Order creation is what actually enforces it.
   const stockIssues = quote?.stockIssues ?? []
 
   async function nextStep() {
-    if (await trigger(STEP_FIELDS[step] as unknown as (keyof FormValues)[])) {
-      setStep((s) => Math.min(STEP_FIELDS.length - 1, s + 1))
+    if (await trigger(STEP_FIELDS[stepId] as unknown as (keyof FormValues)[])) {
+      setStep((s) => Math.min(stepIds.length - 1, s + 1))
     }
   }
 
@@ -188,7 +222,7 @@ export function StorefrontCheckoutPage() {
 
       const result = await createOrder(slug, {
         customerName: values.customerName,
-        customerPhone: values.customerPhone,
+        customerPhone: values.customerPhone || undefined,
         customerEmail: values.customerEmail || undefined,
         couponCode: appliedCoupon || undefined,
         shippingId: values.shippingId || undefined,
@@ -216,10 +250,13 @@ export function StorefrontCheckoutPage() {
         successUrl: `${window.location.origin}${path(`/order-confirmed/${result.order.id}`)}`,
         cancelUrl: `${window.location.origin}${path('/checkout')}`,
       }
+      const payload = { orderId: result.order.id, ...checkoutUrls }
       const checkout =
-        result.fulfillment.type === 'MERCADOPAGO'
-          ? await createMercadoPagoCheckout(slug, { orderId: result.order.id, ...checkoutUrls })
-          : await createStripeCheckout(slug, { orderId: result.order.id, ...checkoutUrls })
+        result.fulfillment.type === 'PAYPAL'
+          ? await createPayPalCheckout(slug, payload)
+          : result.fulfillment.type === 'MERCADOPAGO'
+            ? await createMercadoPagoCheckout(slug, payload)
+            : await createStripeCheckout(slug, payload)
       clearCart()
       window.location.href = checkout.checkoutUrl
     } catch (error) {
@@ -260,6 +297,12 @@ export function StorefrontCheckoutPage() {
       enabled: isOffered('MERCADOPAGO', true),
     },
     {
+      value: 'PAYPAL',
+      label: t('storefront.checkoutPayPal'),
+      hint: t('storefront.checkoutPayPalHint'),
+      enabled: isOffered('PAYPAL', false),
+    },
+    {
       value: 'ZELLE',
       label: t('storefront.checkoutZelle'),
       hint: t('storefront.checkoutZelleHint'),
@@ -275,7 +318,13 @@ export function StorefrontCheckoutPage() {
 
       <div className="mt-6">
         <CheckoutSteps
-          steps={[t('storefront.stepContact'), t('storefront.stepDelivery'), t('storefront.stepPayment')]}
+          steps={stepIds.map((id) =>
+            id === 'contact'
+              ? t('storefront.stepContact')
+              : id === 'delivery'
+                ? t('storefront.stepDelivery')
+                : t('storefront.stepPayment'),
+          )}
           current={step}
           onGoTo={setStep}
         />
@@ -298,7 +347,7 @@ export function StorefrontCheckoutPage() {
         className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]"
       >
         <div className="rounded-xl border border-gray-200 bg-white p-5">
-          {step === 0 && (
+          {stepId === 'contact' && (
             <div className="flex flex-col gap-4">
               <h2 className="font-semibold text-gray-900">{t('storefront.stepContact')}</h2>
               <Input
@@ -306,19 +355,23 @@ export function StorefrontCheckoutPage() {
                 {...register('customerName')}
                 error={errors.customerName && t('errors.required')}
               />
+              {!isDigital && (
+                <Input
+                  label={t('storefront.customerPhone')}
+                  placeholder="+15551234567"
+                  {...register('customerPhone')}
+                  error={errors.customerPhone && t('storefront.phoneHint')}
+                />
+              )}
               <Input
-                label={t('storefront.customerPhone')}
-                placeholder="+15551234567"
-                {...register('customerPhone')}
-                error={errors.customerPhone && t('storefront.phoneHint')}
-              />
-              <Input
-                label={t('storefront.customerEmail')}
+                label={isDigital ? `${t('storefront.customerEmail')} *` : t('storefront.customerEmail')}
                 type="email"
                 {...register('customerEmail')}
                 error={errors.customerEmail && (errors.customerEmail.message === 'required' ? t('errors.required') : t('storefront.emailInvalid'))}
               />
-              <p className="text-xs text-gray-500">{t('storefront.contactHint')}</p>
+              <p className="text-xs text-gray-500">
+                {isDigital ? t('storefront.digitalContactHint') : t('storefront.contactHint')}
+              </p>
 
               {!loggedInCustomer && (
                 <div className="rounded-lg border border-gray-200 p-3">
@@ -341,7 +394,7 @@ export function StorefrontCheckoutPage() {
             </div>
           )}
 
-          {step === 1 && (
+          {stepId === 'delivery' && (
             <div className="flex flex-col gap-4">
               <h2 className="font-semibold text-gray-900">{t('storefront.stepDelivery')}</h2>
 
@@ -388,12 +441,12 @@ export function StorefrontCheckoutPage() {
             </div>
           )}
 
-          {step === 2 && (
+          {stepId === 'payment' && (
             <div className="flex flex-col gap-4">
               <h2 className="font-semibold text-gray-900">{t('storefront.stepPayment')}</h2>
               <div className="flex flex-col gap-2">
                 {methods
-                  .filter((m) => m.enabled)
+                  .filter((m) => m.enabled && !(isDigital && isMessageChannel(m.value)))
                   .map((m) => (
                     <OptionCard
                       key={m.value}
@@ -403,7 +456,7 @@ export function StorefrontCheckoutPage() {
                       hint={m.hint}
                     />
                   ))}
-                {!methods.some((m) => m.enabled) && (
+                {!methods.some((m) => m.enabled && !(isDigital && isMessageChannel(m.value))) && (
                   <p className="rounded-lg border border-gray-200 p-4 text-sm text-gray-600">
                     {t('storefront.checkoutNoMethods')}
                   </p>
@@ -434,24 +487,26 @@ export function StorefrontCheckoutPage() {
               <div className="mt-2 rounded-lg bg-gray-50 p-4 text-sm">
                 <h3 className="mb-2 font-medium text-gray-900">{t('storefront.reviewTitle')}</h3>
                 <ReviewRow label={t('storefront.customerName')} value={watch('customerName')} />
-                <ReviewRow label={t('storefront.customerPhone')} value={watch('customerPhone')} />
+                {!isDigital && <ReviewRow label={t('storefront.customerPhone')} value={watch('customerPhone')} />}
                 {watch('customerEmail') && (
                   <ReviewRow label={t('storefront.customerEmail')} value={watch('customerEmail') ?? ''} />
                 )}
-                <ReviewRow
-                  label={t('storefront.shipping')}
-                  value={
-                    shippingId
-                      ? [
-                          shippings?.find((s) => s.id === shippingId)?.name,
-                          watch('address.line1'),
-                          watch('address.city'),
-                        ]
-                          .filter(Boolean)
-                          .join(' · ')
-                      : t('storefront.pickup')
-                  }
-                />
+                {!isDigital && (
+                  <ReviewRow
+                    label={t('storefront.shipping')}
+                    value={
+                      shippingId
+                        ? [
+                            shippings?.find((s) => s.id === shippingId)?.name,
+                            watch('address.line1'),
+                            watch('address.city'),
+                          ]
+                            .filter(Boolean)
+                            .join(' · ')
+                        : t('storefront.pickup')
+                    }
+                  />
+                )}
               </div>
             </div>
           )}

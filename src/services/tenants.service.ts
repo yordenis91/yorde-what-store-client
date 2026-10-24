@@ -23,7 +23,7 @@ export async function getPublicStorefront(slug: string) {
 
 export interface PaymentSetting {
   id: string
-  provider: 'STRIPE' | 'MERCADOPAGO' | 'ZELLE'
+  provider: 'STRIPE' | 'MERCADOPAGO' | 'PAYPAL' | 'ZELLE'
   isEnabled: boolean
 }
 
@@ -33,7 +33,7 @@ export async function listPaymentSettings() {
 }
 
 export async function upsertPaymentSetting(payload: {
-  provider: 'STRIPE' | 'MERCADOPAGO' | 'ZELLE'
+  provider: 'STRIPE' | 'MERCADOPAGO' | 'PAYPAL' | 'ZELLE'
   /** Omit to only switch an already saved provider on or off; the stored credentials are kept. */
   credentials?: Record<string, string>
   isEnabled: boolean
