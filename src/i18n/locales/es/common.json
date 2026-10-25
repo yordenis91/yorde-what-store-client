@@ -513,6 +513,7 @@
     "decreaseQuantity": "Disminuir cantidad",
     "backToStore": "Volver a la tienda",
     "addedToCart": "Agregado al carrito",
+    "buyUnavailable": "Este producto no está disponible ahora mismo.",
     "viewCart": "Ver carrito",
     "options": "Opciones",
     "selectAnOption": "Elegí una opción",
