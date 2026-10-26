@@ -150,6 +150,7 @@
     "inactive": "Inactivo",
     "save": "Guardar producto",
     "deleteConfirm": "¿Eliminar este producto?",
+    "deleteBlocked": "Este producto tiene pedidos, y eliminarlo dejaría a sus compradores sin sus descargas. Márcalo como inactivo: desaparece de la tienda y los compradores conservan sus enlaces.",
     "variants": "Variantes",
     "addVariant": "Agregar variante",
     "images": "Imágenes",

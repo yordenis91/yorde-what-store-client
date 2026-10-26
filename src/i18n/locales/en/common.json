@@ -150,6 +150,7 @@
     "inactive": "Inactive",
     "save": "Save product",
     "deleteConfirm": "Delete this product?",
+    "deleteBlocked": "This product has orders, so deleting it would leave its buyers without their downloads. Mark it as inactive instead: it disappears from the store and buyers keep their links.",
     "variants": "Variants",
     "addVariant": "Add variant",
     "images": "Images",
