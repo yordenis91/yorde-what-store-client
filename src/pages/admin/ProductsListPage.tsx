@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
+import axios from 'axios'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -42,7 +43,15 @@ export function ProductsListPage() {
       void queryClient.invalidateQueries({ queryKey: ['products'] })
       toast.success(t('common.delete'))
     },
-    onError: (error) => toast.error(extractErrorMessage(error, t('errors.generic'))),
+    // 409 is the API refusing to delete a product that buyers still depend on: say why, in the
+    // store's language, and where to go instead (the API's own text is English).
+    onError: (error) =>
+      toast.error(
+        axios.isAxiosError(error) && error.response?.status === 409
+          ? t('products.deleteBlocked')
+          : extractErrorMessage(error, t('errors.generic')),
+        { duration: 8000 },
+      ),
   })
 
   const toggleActiveMutation = useMutation({
