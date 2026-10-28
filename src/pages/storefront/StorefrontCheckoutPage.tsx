@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -96,6 +96,11 @@ const stepIdsFor = (isDigital: boolean): StepId[] =>
 /** Message-based channels are settled by hand, so nothing would trigger a digital delivery. */
 const isMessageChannel = (m: FulfillmentMethod) => m === 'WHATSAPP' || m === 'TELEGRAM'
 
+/** Name shown to the buyer while the browser leaves for the provider's own payment page. */
+function providerName(type: string): string {
+  return type === 'PAYPAL' ? 'PayPal' : type === 'MERCADOPAGO' ? 'Mercado Pago' : 'Stripe'
+}
+
 export function StorefrontCheckoutPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -112,6 +117,10 @@ export function StorefrontCheckoutPage() {
   const [couponInput, setCouponInput] = useState('')
   const [appliedCoupon, setAppliedCoupon] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  // Set once the browser is on its way to the payment provider. The cart is emptied just before that,
+  // and without this the empty-cart redirect below would flash "your cart is empty" during the hand-off.
+  const [redirectingTo, setRedirectingTo] = useState<string | null>(null)
+  const redirecting = useRef(false)
 
   const symbol = tenant.currencySymbol
   const position = tenant.currencySymbolPosition as 'pre' | 'post'
@@ -173,8 +182,19 @@ export function StorefrontCheckoutPage() {
   })
 
   useEffect(() => {
-    if (items.length === 0) navigate(path('/cart'), { replace: true })
+    if (items.length === 0 && !redirecting.current) navigate(path('/cart'), { replace: true })
   }, [items.length, navigate, path])
+
+  // Coming back with the browser's Back button can restore this page as it was left, overlay and all.
+  useEffect(() => {
+    const onShow = (e: PageTransitionEvent) => {
+      if (!e.persisted) return
+      redirecting.current = false
+      setRedirectingTo(null)
+    }
+    window.addEventListener('pageshow', onShow)
+    return () => window.removeEventListener('pageshow', onShow)
+  }, [])
 
   // The server is the authority on whether a code applies, so a rejected one is
   // dropped here rather than left looking active.
@@ -257,6 +277,8 @@ export function StorefrontCheckoutPage() {
           : result.fulfillment.type === 'MERCADOPAGO'
             ? await createMercadoPagoCheckout(slug, payload)
             : await createStripeCheckout(slug, payload)
+      redirecting.current = true
+      setRedirectingTo(providerName(result.fulfillment.type))
       clearCart()
       window.location.href = checkout.checkoutUrl
     } catch (error) {
@@ -312,6 +334,17 @@ export function StorefrontCheckoutPage() {
 
   return (
     <div className="pb-24 lg:pb-0">
+      {redirectingTo && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-white/95 px-6 text-center"
+        >
+          <Spinner className="h-10 w-10" />
+          <p className="text-lg font-semibold text-gray-900">{t('storefront.redirectingTo', { provider: redirectingTo })}</p>
+          <p className="max-w-sm text-sm text-gray-600">{t('storefront.redirectingHint')}</p>
+        </div>
+      )}
       <Seo title={`${t('storefront.checkout')} — ${tenant.name}`} noIndex />
       <BackLink fallbackTo={path('/cart')} label={t('nav.cart')} className="mb-5" />
       <h1 className="text-2xl font-bold tracking-tight text-gray-900">{t('storefront.checkout')}</h1>
@@ -364,14 +397,18 @@ export function StorefrontCheckoutPage() {
                 />
               )}
               <Input
-                label={isDigital ? `${t('storefront.customerEmail')} *` : t('storefront.customerEmail')}
+                label={isDigital ? t('storefront.customerEmailRequired') : t('storefront.customerEmail')}
                 type="email"
                 {...register('customerEmail')}
                 error={errors.customerEmail && (errors.customerEmail.message === 'required' ? t('errors.required') : t('storefront.emailInvalid'))}
               />
-              <p className="text-xs text-gray-500">
-                {isDigital ? t('storefront.digitalContactHint') : t('storefront.contactHint')}
-              </p>
+              {isDigital ? (
+                <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-900">
+                  {t('storefront.digitalContactHint')}
+                </p>
+              ) : (
+                <p className="text-xs text-gray-500">{t('storefront.contactHint')}</p>
+              )}
 
               {!loggedInCustomer && (
                 <div className="rounded-lg border border-gray-200 p-3">
@@ -379,6 +416,7 @@ export function StorefrontCheckoutPage() {
                     <input type="checkbox" {...register('createAccount')} />
                     {t('account.createAccountAtCheckout')}
                   </label>
+                  <p className="mt-1 pl-6 text-xs text-gray-500">{t('account.createAccountOptionalHint')}</p>
                   {watch('createAccount') && (
                     <Input
                       label={t('auth.password')}

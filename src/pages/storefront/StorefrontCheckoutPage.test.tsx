@@ -538,6 +538,37 @@ describe('digital store', () => {
     await screen.findByRole('heading', { name: /contact/i })
     expect(listPublicShippings).not.toHaveBeenCalled()
   })
+
+  it('marks the email as required, not optional, and stresses where the downloads go', async () => {
+    renderCheckout()
+    await screen.findByRole('heading', { name: /contact/i })
+
+    expect(screen.getByLabelText(/email/i).closest('div')).toHaveTextContent('Email *')
+    expect(screen.queryByText(/optional\)/i)).not.toBeInTheDocument()
+    expect(screen.getByText(/we send your downloads to this email/i)).toHaveClass('font-medium')
+  })
+
+  it('tells the shopper the account is optional', async () => {
+    renderCheckout()
+    await screen.findByRole('heading', { name: /contact/i })
+    expect(screen.getByText(/optional: save your details/i)).toBeInTheDocument()
+  })
+
+  it('says it is taking the buyer to PayPal, instead of flashing an empty cart, while the browser leaves', async () => {
+    Object.defineProperty(window, 'location', { configurable: true, value: { ...window.location, origin: 'http://localhost', set href(_v: string) {} } })
+    renderCheckout()
+    await screen.findByRole('heading', { name: /contact/i })
+    await fillName()
+    await userEvent.type(screen.getByLabelText(/email/i), 'bea@example.com')
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
+    await screen.findByRole('heading', { name: /payment/i })
+    await userEvent.click(screen.getAllByRole('button', { name: /place order/i })[0])
+
+    expect(await screen.findByText(/taking you to paypal/i)).toBeInTheDocument()
+    // The cart was emptied for the hand-off; that must not bounce the page to the empty cart.
+    expect(useCartStore.getState().items).toHaveLength(0)
+    expect(screen.queryByText('Cart', { selector: 'p' })).not.toBeInTheDocument()
+  })
 })
 
 describe('physical store keeps its rules', () => {
