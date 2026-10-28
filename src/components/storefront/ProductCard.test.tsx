@@ -180,3 +180,33 @@ describe('discount and variant badges', () => {
     expect(screen.queryByText(/−\d+%/)).not.toBeInTheDocument()
   })
 })
+
+describe('a digital store card (one copy per order)', () => {
+  function renderSingle() {
+    return render(
+      <MemoryRouter>
+        <ProductCard product={buildProduct()} to="/product/p1" symbol="$" position="pre" tracksInventory={false} singleCopy />
+      </MemoryRouter>,
+    )
+  }
+
+  it('has no quantity stepper and adds exactly one copy', async () => {
+    renderSingle()
+    expect(screen.queryByRole('button', { name: /increase/i })).not.toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: /add to cart/i }))
+
+    expect(cart().items).toHaveLength(1)
+    expect(cart().items[0].quantity).toBe(1)
+  })
+
+  it('is disabled once the copy is in the cart, so it cannot be added twice', async () => {
+    renderSingle()
+    await userEvent.click(screen.getByRole('button', { name: /add to cart/i }))
+
+    const inCart = await screen.findByRole('button', { name: /in cart/i })
+    expect(inCart).toBeDisabled()
+    await userEvent.click(inCart)
+    expect(cart().items[0].quantity).toBe(1)
+  })
+})
