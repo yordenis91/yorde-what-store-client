@@ -100,12 +100,16 @@ export function StorefrontCartPage() {
                   </div>
 
                   <div className="flex items-center justify-between gap-3">
-                    <QuantityStepper
-                      value={item.quantity}
-                      onChange={(value) => updateQuantity(item.productId, item.variantId, value)}
-                      max={isDigital ? 1 : item.maxQuantity && item.maxQuantity > 0 ? item.maxQuantity : undefined}
-                      className="w-28"
-                    />
+                    {isDigital ? (
+                      <span className="text-sm text-gray-500">{t('storefront.digitalCopy')}</span>
+                    ) : (
+                      <QuantityStepper
+                        value={item.quantity}
+                        onChange={(value) => updateQuantity(item.productId, item.variantId, value)}
+                        max={item.maxQuantity && item.maxQuantity > 0 ? item.maxQuantity : undefined}
+                        className="w-28"
+                      />
+                    )}
                     <span className="text-sm font-semibold tabular-nums text-gray-900">
                       {formatMoney(item.unitPrice * item.quantity, symbol, position)}
                     </span>

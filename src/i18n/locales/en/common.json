@@ -616,6 +616,7 @@
     "sortBy": "Sort by",
     "checkoutPayPal": "Pay with PayPal",
     "checkoutPayPalHint": "Pay with your PayPal balance, card or bank account.",
+    "digitalCopy": "Digital copy",
     "digitalContactHint": "We send your downloads to this email address, so please double-check it.",
     "digitalDeliveryNote": "We are emailing you your downloads. Check your inbox (and spam folder) in a few minutes.",
     "digitalDeliveryNoteTo": "We are emailing your downloads to {{email}}. Check your inbox (and spam folder) in a few minutes.",

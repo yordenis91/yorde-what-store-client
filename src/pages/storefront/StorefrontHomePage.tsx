@@ -85,6 +85,7 @@ export function StorefrontHomePage() {
             symbol={symbol}
             position={position}
             tracksInventory={tenant.tracksInventory}
+            singleCopy={tenant.catalogType === 'DIGITAL'}
           />
         ))}
       </div>

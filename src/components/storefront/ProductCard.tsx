@@ -16,9 +16,11 @@ interface ProductCardProps {
   position: 'pre' | 'post'
   /** Whether this store's product quantities are real stock. */
   tracksInventory: boolean
+  /** Digital stores sell one copy per order: no quantity to choose, and a second click adds nothing. */
+  singleCopy?: boolean
 }
 
-export function ProductCard({ product, to, symbol, position, tracksInventory }: ProductCardProps) {
+export function ProductCard({ product, to, symbol, position, tracksInventory, singleCopy = false }: ProductCardProps) {
   const { t } = useTranslation()
   const addItem = useCartStore((s) => s.addItem)
   // Reference from the store's array, so this selector is referentially stable.
@@ -38,11 +40,12 @@ export function ProductCard({ product, to, symbol, position, tracksInventory }: 
   const max = tracksInventory && !needsVariantChoice ? Math.max(1, product.quantity) : undefined
 
   function handleAdd() {
+    if (singleCopy && inCart) return
     addItem({
       productId: product.id,
       name: product.name,
       unitPrice: Number(product.price),
-      quantity,
+      quantity: singleCopy ? 1 : quantity,
       imageUrl: cover ? resolveMediaUrl(cover.url) : undefined,
       maxQuantity: tracksInventory ? product.quantity : undefined,
     })
@@ -108,11 +111,12 @@ export function ProductCard({ product, to, symbol, position, tracksInventory }: 
           </span>
         ) : (
           <>
-            <QuantityStepper value={quantity} onChange={setQuantity} max={max} />
+            {!singleCopy && <QuantityStepper value={quantity} onChange={setQuantity} max={max} />}
 
             <button
               type="button"
               onClick={handleAdd}
+              disabled={singleCopy && Boolean(inCart)}
               className={`flex items-center justify-center gap-1.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors sm:py-2 ${
                 inCart
                   ? 'border border-brand-600 bg-brand-50 text-brand-700 hover:bg-brand-100'

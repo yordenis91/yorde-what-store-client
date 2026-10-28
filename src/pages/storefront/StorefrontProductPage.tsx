@@ -193,25 +193,29 @@ export function StorefrontProductPage() {
           )}
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <QuantityStepper
-              value={quantity}
-              onChange={setQuantity}
-              max={isDigital ? 1 : tracksInventory && !needsVariant ? Math.max(1, stock) : undefined}
-              size="md"
-              className="w-36"
-            />
+            {!isDigital && (
+              <QuantityStepper
+                value={quantity}
+                onChange={setQuantity}
+                max={tracksInventory && !needsVariant ? Math.max(1, stock) : undefined}
+                size="md"
+                className="w-36"
+              />
+            )}
             <button
               type="button"
               onClick={handleAddToCart}
-              disabled={needsVariant || soldOut}
+              disabled={needsVariant || soldOut || (isDigital && Boolean(inCart))}
               className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-gray-300"
             >
               <CartIcon className="h-4.5 w-4.5" />
               {soldOut
                 ? t('storefront.soldOut')
-                : needsVariant
-                  ? t('storefront.selectAnOption')
-                  : t('storefront.addToCart')}
+                : isDigital && inCart
+                  ? t('storefront.inCart', { count: 1 })
+                  : needsVariant
+                    ? t('storefront.selectAnOption')
+                    : t('storefront.addToCart')}
             </button>
           </div>
 
@@ -240,15 +244,17 @@ export function StorefrontProductPage() {
         <button
           type="button"
           onClick={handleAddToCart}
-          disabled={needsVariant || soldOut}
+          disabled={needsVariant || soldOut || (isDigital && Boolean(inCart))}
           className="flex shrink-0 items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-gray-300"
         >
           <CartIcon className="h-4.5 w-4.5" />
           {soldOut
             ? t('storefront.soldOut')
-            : needsVariant
-              ? t('storefront.selectAnOption')
-              : t('storefront.addToCart')}
+            : isDigital && inCart
+              ? t('storefront.inCart', { count: 1 })
+              : needsVariant
+                ? t('storefront.selectAnOption')
+                : t('storefront.addToCart')}
         </button>
       </div>
     </div>

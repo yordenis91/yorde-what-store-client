@@ -80,3 +80,30 @@ describe('physical product keeps its quantity', () => {
     expect(useCartStore.getState().items[0].quantity).toBe(2)
   })
 })
+
+describe('digital store has no quantity controls', () => {
+  it('shows no stepper on the product page, and the button turns into "In cart" once added', async () => {
+    renderAt('/store/vortex/product/p1')
+    await screen.findAllByRole('button', { name: /add to cart/i })
+    expect(screen.queryByRole('button', { name: /increase/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /decrease/i })).not.toBeInTheDocument()
+
+    await userEvent.click((await screen.findAllByRole('button', { name: /add to cart/i }))[0])
+
+    const inCartButtons = await screen.findAllByRole('button', { name: /in cart \(1\)/i })
+    inCartButtons.forEach((b) => expect(b).toBeDisabled())
+  })
+
+  it('shows no stepper in the cart, just that it is a digital copy', async () => {
+    useCartStore.setState({
+      tenantSlug: 'vortex',
+      items: [{ productId: 'p1', name: 'Los Códigos de Lola', unitPrice: 9.99, quantity: 1 }],
+      couponCode: null,
+    })
+    renderAt('/store/vortex/cart')
+    await screen.findByText('Los Códigos de Lola')
+
+    expect(screen.queryByRole('button', { name: /increase/i })).not.toBeInTheDocument()
+    expect(screen.getByText('Digital copy')).toBeInTheDocument()
+  })
+})
