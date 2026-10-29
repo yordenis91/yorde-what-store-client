@@ -627,7 +627,7 @@
     "paypalPendingHint": "Si ya aprobaste el pago, puede tardar unos minutos. Recibirás un correo en cuanto se confirme. También puedes verificar de nuevo ahora.",
     "paypalCheckAgain": "Verificar de nuevo",
     "paypalFailed": "El pago no se completó",
-    "paypalFailedHint": "PayPal no completó el pago, así que no se te ha cobrado. Puedes intentarlo de nuevo.",
+    "paypalFailedHint": "PayPal no aceptó este método de pago, así que no se te ha cobrado. Prueba con otra tarjeta o con tu cuenta de PayPal.",
     "paypalTryAgain": "Intentar de nuevo",
     "paypalError": "No pudimos confirmar tu pago",
     "paypalErrorHint": "Algo falló al consultar a PayPal. Si se te cobró, no pagues otra vez: verifica de nuevo en un momento o contacta a la tienda."

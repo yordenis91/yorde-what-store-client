@@ -627,7 +627,7 @@
     "paypalPendingHint": "If you already approved the payment, it can take a few minutes. You will get an email as soon as it is confirmed. You can also check again now.",
     "paypalCheckAgain": "Check again",
     "paypalFailed": "The payment was not completed",
-    "paypalFailedHint": "PayPal did not complete the payment, so you have not been charged. You can try again.",
+    "paypalFailedHint": "PayPal did not accept this payment method, so you have not been charged. Try another card or your PayPal account.",
     "paypalTryAgain": "Try again",
     "paypalError": "We could not confirm your payment",
     "paypalErrorHint": "Something went wrong while checking with PayPal. If you were charged, do not pay again: check again in a moment or contact the store."
