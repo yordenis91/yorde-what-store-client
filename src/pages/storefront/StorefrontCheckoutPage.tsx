@@ -90,6 +90,12 @@ const STEP_FIELDS: Record<StepId, readonly string[]> = {
 }
 
 /** A digital store has nothing to deliver, so it skips the delivery step. */
+/**
+ * Stores whose checkout is trimmed to the bare minimum (no coupon box, no account sign-up) while we
+ * measure how many buyers abandon it. Temporary: drop the entry, or the whole list, to bring both back.
+ */
+const BARE_CHECKOUT_SLUGS = ['lola-y-su-pandilla']
+
 const stepIdsFor = (isDigital: boolean): StepId[] =>
   isDigital ? ['contact', 'payment'] : ['contact', 'delivery', 'payment']
 
@@ -111,6 +117,7 @@ export function StorefrontCheckoutPage() {
   const setCustomerSession = useCustomerStore((s) => s.setSession)
 
   const isDigital = tenant.catalogType === 'DIGITAL'
+  const bareCheckout = BARE_CHECKOUT_SLUGS.includes(slug)
   const stepIds = stepIdsFor(isDigital)
   const [step, setStep] = useState(0)
   const stepId = stepIds[step]
@@ -411,7 +418,7 @@ export function StorefrontCheckoutPage() {
                 <p className="text-xs text-gray-500">{t('storefront.contactHint')}</p>
               )}
 
-              {!loggedInCustomer && (
+              {!loggedInCustomer && !bareCheckout && (
                 <div className="rounded-lg border border-gray-200 p-3">
                   <label className="flex items-center gap-2 text-sm text-gray-700">
                     <input type="checkbox" {...register('createAccount')} />
@@ -623,31 +630,33 @@ export function StorefrontCheckoutPage() {
               ))}
             </div>
 
-            <div className="mt-4 border-t border-gray-100 pt-4">
-              <span className="mb-1 block text-sm font-medium text-gray-700">{t('storefront.coupon')}</span>
-              <div className="flex gap-2">
-                <Input
-                  value={couponInput}
-                  onChange={(e) => setCouponInput(e.target.value)}
-                  placeholder="CODE"
-                  aria-label={t('storefront.coupon')}
-                  className="min-w-0 flex-1"
-                />
-                <Button
-                  type="button"
-                  variant="secondary"
-                  disabled={!couponInput || quoting}
-                  onClick={() => setAppliedCoupon(couponInput.trim())}
-                >
-                  {t('storefront.applyCoupon')}
-                </Button>
+            {!bareCheckout && (
+              <div className="mt-4 border-t border-gray-100 pt-4">
+                <span className="mb-1 block text-sm font-medium text-gray-700">{t('storefront.coupon')}</span>
+                <div className="flex gap-2">
+                  <Input
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value)}
+                    placeholder="CODE"
+                    aria-label={t('storefront.coupon')}
+                    className="min-w-0 flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={!couponInput || quoting}
+                    onClick={() => setAppliedCoupon(couponInput.trim())}
+                  >
+                    {t('storefront.applyCoupon')}
+                  </Button>
+                </div>
+                {quote?.coupon && (
+                  <p className="mt-1 text-xs font-medium text-emerald-600">
+                    {t('storefront.couponApplied', { code: quote.coupon.code })}
+                  </p>
+                )}
               </div>
-              {quote?.coupon && (
-                <p className="mt-1 text-xs font-medium text-emerald-600">
-                  {t('storefront.couponApplied', { code: quote.coupon.code })}
-                </p>
-              )}
-            </div>
+            )}
 
             <div className="mt-4 flex flex-col gap-2 border-t border-gray-100 pt-4 text-sm">
               {quote ? (

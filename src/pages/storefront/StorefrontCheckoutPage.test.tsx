@@ -72,13 +72,14 @@ function renderCheckout() {
 vi.mock('@/hooks/useStorefront', () => ({
   useStorefront: () => ({
     tenant: currentTenant,
-    slug: 'vortex',
-    path: (sub = '') => `/store/vortex${sub}`,
+    slug: currentSlug,
+    path: (sub = '') => `/store/${currentSlug}${sub}`,
   }),
   useStorefrontTenant: () => currentTenant,
 }))
 
 let currentTenant: PublicTenant = buildTenant()
+let currentSlug = 'vortex'
 
 async function fillContactAndContinue() {
   await userEvent.type(screen.getByLabelText(/full name/i), 'Ana Pérez')
@@ -88,6 +89,7 @@ async function fillContactAndContinue() {
 }
 
 beforeEach(() => {
+  currentSlug = 'vortex'
   currentTenant = buildTenant()
   useCartStore.setState({
     tenantSlug: 'vortex',
@@ -516,6 +518,24 @@ describe('digital store', () => {
     expect(screen.queryByText(/pay securely with paypal on the next step/i)).not.toBeInTheDocument()
     await userEvent.click(screen.getByText('Pay with PayPal'))
     expect(screen.getByText(/never sees or stores your card details/i)).toBeInTheDocument()
+  })
+
+  it('keeps the coupon box and the account sign-up on an ordinary store', async () => {
+    renderCheckout()
+    await screen.findByRole('heading', { name: /contact/i })
+
+    expect(screen.getByLabelText(/coupon/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/create an account/i)).toBeInTheDocument()
+  })
+
+  it('strips the coupon box and the account sign-up from the bare-checkout stores', async () => {
+    currentSlug = 'lola-y-su-pandilla'
+    renderCheckout()
+    await screen.findByRole('heading', { name: /contact/i })
+
+    expect(screen.queryByLabelText(/coupon/i)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/create an account/i)).not.toBeInTheDocument()
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
   })
 
   it('places a PayPal order for one copy, with no shipping, and sends the buyer to PayPal', async () => {

@@ -31,4 +31,30 @@ function syncDocumentLanguage(language: string) {
 syncDocumentLanguage(i18n.language)
 i18n.on('languageChanged', syncDocumentLanguage)
 
+const LANGUAGE_CHOSEN_KEY = 'yws-language-chosen'
+
+/** Remembers that the visitor picked a language themselves, so a store's default never overrides it. */
+export function rememberLanguageChoice() {
+  try {
+    localStorage.setItem(LANGUAGE_CHOSEN_KEY, '1')
+  } catch {
+    // private mode: the store default simply applies again on the next visit
+  }
+}
+
+/**
+ * Shows a storefront in its owner's language, unless the visitor has chosen one. Without this the
+ * detector would follow the browser and a Spanish store would greet an English-set phone in English.
+ */
+export function applyTenantDefaultLanguage(locale: string | undefined) {
+  const wanted = locale?.toLowerCase().split('-')[0]
+  if (wanted !== 'en' && wanted !== 'es') return
+  try {
+    if (localStorage.getItem(LANGUAGE_CHOSEN_KEY)) return
+  } catch {
+    // unreadable storage counts as no choice made
+  }
+  if (i18n.resolvedLanguage !== wanted) void i18n.changeLanguage(wanted)
+}
+
 export default i18n
