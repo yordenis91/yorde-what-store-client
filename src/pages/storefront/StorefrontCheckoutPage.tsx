@@ -293,6 +293,7 @@ export function StorefrontCheckoutPage() {
   // older API that doesn't send it.
   const isOffered = (method: FulfillmentMethod, legacy: boolean) =>
     tenant.checkoutMethods ? tenant.checkoutMethods.includes(method) : legacy
+  const paypalOffered = isOffered('PAYPAL', false)
   const methods: { value: FulfillmentMethod; label: string; hint: string; enabled: boolean }[] = [
     {
       value: 'WHATSAPP',
@@ -429,6 +430,14 @@ export function StorefrontCheckoutPage() {
                   )}
                 </div>
               )}
+              {isDigital && paypalOffered && (
+                <p className="flex items-center gap-2 text-xs text-gray-500">
+                  <svg aria-hidden="true" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0">
+                    <path fillRule="evenodd" d="M10 1a4 4 0 00-4 4v2H5a2 2 0 00-2 2v7a2 2 0 002 2h10a2 2 0 002-2V9a2 2 0 00-2-2h-1V5a4 4 0 00-4-4zm2 6V5a2 2 0 10-4 0v2h4z" clipRule="evenodd" />
+                  </svg>
+                  {t('storefront.checkoutSecureContact')}
+                </p>
+              )}
             </div>
           )}
 
@@ -500,6 +509,15 @@ export function StorefrontCheckoutPage() {
                   </p>
                 )}
               </div>
+
+              {fulfillmentMethod === 'PAYPAL' && (
+                <p className="flex items-start gap-2 rounded-lg bg-green-50 p-3 text-sm text-green-800">
+                  <svg aria-hidden="true" viewBox="0 0 20 20" fill="currentColor" className="mt-0.5 h-4 w-4 shrink-0">
+                    <path fillRule="evenodd" d="M10 1a4 4 0 00-4 4v2H5a2 2 0 00-2 2v7a2 2 0 002 2h10a2 2 0 002-2V9a2 2 0 00-2-2h-1V5a4 4 0 00-4-4zm2 6V5a2 2 0 10-4 0v2h4z" clipRule="evenodd" />
+                  </svg>
+                  {t('storefront.checkoutSecurePayPal')}
+                </p>
+              )}
 
               {fulfillmentMethod === 'ZELLE' && tenant.zellePaymentInfo && (
                 <div className="rounded-lg border border-brand-200 bg-brand-50 p-4 text-sm">

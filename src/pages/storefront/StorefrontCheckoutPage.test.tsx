@@ -503,6 +503,21 @@ describe('digital store', () => {
     expect(screen.queryByText(/whatsapp/i)).not.toBeInTheDocument()
   })
 
+  it('tells a digital buyer up front that they will pay securely with PayPal, and repeats it on the payment step', async () => {
+    renderCheckout()
+    await screen.findByRole('heading', { name: /contact/i })
+    expect(screen.getByText(/pay securely with paypal on the next step/i)).toBeInTheDocument()
+
+    await fillName()
+    await userEvent.type(screen.getByLabelText(/email/i), 'bea@example.com')
+    await userEvent.click(screen.getAllByRole('button', { name: /continue/i })[0])
+    await screen.findByRole('heading', { name: /payment/i })
+
+    expect(screen.queryByText(/pay securely with paypal on the next step/i)).not.toBeInTheDocument()
+    await userEvent.click(screen.getByText('Pay with PayPal'))
+    expect(screen.getByText(/never sees or stores your card details/i)).toBeInTheDocument()
+  })
+
   it('places a PayPal order for one copy, with no shipping, and sends the buyer to PayPal', async () => {
     const assign = vi.fn()
     Object.defineProperty(window, 'location', { configurable: true, value: { ...window.location, origin: 'http://localhost', set href(v: string) { assign(v) } } })
