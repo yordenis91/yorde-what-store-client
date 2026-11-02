@@ -7,7 +7,6 @@ import { getPublicStorefront } from '@/services/tenants.service'
 import { setStorefrontTenant } from '@/services/api-client'
 import { TENANT_SLUG_FROM_HOST, storefrontPath } from '@/config/storefront'
 import { applyStorefrontTheme, clearStorefrontTheme } from '@/config/themes'
-import { applyTenantDefaultLanguage } from '@/i18n'
 import { useCartStore } from '@/store/cart.store'
 import { useBootstrapCustomerAuth } from '@/hooks/useBootstrapCustomerAuth'
 import { useVisitTracking } from '@/hooks/useVisitTracking'
@@ -79,10 +78,6 @@ export function PublicLayout() {
     applyStorefrontTheme(tenant?.theme)
     return clearStorefrontTheme
   }, [tenant?.theme])
-
-  useEffect(() => {
-    applyTenantDefaultLanguage(tenant?.locale)
-  }, [tenant?.locale])
 
   const path = useCallback((subpath = '') => storefrontPath(slug, subpath), [slug])
 
