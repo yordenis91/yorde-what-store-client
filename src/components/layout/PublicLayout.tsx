@@ -97,6 +97,8 @@ export function PublicLayout() {
 
   const stripSlash = (value: string) => value.replace(/\/+$/, '')
   const isHome = stripSlash(location.pathname) === stripSlash(path())
+  // On mobile these pages pin an action bar to the bottom edge, which would cover the footer.
+  const hasBottomBar = /\/(checkout|cart|product\/[^/]+)\/?$/.test(location.pathname)
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
@@ -114,7 +116,11 @@ export function PublicLayout() {
         <Outlet context={{ tenant, slug, path } satisfies StorefrontContext} />
       </main>
 
-      <footer className="mt-8 border-t border-gray-200 bg-gray-50/60 py-8 text-center text-sm text-gray-500">
+      <footer
+        className={`mt-8 border-t border-gray-200 bg-gray-50/60 pt-8 text-center text-sm text-gray-500 ${
+          hasBottomBar ? 'pb-24 lg:pb-8' : 'pb-8'
+        }`}
+      >
         <p className="font-medium text-gray-700">{tenant.name}</p>
         <p className="mt-1">
           © {new Date().getFullYear()} — {t('footer.rights')}
